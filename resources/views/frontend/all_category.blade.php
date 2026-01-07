@@ -21,8 +21,7 @@
             background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?w=1200');
             background-size: cover;
             background-position: center;
-            opacity: 0.15;
-        }
+         }
 
         .categories-hero-content {
             position: relative;
@@ -114,9 +113,9 @@
         .icon-badge {
             position: absolute;
             top: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
+            left: 15px;
+            width: 38px;
+            height: 38px;
             background: white;
             border-radius: 50%;
             display: flex;
@@ -132,7 +131,7 @@
         }
 
         .icon-badge i {
-            font-size: 24px;
+            font-size: 16px;
             color: #3b82f6;
         }
 
@@ -272,7 +271,7 @@
                             class="card-img-top" style="object-fit:cover;" alt="{{ $category->name }}">
 
                         <div class="icon-badge">
-                            <i class="las la-tag"></i>
+                            <i class="fas fa-shopping-basket"></i>
                         </div>
 
                         <div class="category-content">
