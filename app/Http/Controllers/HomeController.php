@@ -57,7 +57,7 @@ class HomeController extends Controller
         $hot_categories = Cache::rememberForever('hot_categories', function () {
             return Category::with('bannerImage')->where('hot_category', '1')->get();
         });
-
+          Category::get();
         return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories','hot_categories', 'lang'));
     }
 

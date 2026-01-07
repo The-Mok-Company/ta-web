@@ -121,7 +121,7 @@
                                 <div class="category-card">
                                     <img src="{{ uploaded_asset($category->banner) }}" alt="">
 
-                                    <div class="overlay">
+                                    <div class="overlay" style="background:transparent;">
                                         <h5>{{ $category->getTranslation('name') }}</h5>
                                         <p>{{ $category->products_count ?? 0 }} Products</p>
                                     </div>
