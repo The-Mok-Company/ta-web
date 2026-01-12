@@ -1,4 +1,5 @@
 @extends('frontend.layouts.app')
+
 @php
     $form_all_preorder_page = session('preorder_all_page');
     session()->forget('preorder_all_page');
@@ -30,186 +31,933 @@
 @section('meta_keywords'){{ $meta_keywords ?? '' }}@stop
 
 @section('meta')
-    <!-- Schema.org markup for Google+ -->
     <meta itemprop="name" content="{{ $meta_title }}">
     <meta itemprop="description" content="{{ $meta_description }}">
-
-    <!-- Twitter Card data -->
     <meta name="twitter:title" content="{{ $meta_title }}">
     <meta name="twitter:description" content="{{ $meta_description }}">
-
-    <!-- Open Graph data -->
     <meta property="og:title" content="{{ $meta_title }}" />
     <meta property="og:description" content="{{ $meta_description }}" />
 @endsection
 
 @section('content')
+    <style>
+        /* Hero Header with Background Image */
+        .hero-header {
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 0;
+            padding: 60px 0;
+        }
 
-    <section class="mb-1">
-        <div class="container sm-px-0 pt-1">
-            <form class="" id="search-form" action="" method="GET">
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .back-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .back-arrow:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .hero-title-small {
+            color: rgba(46, 136, 214, 1);
+            font-size: 50px;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
+        }
+
+        .hero-title-large {
+            color: #fff;
+            font-size: 50px;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            background: #f8f9fa;
+            padding: 30px 0;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling - NEW DESIGN */
+        .sidebar-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* =======================
+                           CATEGORY SIDEBAR (LIKE IMAGE)
+                        ======================= */
+
+        .category-list {
+            list-style: none;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .category-item {
+            margin-bottom: 6px;
+        }
+
+        /* Base link */
+        .category-item-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            font-size: 15px;
+            color: #6b7280;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        /* Hover */
+        .category-item-link:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        /* Active parent */
+        .category-item.active>.category-item-link,
+        .category-item.parent-active>.category-item-link {
+            background: #2f80ed;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        /* Arrow */
+        .category-toggle {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+            color: inherit;
+        }
+
+        .category-item.expanded .category-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* =======================
+                           CHILDREN
+                        ======================= */
+
+        .category-children {
+            list-style: none;
+            padding-left: 16px;
+            margin-top: 6px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .category-item.expanded>.category-children {
+            max-height: 2000px;
+        }
+
+        /* Child item */
+        .category-children .category-item-link {
+            font-size: 14px;
+            padding: 10px 16px;
+            margin-left: 12px;
+        }
+
+        /* Active child */
+        .category-children .category-item.active>.category-item-link {
+            background: #2f80ed;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        /* =======================
+                           SUB CHILD
+                        ======================= */
+
+        .category-children .category-children {
+            padding-left: 12px;
+        }
+
+        .category-children .category-children .category-item-link {
+            font-size: 13px;
+            padding: 9px 14px;
+            margin-left: 20px;
+        }
+
+
+        /* All Categories special styling */
+        .all-categories-item {
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+        }
+
+        .all-categories-item .category-item-link {
+            color: #374151;
+            font-weight: 400;
+        }
+
+        .all-categories-item:hover .category-item-link {
+            background: transparent;
+            color: #111827;
+        }
+
+        /* Product Grid Container */
+        .products-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-modern {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 25px;
+            padding: 0;
+            background: transparent;
+            list-style: none;
+        }
+
+        .breadcrumb-modern a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb-modern a:hover {
+            color: #007bff;
+        }
+
+        .breadcrumb-modern .active {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .breadcrumb-separator {
+            color: #dee2e6;
+        }
+
+        /* Page Title Section */
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 15px;
+        }
+
+        .page-description {
+            color: #6c757d;
+            line-height: 1.7;
+            font-size: 14px;
+            margin-bottom: 30px;
+            max-width: 900px;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-add-inquiry {
+            background: #007bff;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add-inquiry:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sort-dropdown {
+            padding: 10px 18px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #495057;
+            cursor: pointer;
+            background: #fff;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+
+        .sort-dropdown:hover,
+        .sort-dropdown:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .view-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .view-btn .grid-dot {
+            width: 4px;
+            height: 4px;
+            background: #6c757d;
+            border-radius: 1px;
+        }
+
+        .view-btn.active .grid-dot {
+            background: #007bff;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid #e9ecef;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: #dee2e6;
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            padding-top: 75%;
+            /* 4:3 aspect ratio */
+        }
+
+        .product-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
+
+        .product-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 12px;
+        }
+
+        .product-description {
+            font-size: 13px;
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .btn-product {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-product-dark {
+            background: #212529;
+            color: #fff;
+        }
+
+        .btn-product-dark:hover {
+            background: #000;
+            transform: translateY(-1px);
+        }
+
+        .btn-product-primary {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .btn-product-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .icon-btn-dark {
+            background: #212529;
+            color: #fff;
+        }
+
+        .icon-btn-primary {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Results Count */
+        .results-info {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        /* Filter Sections */
+        .filter-section-wrapper {
+            background: #fff;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .filter-section-header {
+            padding: 18px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .filter-section-header:hover {
+            background: #fafafa;
+        }
+
+        .filter-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        .filter-section-content {
+            padding: 0 24px 20px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .filter-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .filter-checkbox label {
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* Pagination */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-header {
+                min-height: 220px;
+                padding: 40px 0;
+            }
+
+            .hero-title-small {
+                font-size: 18px;
+            }
+
+            .hero-title-large {
+                font-size: 36px;
+            }
+
+            .products-container {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .sort-dropdown {
+                width: 100%;
+            }
+        }
+
+        /* Product Type Tabs */
+        .product-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .tab-badge {
+            padding: 10px 24px;
+            border: 2px dashed #dee2e6;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .tab-badge.active {
+            background: #212529;
+            color: #fff;
+            border-color: #212529;
+            border-style: solid;
+        }
+
+        .tab-badge:hover:not(.active) {
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        /* Price Range Slider */
+        .price-range-wrapper {
+            padding: 20px;
+        }
+
+        .price-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .price-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .empty-state-text {
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+
+    <!-- Hero Header -->
+    @php
+        $banner = App\Models\Category::where('id', $category_id)->get()->first()->banner;
+    @endphp
+
+
+    <section class="hero-header"
+        style="
+        background:
+        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+        url('{{ uploaded_asset($banner) ?? asset('images/default-hero.jpg') }}')
+        center / cover;
+    ">
+
+        <div class="hero-content">
+            <a href="{{ route('home') }}" class="back-arrow">
+                <i class="las la-arrow-left"></i>
+            </a>
+            <h1 class="hero-title-small">Explore</h1>
+            <h2 class="hero-title-large">
+                @if (isset($category_id))
+                    {{ $category_search->getTranslation('name') }}
+                @elseif (isset($brand_id))
+                    {{ $brand_name }}
+                @else
+                    Frozen Food
+                @endif
+            </h2>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="main-content">
+        <div class="container">
+            <form id="search-form" method="GET">
                 <div class="row">
+                    <!-- Sidebar -->
+                    <div class="col-lg-3 mb-4">
+                        <div class="sidebar-wrapper">
+                            <!-- Mobile Filter Toggle -->
+                            <div class="d-lg-none">
+                                <button type="button" class="btn btn-block btn-light mb-3" data-toggle="collapse"
+                                    data-target="#filterSidebar">
+                                    <i class="las la-filter"></i> {{ translate('Show Filters') }}
+                                </button>
+                            </div>
 
-                    <!-- Sidebar Filters -->
-                    <div class="col-xl-3">
-                        <div class="aiz-filter-sidebar collapse-sidebar-wrap sidebar-xl sidebar-right z-1035">
-                            <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle"
-                                data-target=".aiz-filter-sidebar" data-same=".filter-sidebar-thumb"></div>
-                            <div class="collapse-sidebar scroll-bar-show c-scrollbar-light text-left">
-                                <div class="d-flex d-xl-none justify-content-between align-items-center pl-3 border-bottom">
-                                    <h3 class="h6 mb-0 fw-600">{{ translate('Filters') }}</h3>
-                                    <button type="button" class="btn btn-sm p-2 filter-sidebar-thumb"
-                                        data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
-                                        <i class="las la-times la-2x"></i>
-                                    </button>
+                            <div id="filterSidebar" class="collapse d-lg-block">
+                                <!-- Categories -->
+                                <div class="sidebar-header">
+                                    <h3 class="sidebar-title">{{ translate('CATEGORIES') }}</h3>
                                 </div>
 
-                                <!-- Categories -->
-                                <div class="bg-white border-bottom-listing-sidebar">
-                                    <div class="fs-16 fw-700 p-3">
-                                        <a href="#collapse_1"
-                                            class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between"
-                                            data-toggle="collapse">
+                                <div class="display-none" id="general_cagegories_box">
+                                    <ul class="category-list" id="category_filter">
+                                        <!-- All Categories -->
+                                        <li class="category-item all-categories-item">
+                                            <a href="{{ route('search') }}" class="category-item-link">
+                                                <span class="category-name">{{ translate('All Categories') }}</span>
+                                            </a>
+                                        </li>
 
-                                            {{ translate('Categories') }}
-                                        </a>
-                                    </div>
-                                    <div class="collapse show" id="collapse_1">
-                                        <!-- Product Category -->
-                                        <div class="">
-                                            <div class=" @if ($errors->has('category_ids') || $errors->has('category_id')) border border-danger @endif">
-                                                @php
-                                                    if ($category_id) {
-                                                        $old_categories = [$category_id];
-                                                    } else {
-                                                        $old_categories = [];
-                                                    }
-                                                @endphp
-                                                {{-- general category list  --}}
-                                                <div class="px-20px pb-10px display-none" id="general_cagegories_box">
-                                                    <div id="category_filter" class="h-300px overflow-auto no-scrollbar">
-                                                        <ul class="hummingbird-treeview-converter2 list-unstyled"
-                                                            data-checkbox-name="categories[]">
-                                                            @foreach ($categories as $category)
-                                                                {{-- @if ($category->products_count > 0) --}}
-                                                                <li d-item="{{ $category->products_count }}"
-                                                                    id="generel_{{ $category->id }}">
-                                                                    {{ $category->getTranslation('name') }}
-                                                                    @if ($category->products_count > 0)
-                                                                        {{ '   (' . $category->products_count . ')' }}
+                                        @foreach ($categories as $category)
+                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
+                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
+                                                    data-id="{{ $category->id }}">
+                                                    <div class="category-item-link"
+                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
+                                                        <span
+                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
+                                                        @if (count($category->childrenCategories) > 0)
+                                                            <i class="las la-angle-down category-toggle"></i>
+                                                        @endif
+                                                    </div>
+
+                                                    @if (count($category->childrenCategories) > 0)
+                                                        <ul class="category-children">
+                                                            @foreach ($category->childrenCategories as $childCategory)
+                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
+                                                                    data-id="{{ $childCategory->id }}">
+                                                                    <div class="category-item-link"
+                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
+                                                                        <span
+                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
+                                                                        @if (count($childCategory->childrenCategories) > 0)
+                                                                            <i
+                                                                                class="las la-angle-down category-toggle"></i>
+                                                                        @endif
+                                                                    </div>
+
+                                                                    @if (count($childCategory->childrenCategories) > 0)
+                                                                        <ul class="category-children">
+                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
+                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
+                                                                                    data-id="{{ $subChildCategory->id }}">
+                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
+                                                                                        class="category-item-link">
+                                                                                        <span
+                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            @endforeach
+                                                                        </ul>
                                                                     @endif
                                                                 </li>
-                                                                {{-- @endif --}}
-                                                                @foreach ($category->childrenCategories as $childCategory)
-                                                                    @include(
-                                                                        'frontend.product_listing_page_child_category',
-                                                                        ['child_category' => $childCategory]
-                                                                    )
-                                                                @endforeach
                                                             @endforeach
                                                         </ul>
-                                                    </div>
-                                                </div>
-
-                                                {{-- preorder category list  --}}
-                                                <div class="px-20px pb-10px display-none" id="preorder_cagegories_box">
-                                                    <div id="category_filter_preorder"
-                                                        class="h-300px overflow-auto no-scrollbar">
-                                                        <ul class="hummingbird-treeview-converter2 list-unstyled"
-                                                            data-checkbox-name="categories_preorder[]">
-                                                            @foreach ($preorder_categories as $category)
-                                                                @if ($category->products_count > 0)
-                                                                    <li d-item="{{ $category->products_count }}"
-                                                                        id="preorder_{{ $category->id }}">
-                                                                        {{ $category->getTranslation('name') }}{{ '   (' . $category->products_count . ')' }}
-                                                                    </li>
-                                                                @endif
-                                                                @foreach ($category->childrenCategories as $childCategory)
-                                                                    @include(
-                                                                        'frontend.product_listing_page_child_category_preorder',
-                                                                        ['child_category' => $childCategory]
-                                                                    )
-                                                                @endforeach
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                    @endif
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
                                 </div>
 
+                                <div class="display-none" id="preorder_cagegories_box">
+                                    <ul class="category-list" id="category_filter_preorder">
+                                        <!-- All Categories -->
+                                        <li class="category-item all-categories-item">
+                                            <a href="{{ route('search') }}" class="category-item-link">
+                                                <span class="category-name">{{ translate('All Categories') }}</span>
+                                            </a>
+                                        </li>
 
+                                        @foreach ($preorder_categories as $category)
+                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
+                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
+                                                    data-id="{{ $category->id }}">
+                                                    <div class="category-item-link"
+                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
+                                                        <span
+                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
+                                                        @if (count($category->childrenCategories) > 0)
+                                                            <i class="las la-angle-down category-toggle"></i>
+                                                        @endif
+                                                    </div>
 
-                                <!-- Price range -->
-                                <div class="bg-white border-bottom-listing-sidebar">
-                                    <div class="fs-16 fw-700 p-3">
-                                        <a href="#collapse_price"
-                                            class="dropdown-toggle collapsed filter-section text-dark d-flex align-items-center justify-content-between"
-                                            data-toggle="collapse" data-target="#collapse_price">
-                                            {{ translate('Price range') }}
-                                        </a>
+                                                    @if (count($category->childrenCategories) > 0)
+                                                        <ul class="category-children">
+                                                            @foreach ($category->childrenCategories as $childCategory)
+                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
+                                                                    data-id="{{ $childCategory->id }}">
+                                                                    <div class="category-item-link"
+                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
+                                                                        <span
+                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
+                                                                        @if (count($childCategory->childrenCategories) > 0)
+                                                                            <i
+                                                                                class="las la-angle-down category-toggle"></i>
+                                                                        @endif
+                                                                    </div>
+
+                                                                    @if (count($childCategory->childrenCategories) > 0)
+                                                                        <ul class="category-children">
+                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
+                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
+                                                                                    data-id="{{ $subChildCategory->id }}">
+                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
+                                                                                        class="category-item-link">
+                                                                                        <span
+                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    @endif
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </div>
+
+                                <!-- Price Range Filter -->
+                                <div class="filter-section-wrapper">
+                                    <div class="filter-section-header" data-toggle="collapse" data-target="#priceFilter">
+                                        <h4 class="filter-section-title">{{ translate('Price range') }}</h4>
+                                        <i class="las la-angle-down"></i>
                                     </div>
-                                    <div class="collapse" id="collapse_price">
-                                        <div class="px16px py22px hover-effect">
+                                    <div id="priceFilter" class="collapse">
+                                        <div class="price-range-wrapper">
                                             @php
                                                 $product_count = get_products_count();
                                             @endphp
-
                                             <div class="aiz-range-slider">
-
-
-                                                <div id="input-slider-range"
-                                                    data-range-value-min="@if (true) 0 @else {{ get_product_min_unit_price() }} @endif"
+                                                <div id="input-slider-range" data-range-value-min="0"
                                                     data-range-value-max="@if ($product_count < 1) 0 @else {{ get_product_max_unit_price() }} @endif">
-                                                    <div
-                                                        style="width: 4px; height: 16px; background-color: #DFDFE6; position: absolute; top: -7px; left: -1px;  ">
-                                                    </div>
-                                                    <div
-                                                        style="width: 4px; height: 16px; background-color: #DFDFE6; position: absolute; top: -7px; right: -1px;  ">
-                                                    </div>
                                                 </div>
-
-                                                <div class="row mt-2">
-                                                    <div class="col-6">
-                                                        <span class="range-slider-value value-low fs-14 fw-600 opacity-70"
-                                                            {{-- @if (isset($min_price)) data-range-value-low="{{ $min_price }}"
-                                                            @elseif($products->min('unit_price') > 0)
-                                                                data-range-value-low="{{ $products->min('unit_price') }}"
-                                                            @else --}} data-range-value-low="0"
-                                                            {{-- @endif --}} id="input-slider-range-value-low">0</span>
-                                                    </div>
-                                                    <div class="col-6 text-right">
-                                                        <span class="range-slider-value value-high fs-14 fw-600 opacity-70"
-                                                            {{-- @if (isset($max_price)) data-range-value-high="{{ $max_price }}"
-                                                            @elseif($products->max('unit_price') > 0)
-                                                                data-range-value-high="{{ $products->max('unit_price') }}"
-                                                            @else --}}
-                                                            data-range-value-high="{{ get_product_max_unit_price() / 2 }}"
-                                                            {{-- @endif --}} id="input-slider-range-value-high"></span>
-                                                    </div>
+                                                <div class="price-values">
+                                                    <span class="price-value" id="input-slider-range-value-low">0</span>
+                                                    <span class="price-value" id="input-slider-range-value-high"></span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- Hidden Items -->
                                         <input type="hidden" name="min_price" value="">
                                         <input type="hidden" name="max_price" value="">
                                     </div>
                                 </div>
 
-
-                                <!-- Attributes -->
+                                <!-- Attribute Filters -->
                                 @foreach ($attributes as $attribute)
                                     @if ($attribute->product_count > 0)
-                                        <div class="bg-white preorder-time-hide border-bottom-listing-sidebar">
-                                            <div class="fs-16 fw-700 p-3">
-                                                <a href="#"
-                                                    class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
-                                                    data-toggle="collapse"
-                                                    data-target="#collapse_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}"
-                                                    style="white-space: normal;">
-                                                    {{ $attribute->getTranslation('name') }}
-                                                </a>
+                                        <div class="filter-section-wrapper preorder-time-hide">
+                                            <div class="filter-section-header" data-toggle="collapse"
+                                                data-target="#filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}">
+                                                <h4 class="filter-section-title">{{ $attribute->getTranslation('name') }}
+                                                </h4>
+                                                <i class="las la-angle-down"></i>
                                             </div>
                                             @php
                                                 $show = '';
@@ -219,48 +967,35 @@
                                                     }
                                                 }
                                             @endphp
-                                            <div class="collapse {{ $show }}"
-                                                id="collapse_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}">
-                                                <div class="px-3 aiz-checkbox-list">
-                                                    @foreach ($attribute->attribute_values as $attribute_value)
-                                                        @if ($attribute_value->product_count > 0)
-                                                            <label class="aiz-checkbox mb-3 d-flex align-items-center ">
-                                                                <input type="checkbox" name="selected_attribute_values[]"
-                                                                    value="{{ $attribute_value->value }}"
-                                                                    @if (in_array($attribute_value->value, $selected_attribute_values)) checked @endif
-                                                                    onchange="filter(event)">
-                                                                <span class="aiz-square-check border_black"></span>
-                                                                <span
-                                                                    class="fs-14 fw-400 text-dark hover-effect-list-item  @if (in_array($attribute_value->value, $selected_attribute_values)) fw-bold @endif">{{ $attribute_value->value }}
-                                                                    {{ '(' . $attribute_value->product_count . ')' }}</span>
+                                            <div id="filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}"
+                                                class="collapse {{ $show }} filter-section-content">
+                                                @foreach ($attribute->attribute_values as $attribute_value)
+                                                    @if ($attribute_value->product_count > 0)
+                                                        <div class="filter-checkbox">
+                                                            <input type="checkbox" name="selected_attribute_values[]"
+                                                                value="{{ $attribute_value->value }}"
+                                                                id="attr_{{ $attribute_value->id }}"
+                                                                @if (in_array($attribute_value->value, $selected_attribute_values)) checked @endif
+                                                                onchange="filter(event)">
+                                                            <label for="attr_{{ $attribute_value->id }}">
+                                                                {{ $attribute_value->value }}
+                                                                ({{ $attribute_value->product_count }})
                                                             </label>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button type="button"
-                                                        class="btn btn-link p-0 m-0 mb-3 font-weight-bold see_more_toggle_btn">
-                                                        See More <i class="las la-angle-down fs-12 fw-600 "></i></button>
-                                                </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button type="button"
-                                                        class="btn btn-link p-0 m-0 mb-3 font-weight-bold less_toggle_btn">See
-                                                        Less <i class="las la-angle-up fs-12 fw-600 "></i></button>
-                                                </div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
                                             </div>
                                         </div>
                                     @endif
                                 @endforeach
 
-                                <!-- Color -->
+                                <!-- Color Filter -->
                                 @if (get_setting('color_filter_activation'))
-                                    <div class="bg-white  mb-3 preorder-time-hide">
-                                        <div class="fs-16 fw-700 p-3">
-                                            <a href="#"
-                                                class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
-                                                data-toggle="collapse" data-target="#collapse_color">
-                                                {{ translate('Filter by color') }}
-                                            </a>
+                                    <div class="filter-section-wrapper preorder-time-hide">
+                                        <div class="filter-section-header" data-toggle="collapse"
+                                            data-target="#colorFilter">
+                                            <h4 class="filter-section-title">{{ translate('Filter by color') }}</h4>
+                                            <i class="las la-angle-down"></i>
                                         </div>
                                         @php
                                             $show = '';
@@ -270,233 +1005,138 @@
                                                 }
                                             }
                                         @endphp
-                                        <div class="collapse {{ $show }}" id="collapse_color">
-                                            <div class="px-3 aiz-checkbox-list">
-                                                @foreach ($colors as $key => $color)
-                                                    @if ($color->product_count > 0)
-                                                        <label class="aiz-checkbox mb-3 d-flex align-items-center ">
-                                                            <input type="checkbox" name="colors[]"
-                                                                value="{{ $color->code }}"
-                                                                @if (isset($selected_color) && $selected_color == $color->code) checked @endif
-                                                                onchange="filter(event)">
-                                                            <span class="aiz-square-check border_black"></span>
-                                                            <div class="d-flex">
-
-                                                                <div
-                                                                    style="width: 20px; height: 20px; background-color: {{ $color->code }};border-radius: 50%; margin-right: 10px;">
-                                                                </div>
-                                                                <span
-                                                                    class="fs-14 text-dark hover-effect-list-item">{{ $color->name }}
-                                                                    {{ '(' . $color->product_count . ')' }}
-                                                                </span>
-                                                            </div>
+                                        <div id="colorFilter"
+                                            class="collapse {{ $show }} filter-section-content">
+                                            @foreach ($colors as $key => $color)
+                                                @if ($color->product_count > 0)
+                                                    <div class="filter-checkbox">
+                                                        <input type="checkbox" name="colors[]"
+                                                            value="{{ $color->code }}" id="color_{{ $color->id }}"
+                                                            @if (isset($selected_color) && $selected_color == $color->code) checked @endif
+                                                            onchange="filter(event)">
+                                                        <label for="color_{{ $color->id }}"
+                                                            class="d-flex align-items-center">
+                                                            <span
+                                                                style="width: 20px; height: 20px; background-color: {{ $color->code }}; border-radius: 50%; margin-right: 8px; display: inline-block;"></span>
+                                                            {{ $color->name }} ({{ $color->product_count }})
                                                         </label>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button type="button"
-                                                    class="btn btn-link p-0 m-0 mb-3 font-weight-bold see_more_toggle_btn">
-                                                    See More <i class="las la-angle-down fs-12 fw-600 "></i></button>
-                                            </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button type="button"
-                                                    class="btn btn-link p-0 m-0 mb-3 font-weight-bold less_toggle_btn">See
-                                                    Less <i class="las la-angle-up fs-12 fw-600 "></i></button>
-                                            </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
                                         </div>
                                     </div>
                                 @endif
 
-                                <!-- Attributes for preorder product -->
-                                <div
-                                    class="bg-white  mb-3 mt-3 preorder-time-show display-none border-bottom-listing-sidebar">
-                                    <div class="fs-16 fw-700 p-3">
-                                        <a href="#"
-                                            class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
-                                            data-toggle="collapse" data-target="#collapse_availability_filter"
-                                            style="white-space: normal;">
-                                            {{ translate('Filter by Availability') }}
-                                        </a>
+                                <!-- Availability Filter (for preorder) -->
+                                <div class="filter-section-wrapper preorder-time-show display-none">
+                                    <div class="filter-section-header" data-toggle="collapse"
+                                        data-target="#availabilityFilter">
+                                        <h4 class="filter-section-title">{{ translate('Filter by Availability') }}</h4>
+                                        <i class="las la-angle-down"></i>
                                     </div>
                                     @php
                                         $show = $is_available !== null ? 'show' : '';
                                     @endphp
-                                    <div class="collapse {{ $show }}" id="collapse_availability_filter">
-                                        <div class="p-3 aiz-checkbox-list">
-                                            <label class="aiz-checkbox mb-3">
-                                                <input type="radio" name="is_available" value="1"
-                                                    @if ($is_available == 1) checked @endif
-                                                    onchange="filter(event)">
-                                                <span class="aiz-square-check border_black"
-                                                    style="--primary: var(--black-50);"></span>
-                                                <span
-                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('Available Now') }}</span>
-                                            </label>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input type="radio" name="is_available" value="0"
-                                                    @if ($is_available === '0') checked @endif
-                                                    onchange="filter(event)">
-                                                <span class="aiz-square-check border_black"></span>
-                                                <span
-                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('Upcoming') }}</span>
-                                            </label>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input type="radio" name="is_available" value=""
-                                                    @if ($is_available === null) checked @endif
-                                                    onchange="filter(event)">
-                                                <span class="aiz-square-check border_black"></span>
-                                                <span
-                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('All') }}</span>
-                                            </label>
+                                    <div id="availabilityFilter"
+                                        class="collapse {{ $show }} filter-section-content">
+                                        <div class="filter-checkbox">
+                                            <input type="radio" name="is_available" value="1" id="available_now"
+                                                @if ($is_available == 1) checked @endif onchange="filter(event)">
+                                            <label for="available_now">{{ translate('Available Now') }}</label>
+                                        </div>
+                                        <div class="filter-checkbox">
+                                            <input type="radio" name="is_available" value="0" id="upcoming"
+                                                @if ($is_available === '0') checked @endif
+                                                onchange="filter(event)">
+                                            <label for="upcoming">{{ translate('Upcoming') }}</label>
+                                        </div>
+                                        <div class="filter-checkbox">
+                                            <input type="radio" name="is_available" value=""
+                                                id="all_availability" @if ($is_available === null) checked @endif
+                                                onchange="filter(event)">
+                                            <label for="all_availability">{{ translate('All') }}</label>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contents -->
-                    <div class="col-xl-9">
+                    <!-- Products Section -->
+                    <div class="col-lg-9">
+                        <!-- Product Type Tabs -->
                         @if (addon_is_activated('preorder') && Route::currentRouteName() == 'search')
-                            <div class="product-tab mt-2">
-                                @php
-                                    $activeClasses = 'bg-soft-dark text-white';
-                                    $inActiveClasses = 'preorder-border-dashed  text-muted  fw-600';
-                                @endphp
-                                <div class="p-0 aiz-radio-inline">
-                                    <label class="aiz-megabox pl-0 mr-2 " data-toggle="tooltip"
-                                        data-title="{{ translate('General Products') }}">
-                                        <input type="radio" name="product_type" value="general_product"
-                                            onchange="filter(event)">
-                                        <span id="product_type_badge_general"
-                                            class="badge badge-inline fs-12 p-3 rounded-3 preorder-border-dashed my-2 text-muted  fw-600">
-                                            {{ translate('General Products') }}
-                                            <span class="badge badge-inline bg-soft-dark fs-12  p-1 rounded-3 text-white"
-                                                style="background: {{ translate('General Products') }};"></span>
-                                        </span>
-                                    </label>
-                                    <label class="aiz-megabox pl-0 " data-toggle="tooltip"
-                                        data-title="{{ translate('Preorder Products') }}">
-                                        <input type="radio" name="product_type" value="preorder_product"
-                                            onchange="filter(event)">
-                                        <span id="product_type_badge_preorder"
-                                            class="badge badge-inline fs-12 p-3 rounded-3  preorder-border-dashed my-2 text-muted  fw-600">
-                                            {{ translate('Preorder Products') }}
-                                            <span
-                                                class="badge badge-inline bg-soft-dark fs-12  my-2 p-1 rounded-3 text-white"
-                                                style="background: {{ translate('Preorder Products') }};"></span>
-                                        </span>
-                                    </label>
-                                </div>
+                            <div class="product-type-tabs">
+                                <label class="mb-0">
+                                    <input type="radio" name="product_type" value="general_product"
+                                        onchange="filter(event)" style="display: none;">
+                                    <span id="product_type_badge_general" class="tab-badge">
+                                        {{ translate('General Products') }}
+                                    </span>
+                                </label>
+                                <label class="mb-0">
+                                    <input type="radio" name="product_type" value="preorder_product"
+                                        onchange="filter(event)" style="display: none;">
+                                    <span id="product_type_badge_preorder" class="tab-badge">
+                                        {{ translate('Preorder Products') }}
+                                    </span>
+                                </label>
                             </div>
                         @endif
-                        <!-- Breadcrumb -->
-                        <ul class="breadcrumb mb-0 bg-transparent py-0 px-0 mt-2 d-flex align-items-center">
-                            <li class=" has-transition opacity-50 hov-opacity-100">
-                                <a class="text-reset" href="{{ route('home') }}">{{ translate('Home') }}</a>
-                            </li>
-                            @if (!isset($category_id) && !isset($brand_id))
-                                <i class="las la-angle-right fs-12 fw-600"></i>
-                                <li class=" fw-700  text-dark fs-12">
-                                    "{{ translate('All Categories') }}"
-                                </li>
-                            @else
-                                <i class="las la-angle-right fs-12 fw-600 show_cat1 d-none"></i>
-                                <li class=" fw-700  text-dark fs-12 show_cat1 d-none">
-                                    "{{ translate('All Categories') }}"
-                                </li>
 
-                                @if (!isset($brand_id))
-                                    <i class="las la-angle-right fs-12 fw-600 hide_cat1"></i>
-                                    <li class=" opacity-50 hov-opacity-100 fs-12 hide_cat1">
-                                        <a class="text-reset"
-                                            href="{{ route('search') }}">{{ translate('All Categories') }}</a>
-                                    </li>
+                        <div class="products-container">
+                            <!-- Breadcrumb -->
+                            <ul class="breadcrumb-modern">
+                                <li><a href="{{ route('home') }}">{{ translate('Home') }}</a></li>
+                                <span class="breadcrumb-separator">/</span>
+                                @if (!isset($category_id) && !isset($brand_id))
+                                    <li class="active">"{{ translate('All Categories') }}"</li>
+                                @else
+                                    <li class="show_cat1 d-none active">"{{ translate('All Categories') }}"</li>
+                                    @if (!isset($brand_id))
+                                        <li class="hide_cat1">
+                                            <a href="{{ route('search') }}">{{ translate('All Categories') }}</a>
+                                        </li>
+                                        <span class="hide_cat1 breadcrumb-separator">/</span>
+                                    @endif
                                 @endif
-                            @endif
-                            @if (isset($brand_id))
-                                <i class="las la-angle-right fs-12 fw-600 hide_cat1 "></i>
-                                <li class=" fw-700  text-dark opacity-50 hov-opacity-100 fs-12 hide_cat1">
-                                    {{ translate('Brand') }}
-                                </li>
+                                @if (isset($brand_id))
+                                    <li class="hide_cat1">{{ translate('Brand') }}</li>
+                                    <span class="hide_cat1 breadcrumb-separator">/</span>
+                                    <li class="hide_cat1 active">"{{ $brand_name }}"</li>
+                                @endif
+                                @if (isset($category_id))
+                                    <li class="hide_cat1 active">"{{ $category_search->getTranslation('name') }}"</li>
+                                @endif
+                            </ul>
 
-                                <i class="las la-angle-right fs-12 fw-600 hide_cat1"></i>
-                                <li class=" fw-700  text-dark  fs-12 hide_cat1">
-                                    "{{ $brand_name }}"
-                                </li>
-                            @endif
+                            <!-- Page Title -->
+                            <h1 class="page-title">
+                                @if (isset($category_id))
+                                    {{ $category_search->getTranslation('name') }}
+                                @elseif(isset($query))
+                                    {{ translate('Search result for ') }} "{{ $query }}"
+                                @else
+                                    {{ translate('Showing results') }}
+                                @endif
+                            </h1>
 
-                            @if (isset($category_id))
-                                <i class="las la-angle-right fs-12 fw-600 d-flex hide_cat1"></i>
-                                <li class="text-dark fw-600 fs-12 hide_cat1">
-                                    "{{ $category_search->getTranslation('name') }}"
-                                </li>
-                            @endif
-                        </ul>
+                            <!-- Description -->
+                            <p class="page-description">
+                                To connect global markets efficiently and ethically by providing exceptional sourcing and
+                                trade solutions that enhance business value and foster sustainable growth.
+                            </p>
 
-                        <!-- Top Filters -->
-                        <div class="text-left mb-3">
-                            <div class="row gutters-5 flex-wrap align-items-center">
-                                <div class="col-lg col-10">
-                                    <h1 class="fs-18 fs-md-20 fw-700 text-dark line-height_0_7">
-                                        @if (isset($category_id))
-                                            {{-- {{ $category_search->getTranslation('name') }} --}}
-                                            {{ translate('Showing results') }}
-                                        @elseif(isset($query))
-                                            {{ translate('Search result for ') }} "{{ $query }}"
-                                        @else
-                                            {{ translate('Showing results') }}
-                                        @endif
-                                    </h1>
-                                    <div class="fs-12 display-none" id="search_product_count"><span class="fw-bold"
-                                            id="total_product_count">{{ $products->total() }}</span><span
-                                            class="product-name-color "> Products Found</span></div>
-                                    <div class="display-none fs-12 product-name-color" id="searching_product">searching..
-                                    </div>
-                                    <input type="hidden" name="keyword" value="{{ $query }}">
-                                </div>
-                                <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
-                                    <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle"
-                                        data-target=".aiz-filter-sidebar">
-                                        <i class="la la-filter la-2x"></i>
-                                    </button>
-                                </div>
+                            <!-- Action Bar -->
+                            <div class="action-bar">
+                                <button type="button" class="btn-add-inquiry">
+                                    <i class="las la-plus"></i> Add to inquiry
+                                </button>
 
-                                <div class="col-6 col-lg-auto mb-3 w-lg-200px d-flex align-items-center gap-2">
-                                    <div id="select_option_svg">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="13.5"
-                                            viewBox="0 0 17.5 13.5">
-                                            <g id="Group_38743" data-name="Group 38743"
-                                                transform="translate(-3444 2590)">
-                                                <g id="Group_38742" data-name="Group 38742"
-                                                    transform="translate(2089 -2895)">
-                                                    <path id="Path_45144" data-name="Path 45144"
-                                                        d="M20.522,10.663a.75.75,0,0,1-1.061-.016l-2.712-2.8V18a.75.75,0,0,1-1.5,0V7.851l-2.712,2.8A.75.75,0,1,1,11.462,9.6l4-4.125a.75.75,0,0,1,1.077,0l4,4.125A.75.75,0,0,1,20.522,10.663Z"
-                                                        transform="translate(1351.75 299.75)" fill="#aaa"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45145" data-name="Path 45145"
-                                                        d="M12.522,13.337a.75.75,0,0,0-1.061.016l-2.712,2.8V6a.75.75,0,0,0-1.5,0V16.149l-2.712-2.8A.75.75,0,0,0,3.462,14.4l4,4.125a.75.75,0,0,0,1.077,0l4-4.125A.75.75,0,0,0,12.522,13.337Z"
-                                                        transform="translate(1351.75 299.75)" fill="#111"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45144-2" data-name="Path 45144"
-                                                        d="M20.522,10.663a.75.75,0,0,1-1.061-.016l-2.712-2.8V18a.75.75,0,0,1-1.5,0V7.851l-2.712,2.8A.75.75,0,1,1,11.462,9.6l4-4.125a.75.75,0,0,1,1.077,0l4,4.125A.75.75,0,0,1,20.522,10.663Z"
-                                                        transform="translate(1351.75 299.75)" fill="#aaa"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45145-2" data-name="Path 45145"
-                                                        d="M12.522,13.337a.75.75,0,0,0-1.061.016l-2.712,2.8V6a.75.75,0,0,0-1.5,0V16.149l-2.712-2.8A.75.75,0,0,0,3.462,14.4l4,4.125a.75.75,0,0,0,1.077,0l4-4.125A.75.75,0,0,0,12.522,13.337Z"
-                                                        transform="translate(1351.75 299.75)" fill="#111"
-                                                        fill-rule="evenodd" />
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <select id="select_option"
-                                        class="form-control select_btn_border_none form-control-sm text-center border-0 form-control-sm aiz-selectpicker rounded-0 "
-                                        name="sort_by" onchange="filter(event)">
-                                        <option value="">
-                                            {{ translate('Sort by') }}</option>
+                                <div class="toolbar">
+                                    <select id="select_option" class="sort-dropdown" name="sort_by"
+                                        onchange="filter(event)">
+                                        <option value="">{{ translate('Sort by') }}</option>
                                         <option value="newest"
                                             @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>
                                             {{ translate('Newest') }}</option>
@@ -510,62 +1150,46 @@
                                             @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>
                                             {{ translate('Price high to low') }}</option>
                                     </select>
-                                </div>
 
-
-                                <div class="d-flex gap-2 mb-3 " style="gap: 8px;">
-                                    <button type="button" class="btn-col-filter view-2-hide" data-cols="2">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                    </button>
-
-                                    <button type="button" class="btn-col-filter view-3-hide"data-cols="3">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                    </button>
-
-                                    <div class="btn-col-filter view-4-hide" data-cols="4">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                    </div>
-
-                                    <div class="btn-col-filter view-6-hide" data-cols="6">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
+                                    <div class="view-toggle">
+                                        <button type="button" class="view-btn view-2-hide" data-cols="2">
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                        </button>
+                                        <button type="button" class="view-btn view-3-hide" data-cols="3">
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                        </button>
+                                        <button type="button" class="view-btn view-4-hide active" data-cols="4">
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                            <span class="grid-dot"></span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Products -->
-                        <div class="px-3">
-
-                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left"
-                                id="products-row">
-                                {{-- @foreach ($products as $key => $product)
-                                    <div class="col border-right border-bottom has-transition hov-shadow-out z-1 ">
-                                        @if (isset($product_type) && $product_type == 'preorder_product')
-                                            @include('preorder.frontend.product_box3', [
-                                                'product' => $product,
-                                            ])
-                                        @else
-                                            @include('frontend.product_box_for_listing_page', [
-                                                'product' => $product,
-                                            ])
-                                        @endif
-                                    </div>
-                                @endforeach --}}
+                            <!-- Results Info -->
+                            <div class="results-info display-none" id="search_product_count">
+                                <span class="results-count" id="total_product_count">{{ $products->total() }}</span>
+                                Products Found
                             </div>
-                        </div>
+                            <div class="display-none" id="searching_product">
+                                <div class="loading-spinner"></div>
+                            </div>
 
-                        <div class="aiz-pagination mt-4" id="pagination"></div>
+                            <input type="hidden" name="keyword" value="{{ $query ?? '' }}">
+
+                            <!-- Products Grid -->
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="products-row">
+                                <!-- Products will be loaded here via AJAX -->
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="pagination-wrapper" id="pagination"></div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -580,8 +1204,28 @@
         let brand_page_first_time = true;
         let session_data_first_time = true;
 
+        // Toggle category expansion
+        function toggleCategory(element, categoryId) {
+            event.stopPropagation();
+
+            const $item = $(element);
+            const hasChildren = $item.find('.category-children').length > 0;
+
+            if (hasChildren) {
+                $item.toggleClass('expanded');
+            }
+
+            // Set active state
+            $('.category-item').removeClass('active parent-active');
+            $item.addClass('active');
+
+            // Mark parent as active if child is clicked
+            $item.parents('.category-item').addClass('parent-active');
+
+            filter();
+        }
+
         function filter(e) {
-            // alert("working or not")
             if (e) e.preventDefault();
 
             const target = e ? e.target : null;
@@ -589,14 +1233,12 @@
             if (target && target.type === 'checkbox') {
                 const parent = target.parentElement;
                 if (parent) {
-                    const children = parent.children;
-                    if (children.length > 0) {
-                        const lastSibling = children[children.length - 1];
-
+                    const label = parent.querySelector('label');
+                    if (label) {
                         if (target.checked) {
-                            lastSibling.classList.add('fw-bold');
+                            label.style.fontWeight = '600';
                         } else {
-                            lastSibling.classList.remove('fw-bold');
+                            label.style.fontWeight = '400';
                         }
                     }
                 }
@@ -604,7 +1246,6 @@
 
             filter_data();
         }
-
 
         function rangefilter(arg) {
             $('input[name=min_price]').val(arg[0]);
@@ -615,25 +1256,24 @@
         function filter_data(page = 1) {
             $("#search_product_count").hide();
             $("#searching_product").show();
+
             var formData = $('#search-form').serialize();
             formData += '&page=' + page;
 
-            // preoerder route to search page time
             if (session_data_first_time) {
                 const form_all_preorder_page = @json($form_all_preorder_page);
-                // alert(form_all_preorder_page);
                 if (form_all_preorder_page && form_all_preorder_page === 'preorder_product') {
                     formData = formData.replace(/(&|^)product_type=[^&]*/g, '');
                     formData += '&product_type=' + 'preorder_product';
                     $('input[name="product_type"][value="preorder_product"]').prop('checked', true);
-                    // alert(formData)
+                    $('#product_type_badge_preorder').addClass('active');
                     session_data_first_time = false;
                 }
             }
 
-            // category filter page some logic here
             let category_id = <?php echo $category_id ?? 'null'; ?>;
             let brand_id = <?php echo $brand_id ?? 'null'; ?>;
+
             if (category_page_first_time && category_id !== null && category_id !== 0 && category_id !== undefined) {
                 formData += '&categories[]=' + category_id;
                 category_page_first_time = false;
@@ -641,40 +1281,26 @@
                 formData += "&brand_id=" + brand_id;
                 brand_page_first_time = false;
             } else {
-                $('.hide_cat1').each(function() {
-                    this.style.setProperty('display', 'none', 'important');
-                });
+                $('.hide_cat1').hide();
                 $('.show_cat1').removeClass('d-none');
             }
 
-            // alert(formData);
-
-            // product types ways some action this page
             if (formData.includes('product_type=preorder_product')) {
-                $('#product_type_badge_preorder').removeClass('preorder-border-dashed my-2 text-muted  fw-600');
-                $('#product_type_badge_preorder').addClass('bg-soft-dark  my-2 text-white');
-                $('#product_type_badge_general').removeClass('bg-soft-dark my-2  text-white');
-                $('#product_type_badge_general').addClass('preorder-border-dashed  text-muted my-2 fw-600');
-
+                $('#product_type_badge_preorder').addClass('active');
+                $('#product_type_badge_general').removeClass('active');
                 $('#preorder_cagegories_box').slideDown(300);
                 $('#general_cagegories_box').slideUp(300);
-
                 $('.preorder-time-hide').fadeOut(400);
                 $('.preorder-time-show').slideDown(400);
             } else {
-                $('#product_type_badge_general').removeClass('preorder-border-dashed my-2  text-muted  fw-600');
-                $('#product_type_badge_general').addClass('bg-soft-dark my-2  text-white');
-                $('#product_type_badge_preorder').removeClass('bg-soft-dark  my-2 text-white');
-                $('#product_type_badge_preorder').addClass('preorder-border-dashed my-2 text-muted  fw-600');
-
+                $('#product_type_badge_general').addClass('active');
+                $('#product_type_badge_preorder').removeClass('active');
                 $('#preorder_cagegories_box').slideUp(300);
                 $('#general_cagegories_box').slideDown(300);
-
                 $('.preorder-time-hide').fadeIn(400);
                 $('.preorder-time-show').slideUp(400);
             }
 
-            // alert(JSON.stringify(formData));
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -683,7 +1309,6 @@
                 type: 'get',
                 data: formData,
                 success: function(response) {
-                    // alert(JSON.stringify(response))
                     $("#search_product_count").show();
                     $("#searching_product").hide();
                     $('#products-row').html(response.product_html);
@@ -701,255 +1326,93 @@
             });
         }
 
-        // Handle page button click
         $(document).on('click', '.page-btn', function(e) {
             e.preventDefault();
             var page = $(this).data('page');
             filter_data(page);
         });
-    </script>
 
+        // View toggle buttons
+        $('.view-btn').on('click', function() {
+            $('.view-btn').removeClass('active');
+            $(this).addClass('active');
 
+            var colValue = $(this).data('cols');
+            var $row = $('#products-row');
 
+            $row.removeClass(function(index, className) {
+                return (className.match(/(^|\s)row-cols-\S+/g) || []).join(' ');
+            });
 
-    <script type="text/javascript">
-        $(document).ready(function() {
+            $row.addClass('row-cols-1 row-cols-sm-2 row-cols-md-3');
 
-            const path = window.location.pathname;
-            if (path.includes('/search')) {
-                filter_data();
+            if (colValue == 2) {
+                $row.addClass('row-cols-lg-2');
+            } else if (colValue == 3) {
+                $row.addClass('row-cols-lg-3');
             } else {
-                filter_data();
+                $row.addClass('row-cols-lg-4');
             }
+        });
 
-            function setActiveButtonByWidth() {
-                var width = $(window).width();
-                var cols = 4;
+        $(document).ready(function() {
+            const path = window.location.pathname;
+            filter_data();
 
-                if (width < 576) {
-                    cols = 2;
-                } else if (width >= 576 && width < 768) {
-                    cols = 3;
-                } else if (width >= 768 && width < 1200) {
-                    cols = 4;
-                } else {
-                    cols = 4;
-                }
+            // Initialize general categories as visible
+            $('#general_cagegories_box').show();
+            $('#product_type_badge_general').addClass('active');
 
-                $('.btn-col-filter').removeClass('active-cols');
-                $('.btn-col-filter[data-cols="' + cols + '"]').addClass('active-cols');
-                $('.row.gutters-16').removeClass('row-cols-2 row-cols-3 row-cols-4 row-cols-6')
-                    .addClass('row-cols-' + cols);
+            // Auto-expand active category
+            const activeCategoryId = <?php echo $category_id ?? 'null'; ?>;
+            if (activeCategoryId) {
+                const $activeItem = $(`.category-item[data-id="${activeCategoryId}"]`);
+                $activeItem.addClass('active expanded');
+                $activeItem.parents('.category-item').addClass('parent-active expanded');
             }
-
-
-            setActiveButtonByWidth();
-
-            $(window).resize(function() {
-                setActiveButtonByWidth();
-            });
-
-            $('.btn-col-filter').on('click', function() {
-
-                $('.btn-col-filter').removeClass('active-cols');
-                $(this).addClass('active-cols');
-
-                var colValue = $(this).data('cols');
-
-                var $row = $('#products-row');
-
-                $row.removeClass(function(index, className) {
-                    return (className.match(/(^|\s)row-cols-\S+/g) || []).join(' ');
-                });
-
-                $row.addClass('row-cols-xxl-' + colValue);
-                $row.addClass('row-cols-xl-' + colValue);
-                $row.addClass('row-cols-lg-' + colValue);
-                $row.addClass('row-cols-md-' + colValue);
-                $row.addClass('row-cols-2');
-
-            });
         });
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            document.querySelectorAll('.see_more_toggle_btn').forEach((btn) => {
-                const lessBtn = btn.closest('div').nextElementSibling.querySelector('.less_toggle_btn');
-                const element_list = btn.parentElement.previousElementSibling;
-                const children = Array.from(element_list.children);
-
-
-                let visibleCount = 5;
-
-                // first five element show
-                children.forEach((child, index) => {
-                    // console.log(child)
-                    if (index < visibleCount) {
-                        child.style.setProperty('display', 'block', 'important');
-                    } else {
-                        child.style.setProperty('display', 'none', 'important');
-                    }
-                });
-                if (children.length <= 5) {
-                    btn.style.display = 'none';
-                }
-
-                // click to add more element
-                btn.addEventListener('click', () => {
-
-                    visibleCount += 5;
-
-                    children.forEach((child, index) => {
-                        if (index < visibleCount) {
-                            child.style.setProperty('display', 'block', 'important');
-                        }
-                    });
-
-                    if (visibleCount >= children.length) {
-                        btn.style.display = 'none';
-                        lessBtn.style.display = 'inline-block';
-                    }
-                });
-
-
-                lessBtn.addEventListener('click', () => {
-                    visibleCount = 5;
-
-                    children.forEach((child, index) => {
-                        child.style.setProperty('display', index < visibleCount ? 'block' :
-                            'none', 'important');
-                    });
-
-                    // Toggle buttons
-                    lessBtn.style.display = 'none';
-                    btn.style.display = 'inline-block';
-                });
-
-                lessBtn.style.display = 'none';
-
-
-            });
-
-
-        });
-    </script>
-    <!-- Treeview js -->
     <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}"></script>
 
     <script>
         $(document).ready(function() {
-
-            // $("#treeview2").hummingbird();
             var $tree = $('#treeview2');
 
-            var oldShow = $.fn.show;
-            var oldHide = $.fn.hide;
+            if ($tree.length) {
+                $tree.hummingbird();
 
-            // Override show for smooth animation
-            $.fn.show = function(speed, oldCallback) {
-                if ($(this).closest($tree).length) {
-                    return this.stop(true, true).slideDown(400, oldCallback);
-                } else {
-                    return oldShow.apply(this, arguments);
-                }
-            };
-
-            // Override hide for smooth animation
-            $.fn.hide = function(speed, oldCallback) {
-                if ($(this).closest($tree).length) {
-                    return this.stop(true, true).slideUp(400, oldCallback);
-                } else {
-                    return oldHide.apply(this, arguments);
-                }
-            };
-
-            // Initialize Hummingbird treeview2
-            $tree.hummingbird();
-
-            var selected_ids = '{{ implode(',', $old_categories) }}';
-            if (selected_ids != '') {
-                const myArray = selected_ids.split(",");
-                for (let i = 0; i < myArray.length; i++) {
-                    const element = myArray[i];
-
-                    $('#category_checkidgenerel_' + element).prop('checked', true);
-                    $('#category_checkid_textgenerel_' + element).addClass('fw-bold');
-                    $('#category_checkidgenerel_' + element).parents("ul").css("display", "block");
+                var selected_ids = '{{ implode(',', $old_categories ?? []) }}';
+                if (selected_ids != '') {
+                    const myArray = selected_ids.split(",");
+                    for (let i = 0; i < myArray.length; i++) {
+                        const element = myArray[i];
+                        $('#category_checkidgenerel_' + element).prop('checked', true);
+                        $('#category_checkid_textgenerel_' + element).css('font-weight', '600');
+                        $('#category_checkidgenerel_' + element).parents("ul").css("display", "block");
+                    }
                 }
             }
         });
 
-
-        function showLabels() {
-            document.querySelectorAll('.slider-value-text').forEach(label => {
-                label.style.display = 'block';
-            });
-        }
-
-        function hideLabels() {
-            document.querySelectorAll('.slider-value-text').forEach(label => {
-                label.style.display = 'none';
-            });
-        }
-
-
-        document.querySelectorAll('.noUi-connect, .noUi-touch-area').forEach((element) => {
-            // Desktop 
-            element.addEventListener('mouseenter', showLabels);
-            element.addEventListener('mouseleave', function() {
-                setTimeout(() => {
-                    hideLabels();
-                }, 2000);
-            });
-
-            // Mobile 
-            element.addEventListener('touchstart', showLabels);
-            element.addEventListener('touchend', function() {
-                setTimeout(() => {
-                    hideLabels();
-                }, 2000);
-            });
-        });
-        document.getElementById('input-slider-range').addEventListener('click', function() {
-            showLabels();
-
-            setTimeout(function() {
-                hideLabels();
-            }, 2000);
-        });
-    </script>
-
-
-
-    <script>
         window.onload = function() {
             setTimeout(function() {
-
+                // Clean up empty categories
                 const mainUl = $('#category_filter div ul');
-
-                if (mainUl.length === 0) {
-                    return alert("Main UL not found!");
-                }
-
+                const mainUlPreorder = $('#category_filter_preorder div ul');
 
                 function processUl($ul) {
                     $ul.addClass('ul_is_empty');
 
                     $ul.children('li').each(function() {
                         const $li = $(this);
-
-
                         const $nestedUl = $li.children('ul');
-                        if ($nestedUl.length > 0) {
 
+                        if ($nestedUl.length > 0) {
                             processUl($nestedUl);
 
-
-
                             if ($nestedUl.children('li').length === 0) {
-                                $nestedUl.prev('i.las.pt-3px.la-angle-right').remove();
+                                $nestedUl.prev('i').remove();
                                 $nestedUl.remove();
                             }
                         } else {
@@ -961,70 +1424,71 @@
                     });
                 }
 
-                processUl(mainUl);
-
-                $('.ul_is_empty').each(function() {
-                    const $ul = $(this);
-
-                    if ($ul.children('li').length === 0) {
-                        $ul.prev('i.las.pt-3px.la-angle-right').remove();
-                        $ul.remove();
-                    }
-                });
-
-            }, 0000);
-
-            setTimeout(function() {
-
-                const mainUl = $('#category_filter_preorder div ul');
-
-                if (mainUl.length === 0) {
-                    return alert("Main UL not found!");
-                }
-
-
-                function processUl($ul) {
-                    $ul.addClass('ul_is_empty');
-
-
-                    $ul.children('li').each(function() {
-                        const $li = $(this);
-
-
-                        const $nestedUl = $li.children('ul');
-                        if ($nestedUl.length > 0) {
-
-                            processUl($nestedUl);
-
-
-
-                            if ($nestedUl.children('li').length === 0) {
-                                $nestedUl.prev('i.las.pt-3px.la-angle-down').remove();
-                                $nestedUl.remove();
-                            }
-                        } else {
-                            const countAttr = $li.attr('count');
-                            if (countAttr === "0") {
-                                $li.remove();
-                            }
+                if (mainUl.length > 0) {
+                    processUl(mainUl);
+                    $('.ul_is_empty').each(function() {
+                        const $ul = $(this);
+                        if ($ul.children('li').length === 0) {
+                            $ul.prev('i').remove();
+                            $ul.remove();
                         }
                     });
                 }
 
-                processUl(mainUl);
-
-                $('.ul_is_empty').each(function() {
-                    const $ul = $(this);
-
-                    if ($ul.children('li').length === 0) {
-                        $ul.prev('i.las.pt-3px.la-angle-right').remove();
-                        $ul.remove();
-                    }
-                });
-
-            }, 0000);
-
+                if (mainUlPreorder.length > 0) {
+                    processUl(mainUlPreorder);
+                    $('.ul_is_empty').each(function() {
+                        const $ul = $(this);
+                        if ($ul.children('li').length === 0) {
+                            $ul.prev('i').remove();
+                            $ul.remove();
+                        }
+                    });
+                }
+            }, 0);
         };
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            /* =========================
+               TOGGLE ARROWS CLICK
+            ========================= */
+            document.querySelectorAll('.category-toggle').forEach(function(toggle) {
+
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const parentItem = this.closest('.category-item');
+
+                    if (!parentItem) return;
+
+                    parentItem.classList.toggle('expanded');
+                });
+
+            });
+
+            /* =========================
+               AUTO EXPAND ACTIVE ITEMS
+            ========================= */
+            document.querySelectorAll('.category-item.active').forEach(function(activeItem) {
+
+                let currentItem = activeItem;
+
+                while (currentItem) {
+                    currentItem.classList.add('expanded');
+
+                    const parentUl = currentItem.closest('.category-children');
+                    if (!parentUl) break;
+
+                    currentItem = parentUl.closest('.category-item');
+                }
+
+            });
+
+        });
+    </script>
+
 
 @endsection
