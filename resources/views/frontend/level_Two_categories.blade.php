@@ -1,5 +1,23 @@
 @extends('frontend.layouts.app')
 
+@php
+    // جلب كل الفئات الرئيسية (level 0) مع الفئات الفرعية وعدد المنتجات
+    $mainCategories = App\Models\Category::where('level', 0)
+        ->with([
+            'childrenCategories' => function ($query) {
+                $query->with(['childrenCategories' => function ($q) {
+                    $q->withCount('products');
+                }])->withCount('products');
+            },
+        ])
+        ->withCount('products')
+        ->orderBy('order_level', 'desc')
+        ->get();
+
+    // الحصول على الفئة الحالية من الـ URL
+    $currentCategoryId = request()->segment(2);
+@endphp
+
 <style>
     .category-page {
         background: #f8f9fa;
@@ -97,21 +115,7 @@
     }
 
     /* ========================
-       PAGE TITLE
-    ======================== */
-    .page-title {
-        font-size: 42px;
-        font-weight: 700;
-        margin-bottom: 30px;
-        color: #333;
-    }
-
-    .page-title .explore {
-        color: #5fb3f6;
-    }
-
-    /* ========================
-       SIDEBAR - NEW DESIGN
+       SIDEBAR - RESPONSIVE (NEW DESIGN)
     ======================== */
     .category-sidebar {
         background: #fff;
@@ -123,25 +127,183 @@
         margin-bottom: 30px;
     }
 
-    .category-sidebar a {
+    .category-sidebar h6 {
+        font-weight: 600;
+        margin-bottom: 20px;
+        margin-top: 25px;
+        font-size: 11px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .category-sidebar h6:first-of-type {
+        margin-top: 0;
+    }
+
+    .category-sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+    }
+
+    .category-sidebar ul li {
+        padding: 0;
+        border-radius: 50px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all .3s ease;
+        margin-bottom: 8px;
+        color: #666;
+        font-weight: 500;
+        background: transparent;
+        position: relative;
+    }
+
+    .category-sidebar ul li a.category-link {
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 14px 20px;
-        color: #666;
+        color: inherit;
         text-decoration: none;
         width: 100%;
         border-radius: 50px;
-        font-size: 15px;
-        font-weight: 500;
-        transition: all .3s ease;
-        background: transparent;
     }
 
-    .category-sidebar a:hover {
+    .category-sidebar .category-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+    }
+
+    .category-sidebar .category-header .category-name {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .category-sidebar .toggle-icon {
+        font-size: 11px;
+        opacity: 0.6;
+        transition: transform .3s ease;
+        cursor: pointer;
+        padding: 5px;
+        margin-left: 10px;
+    }
+
+    .category-sidebar ul li:hover {
         background: #f5f8fa;
         color: #333;
         transform: translateX(3px);
+    }
+
+    .category-sidebar ul li.active {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    }
+
+    .category-sidebar ul li.active a.category-link {
+        color: #fff;
+    }
+
+    .category-sidebar ul li.active .category-header {
+        color: #fff;
+    }
+
+    .category-sidebar ul li i.fa-chevron-right {
+        font-size: 11px;
+        opacity: 0.6;
+        transition: .3s;
+    }
+
+    .category-sidebar ul li:hover i.fa-chevron-right {
+        opacity: 1;
+    }
+
+    .category-sidebar ul li.active i {
+        opacity: 1;
+    }
+
+    /* Sub Categories Styling - Level 2 */
+    .sub-categories {
+        margin: 0 0 10px 0 !important;
+        padding-left: 20px !important;
+        list-style: none;
+        display: none;
+    }
+
+    .sub-categories.show {
+        display: block;
+    }
+
+    .sub-categories li {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .sub-categories li a {
+        padding: 10px 15px;
+    }
+
+    .sub-categories li .category-header {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .sub-categories li i.fa-chevron-right,
+    .sub-categories li i.fa-chevron-down {
+        font-size: 9px;
+    }
+
+    /* Sub Sub Categories Styling - Level 3 */
+    .sub-sub-categories {
+        margin: 0 0 10px 0 !important;
+        padding-left: 20px !important;
+        list-style: none;
+        display: none;
+    }
+
+    .sub-sub-categories.show {
+        display: block;
+    }
+
+    .sub-sub-categories li {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .sub-sub-categories li a {
+        padding: 8px 12px;
+    }
+
+    .sub-sub-categories li i {
+        font-size: 8px;
+    }
+
+    /* Product Count */
+    .product-count {
+        font-size: 12px;
+        opacity: 0.7;
+        margin-left: 5px;
+    }
+
+    .sub-categories .product-count {
+        font-size: 11px;
+    }
+
+    .sub-sub-categories .product-count {
+        font-size: 10px;
+    }
+
+    /* Parent category with children */
+    .parent-category-list {
+        margin-bottom: 15px !important;
     }
 
     /* ========================
@@ -201,18 +363,17 @@
         font-size: 14px;
     }
 
-    /* Overlay Content - Bottom Left */
-    .category-card .overlay {
+    /* Category Title - Bottom Left */
+    .category-card .category-title {
         position: absolute;
-        bottom: 20px;
+        bottom: 60px;
         left: 20px;
         z-index: 2;
         text-align: left;
-        background: transparent !important;
     }
 
-    .category-card .overlay h5 {
-        margin: 0 0 5px 0;
+    .category-card .category-title h5 {
+        margin: 0;
         font-weight: 700;
         font-size: 24px;
         color: #fff;
@@ -220,11 +381,35 @@
         letter-spacing: 0;
     }
 
-    .category-card .overlay p {
-        margin: 0;
-        font-size: 13px;
+    /* Sub Categories - Bottom Left (Below Title) */
+    .category-card .sub-categories-bottom {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .category-card .sub-cat-item {
+        font-size: 11px;
         color: #fff;
-        opacity: 0.9;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        font-weight: 400;
+        transition: .3s;
+        border: none;
+        white-space: nowrap;
+        opacity: 0.85;
+        line-height: 1.4;
+    }
+
+    .category-card:hover .sub-cat-item {
+        opacity: 1;
     }
 
     /* Dark overlay gradient for better text visibility */
@@ -273,10 +458,6 @@
         .category-card {
             height: 320px;
         }
-
-        .category-card .overlay h5 {
-            font-size: 26px;
-        }
     }
 
     /* Tablet Landscape */
@@ -295,36 +476,12 @@
         }
 
         .category-card {
-            height: 320px;
-        }
-
-        .category-card .overlay h5 {
-            font-size: 26px;
-        }
-    }
-
-    /* Tablet Landscape */
-    @media (max-width: 1024px) {
-        .page-title {
-            font-size: 38px;
-        }
-
-        .category-card {
-            height: 260px;
+            height: 300px;
         }
 
         .category-sidebar {
             position: relative;
             top: 0;
-        }
-
-        .category-card .overlay {
-            bottom: 18px;
-            left: 18px;
-        }
-
-        .category-card .overlay h5 {
-            font-size: 22px;
         }
     }
 
@@ -365,38 +522,22 @@
             border-radius: 14px;
         }
 
-        .category-sidebar a {
+        .category-sidebar ul li a.category-link {
+            padding: 12px 18px;
+            font-size: 14px;
+        }
+
+        .category-sidebar .category-header {
             padding: 12px 18px;
             font-size: 14px;
         }
 
         .category-card {
-            height: 240px;
-            border-radius: 12px;
+            height: 280px;
         }
 
-        .category-card .overlay {
-            bottom: 16px;
-            left: 16px;
-        }
-
-        .category-card .overlay h5 {
-            font-size: 20px;
-        }
-
-        .category-card .overlay p {
-            font-size: 12px;
-        }
-
-        .category-card .cart-icon {
-            width: 32px;
-            height: 32px;
-            top: 12px;
-            left: 12px;
-        }
-
-        .category-card .cart-icon i {
-            font-size: 13px;
+        .category-card .category-title h5 {
+            font-size: 22px;
         }
     }
 
@@ -438,39 +579,23 @@
             border-radius: 12px;
         }
 
-        .category-sidebar a {
+        .category-sidebar ul li a.category-link {
             padding: 11px 16px;
             font-size: 13px;
             border-radius: 40px;
         }
 
+        .category-sidebar .category-header {
+            padding: 11px 16px;
+            font-size: 13px;
+        }
+
         .category-card {
-            height: 220px;
-            border-radius: 10px;
+            height: 260px;
         }
 
-        .category-card .overlay {
-            bottom: 14px;
-            left: 14px;
-        }
-
-        .category-card .overlay h5 {
-            font-size: 18px;
-        }
-
-        .category-card .overlay p {
-            font-size: 11px;
-        }
-
-        .category-card .cart-icon {
-            width: 30px;
-            height: 30px;
-            top: 10px;
-            left: 10px;
-        }
-
-        .category-card .cart-icon i {
-            font-size: 12px;
+        .category-card .category-title h5 {
+            font-size: 20px;
         }
 
         .row.g-4 {
@@ -495,20 +620,11 @@
         }
 
         .category-card {
-            height: 200px;
+            height: 240px;
         }
 
-        .category-card .overlay {
-            bottom: 12px;
-            left: 12px;
-        }
-
-        .category-card .overlay h5 {
-            font-size: 16px;
-        }
-
-        .category-card .overlay p {
-            font-size: 10px;
+        .category-card .category-title h5 {
+            font-size: 18px;
         }
     }
 
@@ -544,7 +660,6 @@
 @section('content')
     <div class="category-page">
         {{-- Hero Banner with Category Image --}}
-        {{-- http://127.0.0.1:8000/uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg --}}
         <div class="category-hero"
             style="background-image: url('{{ uploaded_asset($levelTwoCategories->first()->banner ?? '') }}');">
             <div class="container">
@@ -553,7 +668,7 @@
                 </a>
                 <h1>
                     <span class="explore">Explore</span>
-                    {{$levelTwoCategories->first()->name}}
+                    {{ $levelTwoCategories->first()->name ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -561,45 +676,210 @@
         {{-- Content Section --}}
         <div class="category-content">
             <div class="container">
+                <div class="row">
 
-        <div class="row">
+                    {{-- Sidebar --}}
+                    <div class="col-lg-3 mb-4">
+                        <div class="category-sidebar">
+                            <h6>CATEGORIES</h6>
 
-            {{-- Sidebar --}}
-            <div class="col-lg-3 mb-4">
-                <div class="category-sidebar">
-                    <a href="/categories" class="mb-3">Categories</a>
-                </div>
-            </div>
+                            {{-- All Categories Link --}}
+                            <ul>
+                                <li class="{{ !request()->segment(2) ? 'active' : '' }}">
+                                    <a href="{{ route('categories.all') }}" class="category-link">
+                                        <span>All Categories</span>
+                                    </a>
+                                </li>
+                            </ul>
 
-            {{-- Cards --}}
-            <div class="col-lg-9">
-                <div class="row g-4">
+                            {{-- Loop through Main Categories (Level 0) --}}
+                            @foreach ($mainCategories as $mainCategory)
+                                <h6>{{ $mainCategory->getTranslation('name') }}</h6>
 
-                    @foreach ($levelTwoCategories as $category)
-                        <div class="col-xl-4 col-lg-6 col-md-6">
-                            <a href="{{ route('products.level2', $category->id) }}" class="category-link">
-                                <div class="category-card">
-                                    <img src="{{ uploaded_asset($category->banner) }}" alt="">
+                                <ul class="parent-category-list">
+                                    @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
+                                        {{-- Main Category with Sub-categories (Level 1) --}}
+                                        @foreach ($mainCategory->childrenCategories as $level1Category)
+                                            <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }}"
+                                                data-category-id="{{ $level1Category->id }}">
 
-                                    {{-- Cart Icon - Top Left --}}
-                                    <div class="cart-icon">
-                                        <i class="fas fa-shopping-basket"></i>
-                                    </div>
+                                                @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
+                                                    {{-- Level 1 has children (Level 2) --}}
+                                                    <div class="category-header">
+                                                        <a href="{{ route('categories.level2', $level1Category->id) }}"
+                                                            class="category-name">
+                                                            <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                            <span class="product-count">({{ $level1Category->products_count ?? 0 }})</span>
+                                                        </a>
+                                                        <i class="fas fa-chevron-down toggle-icon"></i>
+                                                    </div>
 
-                                    <div class="overlay" style="background:transparent;">
-                                        <h5>{{ $category->getTranslation('name') }}</h5>
-                                        <p>{{ $category->products_count ?? 0 }} Products</p>
-                                    </div>
-                                </div>
-                            </a>
+                                                    {{-- Sub Categories (Level 2) --}}
+                                                    <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
+                                                        @foreach ($level1Category->childrenCategories as $level2Category)
+                                                            <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }}"
+                                                                data-category-id="{{ $level2Category->id }}">
+
+                                                                @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
+                                                                    {{-- Level 2 has children (Level 3) --}}
+                                                                    <div class="category-header">
+                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                            class="category-name">
+                                                                            <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                            <span class="product-count">({{ $level2Category->products_count ?? 0 }})</span>
+                                                                        </a>
+                                                                        <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                    </div>
+
+                                                                    {{-- Sub Sub Categories (Level 3) --}}
+                                                                    <ul class="sub-sub-categories" data-parent-id="{{ $level2Category->id }}">
+                                                                        @foreach ($level2Category->childrenCategories as $level3Category)
+                                                                            <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
+                                                                                <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                    class="category-link">
+                                                                                    <span>{{ $level3Category->getTranslation('name') }}</span>
+                                                                                    <span class="product-count">({{ $level3Category->products_count ?? 0 }})</span>
+                                                                                    <i class="fas fa-chevron-right"></i>
+                                                                                </a>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                @else
+                                                                    {{-- Level 2 without children --}}
+                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                        class="category-link">
+                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                        <span class="product-count">({{ $level2Category->products_count ?? 0 }})</span>
+                                                                        <i class="fas fa-chevron-right"></i>
+                                                                    </a>
+                                                                @endif
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @else
+                                                    {{-- Level 1 without children --}}
+                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                        class="category-link">
+                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                        <span class="product-count">({{ $level1Category->products_count ?? 0 }})</span>
+                                                        <i class="fas fa-chevron-right"></i>
+                                                    </a>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    @else
+                                        {{-- Main Category without children --}}
+                                        <li class="{{ $currentCategoryId == $mainCategory->id ? 'active' : '' }}">
+                                            <a href="{{ route('products.category', $mainCategory->slug) }}"
+                                                class="category-link">
+                                                <span>{{ $mainCategory->getTranslation('name') }}</span>
+                                                <span class="product-count">({{ $mainCategory->products_count ?? 0 }})</span>
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            @endforeach
                         </div>
-                    @endforeach
+                    </div>
+
+                    {{-- Cards Section --}}
+                    <div class="col-lg-9">
+                        <div class="row g-4">
+                            @foreach ($levelTwoCategories as $category)
+                                <div class="col-lg-6 col-md-6">
+                                    <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;">
+                                        <div class="category-card">
+                                            <img src="{{ uploaded_asset($category->banner) }}"
+                                                alt="{{ $category->getTranslation('name') }}">
+
+                                            {{-- Cart Icon - Top Left --}}
+                                            <div class="cart-icon">
+                                                <i class="fas fa-shopping-basket"></i>
+                                            </div>
+
+                                            {{-- Category Title - Bottom Left --}}
+                                            <div class="category-title">
+                                                <h5>{{ $category->getTranslation('name') }}</h5>
+                                            </div>
+
+                                            {{-- Subcategories List - Bottom Left (Below Title) --}}
+                                            @if ($category->childrenCategories && $category->childrenCategories->count() > 0)
+                                                <div class="sub-categories-bottom">
+                                                    @foreach ($category->childrenCategories->take(6) as $index => $subCat)
+                                                        <span class="sub-cat-item">{{ $subCat->getTranslation('name') }}</span>
+                                                        @if ($index < 5 && $index < $category->childrenCategories->count() - 1)
+                                                            <span class="sub-cat-item">•</span>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
 
                 </div>
-            </div>
-
-        </div>
             </div>
         </div>
     </div>
+
+    {{-- JavaScript for Toggle Functionality --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle all toggle icons
+            const allToggleIcons = document.querySelectorAll('.toggle-icon');
+
+            allToggleIcons.forEach(function(toggleIcon) {
+                toggleIcon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const categoryHeader = this.closest('.category-header');
+                    const parentLi = categoryHeader.closest('li');
+                    const categoryId = parentLi.getAttribute('data-category-id');
+
+                    // Find the sub-categories ul
+                    let subCategoriesUl = parentLi.querySelector(`.sub-categories[data-parent-id="${categoryId}"]`);
+                    if (!subCategoriesUl) {
+                        subCategoriesUl = parentLi.querySelector(`.sub-sub-categories[data-parent-id="${categoryId}"]`);
+                    }
+
+                    if (subCategoriesUl) {
+                        const isVisible = subCategoriesUl.classList.contains('show');
+
+                        if (isVisible) {
+                            subCategoriesUl.classList.remove('show');
+                            this.style.transform = 'rotate(0deg)';
+                        } else {
+                            subCategoriesUl.classList.add('show');
+                            this.style.transform = 'rotate(180deg)';
+                        }
+                    }
+                });
+            });
+
+            // Auto-expand active category's parents
+            const activeCategories = document.querySelectorAll('.category-sidebar li.active');
+            activeCategories.forEach(function(activeLi) {
+                // Find parent ul and show it
+                let parentUl = activeLi.closest('.sub-categories, .sub-sub-categories');
+                while (parentUl) {
+                    parentUl.classList.add('show');
+
+                    // Rotate the toggle icon
+                    const parentLi = parentUl.previousElementSibling?.querySelector('.toggle-icon') ||
+                                    parentUl.closest('li')?.querySelector('.toggle-icon');
+                    if (parentLi) {
+                        parentLi.style.transform = 'rotate(180deg)';
+                    }
+
+                    // Move up to next parent
+                    parentUl = parentUl.closest('li')?.closest('.sub-categories, .sub-sub-categories');
+                }
+            });
+        });
+    </script>
 @endsection
