@@ -101,6 +101,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -219,6 +220,11 @@
         position: relative;
     }
 
+    /* Zigzag Effect - الصور الزوجية (العمود الثاني) نازلة */
+    .vision-image-item:nth-child(even) {
+        transform: translateY(40px);
+    }
+
     .vision-image-item::before {
         content: '';
         position: absolute;
@@ -232,6 +238,11 @@
     .vision-image-item:hover {
         transform: translateY(-8px) scale(1.02);
         box-shadow: 0 20px 40px rgba(95, 115, 246, 0.25);
+    }
+
+    /* تعديل hover للعناصر الزوجية علشان تحافظ على التأثير */
+    .vision-image-item:nth-child(even):hover {
+        transform: translateY(32px) scale(1.02);
     }
 
     .vision-image-item:hover::before {
@@ -416,18 +427,13 @@
                 <div class="trapezoid-container">
                     <div class="trapezoid-border"></div>
                     <div class="trapezoid-content">
-                        @if($hero && isset($hero->value['image']) && $hero->value['image'])
-                            <img src="{{ asset($hero->value['image']) }}"
-                                 alt="Who We Are"
-                                 class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
-
-
+                        @if ($hero && isset($hero->value['image']) && $hero->value['image'])
+                            <img src="{{ asset($hero->value['image']) }}" alt="Who We Are" class="hero-illustration"
+                                onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
                         @else
                             <img src="{{ asset('assets/img/about/60e4d4135fac5d6e76b09f98b4a872dfa0909dfb.png') }}"
-                                 alt="Who We Are"
-                                 class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                                alt="Who We Are" class="hero-illustration"
+                                onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
                         @endif
                     </div>
                 </div>
@@ -439,7 +445,8 @@
                     <div class="mission-border"></div>
                     <div class="mission-content">
                         <div class="mission-text">
-                            <h2>{{ $mission && isset($mission->value['title']) ? $mission->value['title'] : 'We are here to complete a certain mission' }}</h2>
+                            <h2>{{ $mission && isset($mission->value['title']) ? $mission->value['title'] : 'We are here to complete a certain mission' }}
+                            </h2>
                         </div>
                         <div class="mission-description">
                             <p>
@@ -453,27 +460,30 @@
             {{-- Vision Section --}}
             <div class="vision-section">
                 <div class="vision-images">
-                    @if($vision && isset($vision->value['images']) && is_array($vision->value['images']) && count($vision->value['images']) > 0)
-                        @foreach($vision->value['images'] as $index => $image)
+                    @if (
+                        $vision &&
+                            isset($vision->value['images']) &&
+                            is_array($vision->value['images']) &&
+                            count($vision->value['images']) > 0)
+                        @foreach ($vision->value['images'] as $index => $image)
                             <div class="vision-image-item">
-                                @if($image)
-                                    <img src="{{ asset($image) }}"
-                                         alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                @if ($image)
+                                    <img src="{{ asset($image) }}" alt="Team Member {{ $index + 1 }}"
+                                        onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
                                 @else
-                                    <img src="{{ static_asset('assets/img/vision/team'.($index+1).'.jpg') }}"
-                                         alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                    <img src="{{ static_asset('assets/img/vision/team' . ($index + 1) . '.jpg') }}"
+                                        alt="Team Member {{ $index + 1 }}"
+                                        onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
                                 @endif
                             </div>
                         @endforeach
                     @else
                         {{-- Default 4 images if no data --}}
-                        @for($i = 1; $i <= 4; $i++)
+                        @for ($i = 1; $i <= 4; $i++)
                             <div class="vision-image-item">
-                                <img src="{{ static_asset('assets/img/vision/team'.$i.'.jpg') }}"
-                                     alt="Team Member {{ $i }}"
-                                     onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $i }}'">
+                                <img src="{{ static_asset('assets/img/vision/team' . $i . '.jpg') }}"
+                                    alt="Team Member {{ $i }}"
+                                    onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $i }}'">
                             </div>
                         @endfor
                     @endif

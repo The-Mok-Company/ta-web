@@ -125,8 +125,8 @@
         }
 
         /* =======================
-                           CATEGORY SIDEBAR (LIKE IMAGE)
-                        ======================= */
+                                           CATEGORY SIDEBAR (LIKE IMAGE)
+                                        ======================= */
 
         .category-list {
             list-style: none;
@@ -177,8 +177,8 @@
         }
 
         /* =======================
-                           CHILDREN
-                        ======================= */
+                                           CHILDREN
+                                        ======================= */
 
         .category-children {
             list-style: none;
@@ -208,8 +208,8 @@
         }
 
         /* =======================
-                           SUB CHILD
-                        ======================= */
+                                           SUB CHILD
+                                        ======================= */
 
         .category-children .category-children {
             padding-left: 12px;
@@ -785,179 +785,165 @@
             <form id="search-form" method="GET">
                 <div class="row">
                     <!-- Sidebar -->
-                    <div class="col-lg-3 mb-4">
-                        <div class="sidebar-wrapper">
-                            <!-- Mobile Filter Toggle -->
-                            <div class="d-lg-none">
-                                <button type="button" class="btn btn-block btn-light mb-3" data-toggle="collapse"
-                                    data-target="#filterSidebar">
-                                    <i class="las la-filter"></i> {{ translate('Show Filters') }}
-                                </button>
-                            </div>
+                    <div class="col-xl-3">
+                        <div class="aiz-filter-sidebar collapse-sidebar-wrap sidebar-xl sidebar-right z-1035">
+                            <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle"
+                                data-target=".aiz-filter-sidebar" data-same=".filter-sidebar-thumb"></div>
+                            <div class="collapse-sidebar scroll-bar-show c-scrollbar-light text-left">
+                                <div class="d-flex d-xl-none justify-content-between align-items-center pl-3 border-bottom">
+                                    <h3 class="h6 mb-0 fw-600">{{ translate('Filters') }}</h3>
+                                    <button type="button" class="btn btn-sm p-2 filter-sidebar-thumb"
+                                        data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
+                                        <i class="las la-times la-2x"></i>
+                                    </button>
+                                </div>
 
-                            <div id="filterSidebar" class="collapse d-lg-block">
                                 <!-- Categories -->
-                                <div class="sidebar-header">
-                                    <h3 class="sidebar-title">{{ translate('CATEGORIES') }}</h3>
-                                </div>
+                                <div class="bg-white border-bottom-listing-sidebar">
+                                    <div class="fs-16 fw-700 p-3">
+                                        <a href="#collapse_1"
+                                            class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between"
+                                            data-toggle="collapse">
 
-                                <div class="display-none" id="general_cagegories_box">
-                                    <ul class="category-list" id="category_filter">
-                                        <!-- All Categories -->
-                                        <li class="category-item all-categories-item">
-                                            <a href="{{ route('search') }}" class="category-item-link">
-                                                <span class="category-name">{{ translate('All Categories') }}</span>
-                                            </a>
-                                        </li>
-
-                                        @foreach ($categories as $category)
-                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
-                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
-                                                    data-id="{{ $category->id }}">
-                                                    <div class="category-item-link"
-                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                        <span
-                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
-                                                        @if (count($category->childrenCategories) > 0)
-                                                            <i class="las la-angle-down category-toggle"></i>
-                                                        @endif
-                                                    </div>
-
-                                                    @if (count($category->childrenCategories) > 0)
-                                                        <ul class="category-children">
-                                                            @foreach ($category->childrenCategories as $childCategory)
-                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
-                                                                    data-id="{{ $childCategory->id }}">
-                                                                    <div class="category-item-link"
-                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                                        <span
-                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
-                                                                        @if (count($childCategory->childrenCategories) > 0)
-                                                                            <i
-                                                                                class="las la-angle-down category-toggle"></i>
-                                                                        @endif
-                                                                    </div>
-
-                                                                    @if (count($childCategory->childrenCategories) > 0)
-                                                                        <ul class="category-children">
-                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
-                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
-                                                                                    data-id="{{ $subChildCategory->id }}">
-                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
-                                                                                        class="category-item-link">
-                                                                                        <span
-                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
-                                                                                    </a>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                <div class="display-none" id="preorder_cagegories_box">
-                                    <ul class="category-list" id="category_filter_preorder">
-                                        <!-- All Categories -->
-                                        <li class="category-item all-categories-item">
-                                            <a href="{{ route('search') }}" class="category-item-link">
-                                                <span class="category-name">{{ translate('All Categories') }}</span>
-                                            </a>
-                                        </li>
-
-                                        @foreach ($preorder_categories as $category)
-                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
-                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
-                                                    data-id="{{ $category->id }}">
-                                                    <div class="category-item-link"
-                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                        <span
-                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
-                                                        @if (count($category->childrenCategories) > 0)
-                                                            <i class="las la-angle-down category-toggle"></i>
-                                                        @endif
-                                                    </div>
-
-                                                    @if (count($category->childrenCategories) > 0)
-                                                        <ul class="category-children">
-                                                            @foreach ($category->childrenCategories as $childCategory)
-                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
-                                                                    data-id="{{ $childCategory->id }}">
-                                                                    <div class="category-item-link"
-                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                                        <span
-                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
-                                                                        @if (count($childCategory->childrenCategories) > 0)
-                                                                            <i
-                                                                                class="las la-angle-down category-toggle"></i>
-                                                                        @endif
-                                                                    </div>
-
-                                                                    @if (count($childCategory->childrenCategories) > 0)
-                                                                        <ul class="category-children">
-                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
-                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
-                                                                                    data-id="{{ $subChildCategory->id }}">
-                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
-                                                                                        class="category-item-link">
-                                                                                        <span
-                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
-                                                                                    </a>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                <!-- Price Range Filter -->
-                                <div class="filter-section-wrapper">
-                                    <div class="filter-section-header" data-toggle="collapse" data-target="#priceFilter">
-                                        <h4 class="filter-section-title">{{ translate('Price range') }}</h4>
-                                        <i class="las la-angle-down"></i>
+                                            {{ translate('Categories') }}
+                                        </a>
                                     </div>
-                                    <div id="priceFilter" class="collapse">
-                                        <div class="price-range-wrapper">
-                                            @php
-                                                $product_count = get_products_count();
-                                            @endphp
-                                            <div class="aiz-range-slider">
-                                                <div id="input-slider-range" data-range-value-min="0"
-                                                    data-range-value-max="@if ($product_count < 1) 0 @else {{ get_product_max_unit_price() }} @endif">
+                                    <div class="collapse show" id="collapse_1">
+                                        <!-- Product Category -->
+                                        <div class="">
+                                            <div class=" @if ($errors->has('category_ids') || $errors->has('category_id')) border border-danger @endif">
+                                                @php
+                                                    if ($category_id) {
+                                                        $old_categories = [$category_id];
+                                                    } else {
+                                                        $old_categories = [];
+                                                    }
+                                                @endphp
+                                                {{-- general category list  --}}
+                                                <div class="px-20px pb-10px display-none" id="general_cagegories_box">
+                                                    <div id="category_filter" class="h-300px overflow-auto no-scrollbar">
+                                                        <ul class="hummingbird-treeview-converter2 list-unstyled"
+                                                            data-checkbox-name="categories[]">
+                                                            @foreach ($categories as $category)
+                                                                {{-- @if ($category->products_count > 0) --}}
+                                                                <li d-item="{{ $category->products_count }}"
+                                                                    id="generel_{{ $category->id }}">
+                                                                    {{ $category->getTranslation('name') }}
+                                                                    @if ($category->products_count > 0)
+                                                                        {{ '   (' . $category->products_count . ')' }}
+                                                                    @endif
+                                                                </li>
+                                                                {{-- @endif --}}
+                                                                @foreach ($category->childrenCategories as $childCategory)
+                                                                    @include(
+                                                                        'frontend.product_listing_page_child_category',
+                                                                        ['child_category' => $childCategory]
+                                                                    )
+                                                                @endforeach
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
                                                 </div>
-                                                <div class="price-values">
-                                                    <span class="price-value" id="input-slider-range-value-low">0</span>
-                                                    <span class="price-value" id="input-slider-range-value-high"></span>
+
+                                                {{-- preorder category list  --}}
+                                                <div class="px-20px pb-10px display-none" id="preorder_cagegories_box">
+                                                    <div id="category_filter_preorder"
+                                                        class="h-300px overflow-auto no-scrollbar">
+                                                        <ul class="hummingbird-treeview-converter2 list-unstyled"
+                                                            data-checkbox-name="categories_preorder[]">
+                                                            @foreach ($preorder_categories as $category)
+                                                                @if ($category->products_count > 0)
+                                                                    <li d-item="{{ $category->products_count }}"
+                                                                        id="preorder_{{ $category->id }}">
+                                                                        {{ $category->getTranslation('name') }}{{ '   (' . $category->products_count . ')' }}
+                                                                    </li>
+                                                                @endif
+                                                                @foreach ($category->childrenCategories as $childCategory)
+                                                                    @include(
+                                                                        'frontend.product_listing_page_child_category_preorder',
+                                                                        ['child_category' => $childCategory]
+                                                                    )
+                                                                @endforeach
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Price range -->
+                                <div class="bg-white border-bottom-listing-sidebar">
+                                    <div class="fs-16 fw-700 p-3">
+                                        <a href="#collapse_price"
+                                            class="dropdown-toggle collapsed filter-section text-dark d-flex align-items-center justify-content-between"
+                                            data-toggle="collapse" data-target="#collapse_price">
+                                            {{ translate('Price range') }}
+                                        </a>
+                                    </div>
+                                    <div class="collapse" id="collapse_price">
+                                        <div class="px16px py22px hover-effect">
+                                            @php
+                                                $product_count = get_products_count();
+                                            @endphp
+
+                                            <div class="aiz-range-slider">
+
+
+                                                <div id="input-slider-range"
+                                                    data-range-value-min="@if (true) 0 @else {{ get_product_min_unit_price() }} @endif"
+                                                    data-range-value-max="@if ($product_count < 1) 0 @else {{ get_product_max_unit_price() }} @endif">
+                                                    <div
+                                                        style="width: 4px; height: 16px; background-color: #DFDFE6; position: absolute; top: -7px; left: -1px;  ">
+                                                    </div>
+                                                    <div
+                                                        style="width: 4px; height: 16px; background-color: #DFDFE6; position: absolute; top: -7px; right: -1px;  ">
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <span class="range-slider-value value-low fs-14 fw-600 opacity-70"
+                                                            {{-- @if (isset($min_price)) data-range-value-low="{{ $min_price }}"
+                                                            @elseif($products->min('unit_price') > 0)
+                                                                data-range-value-low="{{ $products->min('unit_price') }}"
+                                                            @else --}} data-range-value-low="0"
+                                                            {{-- @endif --}} id="input-slider-range-value-low">0</span>
+                                                    </div>
+                                                    <div class="col-6 text-right">
+                                                        <span class="range-slider-value value-high fs-14 fw-600 opacity-70"
+                                                            {{-- @if (isset($max_price)) data-range-value-high="{{ $max_price }}"
+                                                            @elseif($products->max('unit_price') > 0)
+                                                                data-range-value-high="{{ $products->max('unit_price') }}"
+                                                            @else --}}
+                                                            data-range-value-high="{{ get_product_max_unit_price() / 2 }}"
+                                                            {{-- @endif --}} id="input-slider-range-value-high"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Hidden Items -->
                                         <input type="hidden" name="min_price" value="">
                                         <input type="hidden" name="max_price" value="">
                                     </div>
                                 </div>
 
-                                <!-- Attribute Filters -->
+
+                                <!-- Attributes -->
                                 @foreach ($attributes as $attribute)
                                     @if ($attribute->product_count > 0)
-                                        <div class="filter-section-wrapper preorder-time-hide">
-                                            <div class="filter-section-header" data-toggle="collapse"
-                                                data-target="#filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}">
-                                                <h4 class="filter-section-title">{{ $attribute->getTranslation('name') }}
-                                                </h4>
-                                                <i class="las la-angle-down"></i>
+                                        <div class="bg-white preorder-time-hide border-bottom-listing-sidebar">
+                                            <div class="fs-16 fw-700 p-3">
+                                                <a href="#"
+                                                    class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
+                                                    data-toggle="collapse"
+                                                    data-target="#collapse_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}"
+                                                    style="white-space: normal;">
+                                                    {{ $attribute->getTranslation('name') }}
+                                                </a>
                                             </div>
                                             @php
                                                 $show = '';
@@ -967,35 +953,48 @@
                                                     }
                                                 }
                                             @endphp
-                                            <div id="filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}"
-                                                class="collapse {{ $show }} filter-section-content">
-                                                @foreach ($attribute->attribute_values as $attribute_value)
-                                                    @if ($attribute_value->product_count > 0)
-                                                        <div class="filter-checkbox">
-                                                            <input type="checkbox" name="selected_attribute_values[]"
-                                                                value="{{ $attribute_value->value }}"
-                                                                id="attr_{{ $attribute_value->id }}"
-                                                                @if (in_array($attribute_value->value, $selected_attribute_values)) checked @endif
-                                                                onchange="filter(event)">
-                                                            <label for="attr_{{ $attribute_value->id }}">
-                                                                {{ $attribute_value->value }}
-                                                                ({{ $attribute_value->product_count }})
+                                            <div class="collapse {{ $show }}"
+                                                id="collapse_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}">
+                                                <div class="px-3 aiz-checkbox-list">
+                                                    @foreach ($attribute->attribute_values as $attribute_value)
+                                                        @if ($attribute_value->product_count > 0)
+                                                            <label class="aiz-checkbox mb-3 d-flex align-items-center ">
+                                                                <input type="checkbox" name="selected_attribute_values[]"
+                                                                    value="{{ $attribute_value->value }}"
+                                                                    @if (in_array($attribute_value->value, $selected_attribute_values)) checked @endif
+                                                                    onchange="filter(event)">
+                                                                <span class="aiz-square-check border_black"></span>
+                                                                <span
+                                                                    class="fs-14 fw-400 text-dark hover-effect-list-item  @if (in_array($attribute_value->value, $selected_attribute_values)) fw-bold @endif">{{ $attribute_value->value }}
+                                                                    {{ '(' . $attribute_value->product_count . ')' }}</span>
                                                             </label>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button type="button"
+                                                        class="btn btn-link p-0 m-0 mb-3 font-weight-bold see_more_toggle_btn">
+                                                        See More <i class="las la-angle-down fs-12 fw-600 "></i></button>
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button type="button"
+                                                        class="btn btn-link p-0 m-0 mb-3 font-weight-bold less_toggle_btn">See
+                                                        Less <i class="las la-angle-up fs-12 fw-600 "></i></button>
+                                                </div>
                                             </div>
                                         </div>
                                     @endif
                                 @endforeach
 
-                                <!-- Color Filter -->
+                                <!-- Color -->
                                 @if (get_setting('color_filter_activation'))
-                                    <div class="filter-section-wrapper preorder-time-hide">
-                                        <div class="filter-section-header" data-toggle="collapse"
-                                            data-target="#colorFilter">
-                                            <h4 class="filter-section-title">{{ translate('Filter by color') }}</h4>
-                                            <i class="las la-angle-down"></i>
+                                    <div class="bg-white  mb-3 preorder-time-hide">
+                                        <div class="fs-16 fw-700 p-3">
+                                            <a href="#"
+                                                class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
+                                                data-toggle="collapse" data-target="#collapse_color">
+                                                {{ translate('Filter by color') }}
+                                            </a>
                                         </div>
                                         @php
                                             $show = '';
@@ -1005,59 +1004,89 @@
                                                 }
                                             }
                                         @endphp
-                                        <div id="colorFilter"
-                                            class="collapse {{ $show }} filter-section-content">
-                                            @foreach ($colors as $key => $color)
-                                                @if ($color->product_count > 0)
-                                                    <div class="filter-checkbox">
-                                                        <input type="checkbox" name="colors[]"
-                                                            value="{{ $color->code }}" id="color_{{ $color->id }}"
-                                                            @if (isset($selected_color) && $selected_color == $color->code) checked @endif
-                                                            onchange="filter(event)">
-                                                        <label for="color_{{ $color->id }}"
-                                                            class="d-flex align-items-center">
-                                                            <span
-                                                                style="width: 20px; height: 20px; background-color: {{ $color->code }}; border-radius: 50%; margin-right: 8px; display: inline-block;"></span>
-                                                            {{ $color->name }} ({{ $color->product_count }})
+                                        <div class="collapse {{ $show }}" id="collapse_color">
+                                            <div class="px-3 aiz-checkbox-list">
+                                                @foreach ($colors as $key => $color)
+                                                    @if ($color->product_count > 0)
+                                                        <label class="aiz-checkbox mb-3 d-flex align-items-center ">
+                                                            <input type="checkbox" name="colors[]"
+                                                                value="{{ $color->code }}"
+                                                                @if (isset($selected_color) && $selected_color == $color->code) checked @endif
+                                                                onchange="filter(event)">
+                                                            <span class="aiz-square-check border_black"></span>
+                                                            <div class="d-flex">
+
+                                                                <div
+                                                                    style="width: 20px; height: 20px; background-color: {{ $color->code }};border-radius: 50%; margin-right: 10px;">
+                                                                </div>
+                                                                <span
+                                                                    class="fs-14 text-dark hover-effect-list-item">{{ $color->name }}
+                                                                    {{ '(' . $color->product_count . ')' }}
+                                                                </span>
+                                                            </div>
                                                         </label>
-                                                    </div>
-                                                @endif
-                                            @endforeach
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="button"
+                                                    class="btn btn-link p-0 m-0 mb-3 font-weight-bold see_more_toggle_btn">
+                                                    See More <i class="las la-angle-down fs-12 fw-600 "></i></button>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="button"
+                                                    class="btn btn-link p-0 m-0 mb-3 font-weight-bold less_toggle_btn">See
+                                                    Less <i class="las la-angle-up fs-12 fw-600 "></i></button>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
 
-                                <!-- Availability Filter (for preorder) -->
-                                <div class="filter-section-wrapper preorder-time-show display-none">
-                                    <div class="filter-section-header" data-toggle="collapse"
-                                        data-target="#availabilityFilter">
-                                        <h4 class="filter-section-title">{{ translate('Filter by Availability') }}</h4>
-                                        <i class="las la-angle-down"></i>
+                                <!-- Attributes for preorder product -->
+                                <div
+                                    class="bg-white  mb-3 mt-3 preorder-time-show display-none border-bottom-listing-sidebar">
+                                    <div class="fs-16 fw-700 p-3">
+                                        <a href="#"
+                                            class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between"
+                                            data-toggle="collapse" data-target="#collapse_availability_filter"
+                                            style="white-space: normal;">
+                                            {{ translate('Filter by Availability') }}
+                                        </a>
                                     </div>
                                     @php
                                         $show = $is_available !== null ? 'show' : '';
                                     @endphp
-                                    <div id="availabilityFilter"
-                                        class="collapse {{ $show }} filter-section-content">
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value="1" id="available_now"
-                                                @if ($is_available == 1) checked @endif onchange="filter(event)">
-                                            <label for="available_now">{{ translate('Available Now') }}</label>
-                                        </div>
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value="0" id="upcoming"
-                                                @if ($is_available === '0') checked @endif
-                                                onchange="filter(event)">
-                                            <label for="upcoming">{{ translate('Upcoming') }}</label>
-                                        </div>
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value=""
-                                                id="all_availability" @if ($is_available === null) checked @endif
-                                                onchange="filter(event)">
-                                            <label for="all_availability">{{ translate('All') }}</label>
+                                    <div class="collapse {{ $show }}" id="collapse_availability_filter">
+                                        <div class="p-3 aiz-checkbox-list">
+                                            <label class="aiz-checkbox mb-3">
+                                                <input type="radio" name="is_available" value="1"
+                                                    @if ($is_available == 1) checked @endif
+                                                    onchange="filter(event)">
+                                                <span class="aiz-square-check border_black"
+                                                    style="--primary: var(--black-50);"></span>
+                                                <span
+                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('Available Now') }}</span>
+                                            </label>
+                                            <label class="aiz-checkbox mb-3">
+                                                <input type="radio" name="is_available" value="0"
+                                                    @if ($is_available === '0') checked @endif
+                                                    onchange="filter(event)">
+                                                <span class="aiz-square-check border_black"></span>
+                                                <span
+                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('Upcoming') }}</span>
+                                            </label>
+                                            <label class="aiz-checkbox mb-3">
+                                                <input type="radio" name="is_available" value=""
+                                                    @if ($is_available === null) checked @endif
+                                                    onchange="filter(event)">
+                                                <span class="aiz-square-check border_black"></span>
+                                                <span
+                                                    class="fs-14 fw-400 text-dark hover-effect-list-item">{{ translate('All') }}</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

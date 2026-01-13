@@ -367,6 +367,7 @@
         border-radius: 16px;
         overflow: hidden;
         cursor: pointer;
+        margin: 10px;
         transition: .4s;
         box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
         background: #fff;
@@ -740,6 +741,7 @@
                 </a>
                 <h1>
                     <span class="explore">Explore</span>
+
                     {{ $levelTwoCategories->first()->name ?? 'Categories' }}
                 </h1>
             </div>
@@ -781,8 +783,7 @@
                                                         <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                             class="category-name">
                                                             <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                            <span
-                                                                class="product-count">({{ $level1Category->products_count ?? 0 }})</span>
+
                                                         </a>
                                                         <i class="fas fa-chevron-down toggle-icon"></i>
                                                     </div>
@@ -799,8 +800,6 @@
                                                                         <a href="{{ route('products.level2', $level2Category->id) }}"
                                                                             class="category-name">
                                                                             <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                            <span
-                                                                                class="product-count">({{ $level2Category->products_count ?? 0 }})</span>
                                                                         </a>
                                                                         <i class="fas fa-chevron-down toggle-icon"></i>
                                                                     </div>
@@ -814,8 +813,6 @@
                                                                                 <a href="{{ route('products.level2', $level3Category->id) }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level3Category->getTranslation('name') }}</span>
-                                                                                    <span
-                                                                                        class="product-count">({{ $level3Category->products_count ?? 0 }})</span>
                                                                                     <i class="fas fa-chevron-right"></i>
                                                                                 </a>
                                                                             </li>
@@ -826,8 +823,6 @@
                                                                     <a href="{{ route('products.level2', $level2Category->id) }}"
                                                                         class="category-link">
                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                        <span
-                                                                            class="product-count">({{ $level2Category->products_count ?? 0 }})</span>
                                                                         <i class="fas fa-chevron-right"></i>
                                                                     </a>
                                                                 @endif
@@ -839,27 +834,28 @@
                                                     <a href="{{ route('products.level2', $level1Category->id) }}"
                                                         class="category-link">
                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                        <span
-                                                            class="product-count">({{ $level1Category->products_count ?? 0 }})</span>
                                                         <i class="fas fa-chevron-right"></i>
                                                     </a>
                                                 @endif
                                             </li>
                                         @endforeach
                                     @else
-                                        {{-- Main Category without children --}}
-                                        <li class="{{ $currentCategoryId == $mainCategory->id ? 'active' : '' }}">
-                                            <a href="{{ route('products.category', $mainCategory->slug) }}"
-                                                class="category-link">
-                                                <span>{{ $mainCategory->getTranslation('name') }}</span>
-                                                <span
-                                                    class="product-count">({{ $mainCategory->products_count ?? 0 }})</span>
-                                                <i class="fas fa-chevron-right"></i>
-                                            </a>
-                                        </li>
-                                    @endif
+                                            <li class="{{ $currentCategoryId == $mainCategory->id ? 'active' : '' }}">
+                                                <a href="#" class="category-link">
+
+                                                    {{-- <span>{{ $main->getTranslation('name') }}</span> --}}
+                                                    <span class="product-count">
+                                                        There are no sub categories available.
+                                                    </span>
+                                                    {{-- <i class="fas fa-chevron-right"></i>  --}}
+                                                </a>
+                                            </li>
+                                        @endif
+
+
                                 </ul>
                             @endforeach
+
                         </div>
                     </div>
 

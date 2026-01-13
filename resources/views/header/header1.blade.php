@@ -305,7 +305,7 @@
     }
 
     .dropdown-item:hover {
-        background: #000000;
+        background: #dbdbdb;
     }
 
     .dropdown-footer {
@@ -350,7 +350,7 @@
     }
 
     .category-item-wrapper:hover>.dropdown-item {
-        background: #000000;
+        background: #dbdbdb;
     }
 
     .sub-arrow {
