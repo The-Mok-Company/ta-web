@@ -29,6 +29,8 @@ class ProductRequest extends FormRequest
         $rules['name']          = 'required|max:255';
         $rules['category_ids']  = 'required';
         $rules['category_id']   = ['required', Rule::in($this->category_ids)];
+        $rules['product_group_id'] = 'required|exists:product_groups,id';
+        $rules['brand_id']      = 'required|exists:brands,id';
         $rules['unit']         = 'sometimes|required|regex:/^[A-Za-z\s]+$/';
         $rules['min_qty']      = 'sometimes|required|numeric';
         $rules['unit_price']    = 'sometimes|required|numeric|gt:0';
@@ -59,6 +61,10 @@ class ProductRequest extends FormRequest
             'category_ids.required'     => translate('Product category is required'),
             'category_id.required'      => translate('Main Category is required'),
             'category_id.in'            => translate('Main Category must be within selected categories'),
+            'product_group_id.required' => translate('Product group is required'),
+            'product_group_id.exists'   => translate('Selected product group does not exist'),
+            'brand_id.required'         => translate('Brand is required'),
+            'brand_id.exists'           => translate('Selected brand does not exist'),
             'unit.required'             => translate('Product unit is required'),
             'unit.regex' => 'The unit may only contain letters and spaces.',
             'min_qty.required'          => translate('Minimum purchase quantity is required'),

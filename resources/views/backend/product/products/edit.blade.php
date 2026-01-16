@@ -124,14 +124,27 @@
                                         </div>
                                         <!-- Brand -->
                                         <div class="form-group mb-2" id="brand">
-                                            <label class="col-from-label fs-13">{{translate('Brand')}}</label>
-                                            <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true">
+                                            <label class="col-from-label fs-13">{{translate('Brand')}} <span class="text-danger">*</span></label>
+                                            <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true" required>
                                                 <option value="">{{ translate('Select Brand') }}</option>
                                                 @foreach (\App\Models\Brand::all() as $brand)
                                                 <option value="{{ $brand->id }}" @if($product->brand_id == $brand->id) selected @endif>{{ $brand->getTranslation('name') }}</option>
                                                 @endforeach
                                             </select>
                                             <small class="text-muted">{{translate("You can choose a brand if you'd like to display your product by brand.")}}</small>
+                                        </div>
+                                        <!-- Product Group -->
+                                        <div class="form-group mb-2" id="product_group">
+                                            <label class="col-from-label fs-13">{{translate('Product Group')}} <span class="text-danger">*</span></label>
+                                            <select class="form-control aiz-selectpicker" name="product_group_id" id="product_group_id"
+                                                data-live-search="true" required>
+                                                <option value="">{{ translate('Select Product Group') }}</option>
+                                                @foreach (\App\Models\ProductGroup::active()->orderBy('name', 'asc')->get() as $group)
+                                                    <option value="{{ $group->id }}" data-category-id="{{ $group->category_id }}"
+                                                        @if($product->product_group_id == $group->id) selected @endif>{{ $group->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">{{ translate('Product groups are filtered by selected sub-category') }}</small>
                                         </div>
                                         <!-- Unit -->
                                         <div class="form-group mb-2">
@@ -1445,7 +1458,61 @@
 
         $(document).on('change', 'input[name="category_id"]', function () {
             isRefundable();
+            filterProductGroupsByCategory();
         });
+
+        // Filter product groups based on selected sub-category
+        function filterProductGroupsByCategory() {
+            var selectedCategoryId = $('input[name="category_id"]:checked').val();
+            var $productGroupSelect = $('#product_group_id');
+            
+            if (!selectedCategoryId) {
+                $productGroupSelect.prop('disabled', true);
+                AIZ.plugins.bootstrapSelect('refresh');
+                return;
+            }
+
+            // Enable the select first
+            $productGroupSelect.prop('disabled', false);
+            
+            // Show all options first
+            $productGroupSelect.find('option').show();
+            
+            // If a category is selected, filter groups by that category
+            if (selectedCategoryId) {
+                $productGroupSelect.find('option').each(function() {
+                    var $option = $(this);
+                    var optionCategoryId = $option.data('category-id');
+                    
+                    // Always show the placeholder option
+                    if ($option.val() === '') {
+                        return;
+                    }
+                    
+                    // Hide options that don't match the selected category
+                    if (optionCategoryId && optionCategoryId != selectedCategoryId) {
+                        $option.hide();
+                    }
+                });
+            }
+            
+            // Reset selection if current selection is hidden (unless it matches)
+            var currentValue = $productGroupSelect.val();
+            if (currentValue && !$productGroupSelect.find('option[value="' + currentValue + '"]:visible').length) {
+                // Keep current value if it exists, otherwise clear
+                var currentOption = $productGroupSelect.find('option[value="' + currentValue + '"]');
+                if (currentOption.length && currentOption.data('category-id') == selectedCategoryId) {
+                    // Option matches, keep it visible
+                } else {
+                    $productGroupSelect.val('');
+                }
+            }
+            
+            AIZ.plugins.bootstrapSelect('refresh');
+        }
+
+        // Initial call on page load
+        filterProductGroupsByCategory();
 
         $('input[name="refundable"]').on('change', function () {
             if (!$('input[name="refundable"]').prop('disabled')) {

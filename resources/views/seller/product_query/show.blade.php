@@ -10,6 +10,43 @@
             </div>
 
             <div class="card-body">
+                <!-- Status Section -->
+                <div class="mb-3">
+                    <label class="form-label">{{ translate('Current Status') }}</label>
+                    <div>
+                        <span class="badge badge-inline {{ $query->status->badgeClass() }}" style="font-size: 14px; padding: 8px 12px;">
+                            {{ $query->status->label() }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Update Status Form -->
+                @if (Auth::user()->id == $query->seller_id)
+                    <form action="{{ route('seller.product_query.update_status', $query->id) }}" method="POST" class="mb-3">
+                        @csrf
+                        @method('PUT')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">{{ translate('Change Status') }}</label>
+                                <select class="form-control aiz-selectpicker" name="status" required>
+                                    @foreach(\App\Enums\InquiryStatus::cases() as $status)
+                                        <option value="{{ $status->value }}" {{ $query->status == $status ? 'selected' : '' }}>
+                                            {{ $status->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button type="submit" class="btn btn-primary btn-block">{{ translate('Update Status') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                @endif
+
+                <!-- Inquiry Details -->
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item px-0">
                         <div class="media mb-2">
@@ -30,6 +67,8 @@
                         </p>
                     </li>
                 </ul>
+
+                <!-- Reply Form -->
                 @if (Auth::user()->id == $query->seller_id)
                     <form action="{{ route('seller.product_query.reply',$query->id) }}" method="POST">
                         @method('put')
@@ -37,6 +76,7 @@
                         <input type="hidden" name="conversation_id" value="{{ $query->id }}">
                         <div class="row">
                             <div class="col-md-12">
+                                <label class="form-label">{{ translate('Reply') }}</label>
                                 <textarea class="form-control" rows="4" name="reply" placeholder="{{ translate('Type your reply') }}"
                                     required>{{ $query->reply }}</textarea>
                             </div>
@@ -47,6 +87,15 @@
                         </div>
                     </form>
                 @endif
+
+                <!-- Additional Info -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        @if($query->expires_at)
+                            {{ translate('Expires') }}: {{ $query->expires_at->format('Y-m-d H:i') }}
+                        @endif
+                    </small>
+                </div>
             </div>
         </div>
     </div>

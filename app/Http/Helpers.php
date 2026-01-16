@@ -1330,7 +1330,31 @@ if (!function_exists('my_asset')) {
             return Storage::disk(config('filesystems.default'))->url($path);
         }
 
-        return app('url')->asset(  $path, $secure);
+        // When running locally, DB records may point to uploaded files that are
+        // not present on disk. If the file is missing, return a blank data URI
+        // (renders nothing) instead of causing a 404/broken UI.
+        try {
+            $normalizedPath = ltrim($path, '/');
+            $fullPath = public_path($normalizedPath);
+
+            if (!file_exists($fullPath)) {
+                $ext = strtolower(pathinfo($normalizedPath, PATHINFO_EXTENSION));
+                $blankable = [
+                    // images
+                    'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+                    // video
+                    'mp4', 'webm', 'ogg',
+                ];
+
+                if (in_array($ext, $blankable, true)) {
+                    return 'data:,';
+                }
+            }
+        } catch (\Throwable $e) {
+            // If anything goes wrong, fall back to normal asset URL.
+        }
+
+        return app('url')->asset($path, $secure);
     }
 }
 
@@ -1344,7 +1368,30 @@ if (!function_exists('static_asset')) {
      */
     function static_asset($path, $secure = null)
     {
-        return app('url')->asset( $path, $secure);
+        // For local development, if an image/video static asset is missing,
+        // return blank data URI so nothing is shown (instead of 404).
+        try {
+            $normalizedPath = ltrim($path, '/');
+            $fullPath = public_path($normalizedPath);
+
+            if (!file_exists($fullPath)) {
+                $ext = strtolower(pathinfo($normalizedPath, PATHINFO_EXTENSION));
+                $blankable = [
+                    // images
+                    'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+                    // video
+                    'mp4', 'webm', 'ogg',
+                ];
+
+                if (in_array($ext, $blankable, true)) {
+                    return 'data:,';
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return app('url')->asset($path, $secure);
     }
 }
 

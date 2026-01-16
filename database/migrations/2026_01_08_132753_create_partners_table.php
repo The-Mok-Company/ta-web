@@ -10,10 +10,13 @@ return new class extends Migration {
         Schema::create('partners', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
+            $table->unsignedInteger('user_id')
+                ->nullable();
+            
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             $table->string('name');
             $table->string('email');

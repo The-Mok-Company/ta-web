@@ -95,6 +95,21 @@
                                                         $notifyContent = "<a href='".$link."'>".$notifyContent."</a>";
                                                     }
                                                 @endphp
+                                            @elseif(
+                                                $notification->type == 'App\Notifications\ProductQueryStatusNotification' ||
+                                                $notification->type == 'App\Notifications\ProductQueryReplyNotification'
+                                            )
+                                                @php
+                                                    $productName = $notification->data['product_name'] ?? '';
+                                                    $statusLabel = $notification->data['status_label'] ?? ($notification->data['status'] ?? '');
+                                                    $notifyContent = str_replace('[[product_name]]', $productName, $notifyContent);
+                                                    $notifyContent = str_replace('[[status]]', $statusLabel, $notifyContent);
+
+                                                    $link = $notification->data['link'] ?? null;
+                                                    if($link != null){
+                                                        $notifyContent = "<a href='".$link."'>".$notifyContent."</a>";
+                                                    }
+                                                @endphp
                                             @endif
                                             {!! $notifyContent !!}
                                         </p>

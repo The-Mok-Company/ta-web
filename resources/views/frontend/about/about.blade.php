@@ -420,14 +420,14 @@
                             <img src="{{ asset($hero->value['image']) }}"
                                  alt="Who We Are"
                                  class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                                 onerror="this.onerror=null; this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}'">
 
 
                         @else
                             <img src="{{ asset('assets/img/about/60e4d4135fac5d6e76b09f98b4a872dfa0909dfb.png') }}"
                                  alt="Who We Are"
                                  class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                                 onerror="this.onerror=null; this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}'">
                         @endif
                     </div>
                 </div>
@@ -459,11 +459,11 @@
                                 @if($image)
                                     <img src="{{ asset($image) }}"
                                          alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                         onerror="this.onerror=null; this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                 @else
                                     <img src="{{ static_asset('assets/img/vision/team'.($index+1).'.jpg') }}"
                                          alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                         onerror="this.onerror=null; this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                 @endif
                             </div>
                         @endforeach
@@ -473,7 +473,7 @@
                             <div class="vision-image-item">
                                 <img src="{{ static_asset('assets/img/vision/team'.$i.'.jpg') }}"
                                      alt="Team Member {{ $i }}"
-                                     onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $i }}'">
+                                     onerror="this.onerror=null; this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                             </div>
                         @endfor
                     @endif

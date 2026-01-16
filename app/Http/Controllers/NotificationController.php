@@ -194,6 +194,20 @@ class NotificationController extends Controller
         elseif($notification->type == 'App\Notifications\CustomNotification'){
             return redirect()->to($notification->data['link']);
         }
+
+        // Product query notification redirect
+        elseif(
+            $notification->type == 'App\Notifications\ProductQueryStatusNotification' ||
+            $notification->type == 'App\Notifications\ProductQueryReplyNotification'
+        ){
+            if (isset($notification->data['link']) && $notification->data['link'] != null) {
+                return redirect()->to($notification->data['link']);
+            }
+            if (isset($notification->data['product_slug']) && $notification->data['product_slug'] != null) {
+                return redirect()->route('product', $notification->data['product_slug']);
+            }
+            return redirect()->back();
+        }
      
     }
 

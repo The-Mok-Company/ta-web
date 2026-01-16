@@ -1,5 +1,14 @@
 <!doctype html>
-@if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+@php
+    $__rtl = false;
+    try {
+        $__lang = \App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first();
+        $__rtl = $__lang && $__lang->rtl == 1;
+    } catch (\Throwable $e) {
+        $__rtl = false;
+    }
+@endphp
+@if($__rtl)
 <html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @else
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -22,7 +31,7 @@
 
 	<!-- aiz core css -->
 	<link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    @if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+    @if($__rtl)
     <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
 	<link rel="stylesheet" href="{{ static_asset('assets/css/aiz-seller.css') }}">

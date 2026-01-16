@@ -47,15 +47,40 @@
                                 </div>
                             </div>
                             <div class="form-group row" id="brand">
-                                <label class="col-md-3 col-from-label">{{ translate('Brand') }}</label>
+                                <label class="col-md-3 col-from-label">{{ translate('Brand') }} <span class="text-danger">*</span></label>
                                 <div class="col-md-8">
                                     <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id"
-                                        data-live-search="true">
+                                        data-live-search="true" required>
                                         <option value="">{{ translate('Select Brand') }}</option>
                                         @foreach (\App\Models\Brand::all() as $brand)
                                             <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group row" id="product_group">
+                                <label class="col-md-3 col-from-label">{{ translate('Product Group') }} <span class="text-danger">*</span></label>
+                                <div class="col-md-8">
+                                    <select class="form-control aiz-selectpicker" name="product_group_id" id="product_group_id"
+                                        data-live-search="true" required>
+                                        <option value="">{{ translate('Select Product Group') }}</option>
+                                        @foreach (\App\Models\ProductGroup::active()->with('category')->orderBy('name', 'asc')->get() as $group)
+                                            <option value="{{ $group->id }}" 
+                                                data-category-id="{{ $group->category_id }}"
+                                                data-parent-category-id="{{ $group->category->parent_id ?? '' }}">
+                                                {{ $group->name }}
+                                                @if($group->category)
+                                                    ({{ $group->category->name }})
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        {{ translate('Product groups are automatically filtered based on selected categories.') }}
+                                        <a href="{{ route('product-groups.index') }}" target="_blank" class="text-primary">
+                                            {{ translate('Create Product Groups') }}
+                                        </a>
+                                    </small>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -1150,7 +1175,75 @@
 
         $(document).on('change', 'input[name="category_id"]', function () {
             isRefundable();
+            filterProductGroupsByCategory();
         });
+
+        // Filter product groups based on selected category (main or sub-category)
+        function filterProductGroupsByCategory() {
+            var selectedCategoryId = $('input[name="category_id"]:checked').val();
+            var $productGroupSelect = $('#product_group_id');
+            var $selectedCheckboxes = $('input[name="category_ids[]"]:checked');
+            
+            // Enable the select (don't disable it - let user see all groups initially)
+            $productGroupSelect.prop('disabled', false);
+            
+            // Show all options first
+            $productGroupSelect.find('option').show();
+            
+            // If a category is selected, try to filter
+            if (selectedCategoryId) {
+                var categoryIds = [];
+                categoryIds.push(selectedCategoryId); // Main category
+                
+                // Get all checked sub-categories
+                $selectedCheckboxes.each(function() {
+                    var catId = $(this).val();
+                    if (catId != selectedCategoryId) {
+                        categoryIds.push(catId);
+                    }
+                });
+                
+                // Filter product groups: show if their category_id matches any selected category
+                // OR if their parent category matches the main category
+                $productGroupSelect.find('option').each(function() {
+                    var $option = $(this);
+                    var optionCategoryId = $option.data('category-id');
+                    var optionParentCategoryId = $option.data('parent-category-id');
+                    
+                    // Always show the placeholder option
+                    if ($option.val() === '') {
+                        return;
+                    }
+                    
+                    // Show if:
+                    // 1. The group's category_id is in the selected categories, OR
+                    // 2. The group's parent category matches the main category, OR
+                    // 3. No filtering needed (allow all if no specific match)
+                    var shouldShow = false;
+                    if (optionCategoryId && categoryIds.includes(optionCategoryId.toString())) {
+                        shouldShow = true;
+                    } else if (optionParentCategoryId && optionParentCategoryId == selectedCategoryId) {
+                        shouldShow = true;
+                    } else if (categoryIds.length === 0) {
+                        shouldShow = true; // Show all if no category selected
+                    }
+                    
+                    if (!shouldShow && optionCategoryId) {
+                        $option.hide();
+                    }
+                });
+            }
+            
+            AIZ.plugins.bootstrapSelect('refresh');
+        }
+
+        // Also listen for category_ids[] changes (sub-categories)
+        $(document).on('change', 'input[name="category_ids[]"]', function() {
+            filterProductGroupsByCategory();
+        });
+
+        // Initial call on page load
+        filterProductGroupsByCategory();
 
         $('input[name="refundable"]').on('change', function () {
             if (!$('input[name="refundable"]').prop('disabled')) {

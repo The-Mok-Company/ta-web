@@ -28,5 +28,12 @@ install.zip
 public/uploads.zip
 .env
 .env.example
- 
+public/assets/
+public/assets/css/
+public/assets/js/
+public/assets/img/
+public/assets/fonts/
+public/assets/fonts/
+/public/
+app/Http/Helpers.php
 

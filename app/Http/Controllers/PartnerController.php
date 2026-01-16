@@ -9,7 +9,7 @@ class PartnerController extends Controller
 {
     public function index()
     {
-        $partners = Partner::latest()->paginate(9);
+        $partners = Partner::with('user')->latest()->paginate(15);
 
         return view('backend.setting.join-us', compact('partners'));
     }

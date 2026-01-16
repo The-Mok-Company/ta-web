@@ -6,6 +6,9 @@ use App\Models\Product;
 use App\Models\ProductQuery;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ProductQueryReplyNotification;
+use App\Enums\InquiryStatus;
 
 class ProductQueryController extends Controller
 {
@@ -50,6 +53,7 @@ class ProductQueryController extends Controller
         $query->customer_id = Auth::id();
         $query->seller_id = $product->user_id;
         $query->product_id = $product->id;
+        $query->category_id = $product->category_id; // Set category for filtering
         $query->question = $request->question;
         $query->save();
         flash(translate('Your query has been submittes successfully'))->success();
@@ -67,7 +71,31 @@ class ProductQueryController extends Controller
         ]);
         $query = ProductQuery::find($id);
         $query->reply = $request->reply;
+        // Auto-update status to Responded if it was New or Pending
+        if (in_array($query->status, [InquiryStatus::New, InquiryStatus::Pending])) {
+            $query->status = InquiryStatus::Responded;
+        }
         $query->save();
+
+        // Notify customer about reply
+        $query->loadMissing('product', 'user');
+        $notificationType = get_notification_type('product_query_replied_customer', 'type');
+        if ($notificationType && $notificationType->status == 1 && $query->user) {
+            $product = $query->product;
+            $link = $product ? (route('product', $product->slug) . '#product_query') : null;
+            $statusLabel = $query->status instanceof InquiryStatus ? $query->status->label() : (string) $query->status;
+            $data = [
+                'notification_type_id' => $notificationType->id,
+                'product_query_id' => $query->id,
+                'product_id' => $product?->id,
+                'product_slug' => $product?->slug,
+                'product_name' => $product ? $product->getTranslation('name') : null,
+                'status' => $query->status instanceof InquiryStatus ? $query->status->value : (string) $query->status,
+                'status_label' => $statusLabel,
+                'link' => $link,
+            ];
+            Notification::send($query->user, new ProductQueryReplyNotification($data));
+        }
         flash(translate('Replied successfully!'))->success();
         return redirect()->route('product_query.index');
     }

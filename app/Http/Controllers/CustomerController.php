@@ -4,14 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ProductQuery;
 use App\Utility\EmailUtility;
 use Hash;
+use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
     public function __construct() {
         // Staff Permission Check
-        $this->middleware(['permission:view_all_customers'])->only('index');
+        // Allow admin users (user_type == 'admin') or users with view_all_customers permission
+        $this->middleware(function ($request, $next) {
+            if (auth()->check()) {
+                $user = auth()->user();
+                // Allow admin users (user_type == 'admin') to access
+                if ($user->user_type == 'admin') {
+                    return $next($request);
+                }
+                // For staff, check if they have the permission
+                if ($user->can('view_all_customers')) {
+                    return $next($request);
+                }
+            }
+            abort(403, 'Unauthorized action.');
+        })->only(['index', 'newCustomers', 'inquiredCustomers']);
+        
         $this->middleware(['permission:add_customer'])->only('create');
         $this->middleware(['permission:login_as_customer'])->only('login');
         $this->middleware(['permission:ban_customer'])->only('ban');
@@ -243,5 +260,94 @@ class CustomerController extends Controller
         $user->save();
         
         return back();
+    }
+
+    /**
+     * Display newly registered customers (last 30 days by default)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function newCustomers(Request $request)
+    {
+        $sort_search = null;
+        $days = $request->days ?? 30; // Default to last 30 days
+        $verification_status = $request->verification_status ?? null;
+        
+        $users = User::where('user_type', 'customer')
+            ->where('created_at', '>=', Carbon::now()->subDays($days))
+            ->orderBy('created_at', 'desc');
+            
+        if($verification_status != null){
+            $users = $verification_status == 'verified' 
+                ? $users->where('email_verified_at', '!=', null) 
+                : $users->where('email_verified_at', null);
+        }
+        
+        if ($request->has('search')){
+            $sort_search = $request->search;
+            $users->where(function ($q) use ($sort_search){
+                $q->where('name', 'like', '%'.$sort_search.'%')
+                  ->orWhere('email', 'like', '%'.$sort_search.'%');
+            });
+        }
+        
+        $users = $users->paginate(15);
+        
+        return view('backend.customer.customers.new_customers', compact('users', 'sort_search', 'verification_status', 'days'));
+    }
+
+    /**
+     * Display customers who have submitted inquiries
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function inquiredCustomers(Request $request)
+    {
+        $sort_search = null;
+        $verification_status = $request->verification_status ?? null;
+        
+        // Get unique customer IDs who have submitted inquiries
+        $customerIds = ProductQuery::select('customer_id')
+            ->distinct()
+            ->pluck('customer_id')
+            ->filter()
+            ->toArray();
+        
+        // Build query
+        if (empty($customerIds)) {
+            // If no inquiries exist, return empty paginated result
+            $users = new \Illuminate\Pagination\LengthAwarePaginator(
+                collect([]),
+                0,
+                15,
+                1,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            $users = User::where('user_type', 'customer')
+                ->whereIn('id', $customerIds)
+                ->withCount('product_queries')
+                ->orderBy('created_at', 'desc');
+                
+            if($verification_status != null){
+                $users = $verification_status == 'verified' 
+                    ? $users->where('email_verified_at', '!=', null) 
+                    : $users->where('email_verified_at', null);
+            }
+            
+            if ($request->has('search')){
+                $sort_search = $request->search;
+                $users->where(function ($q) use ($sort_search){
+                    $q->where('name', 'like', '%'.$sort_search.'%')
+                      ->orWhere('email', 'like', '%'.$sort_search.'%');
+                });
+            }
+            
+            $users = $users->paginate(15);
+        }
+        
+        return view('backend.customer.customers.inquired_customers', compact('users', 'sort_search', 'verification_status'));
     }
 }

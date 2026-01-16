@@ -5,6 +5,7 @@ use App\Http\Controllers\Seller\CustomLabelController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\Seller\GSTController;
 use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Seller\ProductQueryController;
 
 //Upload
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
@@ -168,6 +169,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::get('/product-queries', 'index')->name('product_query.index');
         Route::get('/product-queries/{id}', 'show')->name('product_query.show');
         Route::put('/product-queries/{id}', 'reply')->name('product_query.reply');
+        Route::put('/product-queries/{id}/status', 'updateStatus')->name('product_query.update_status');
     });
 
     // Support Ticket

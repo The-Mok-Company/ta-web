@@ -24,8 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        // Auto-expire inquiries older than 1 month
+        $schedule->command('inquiries:expire')
+                 ->daily();
     }
 
     /**

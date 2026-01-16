@@ -39,6 +39,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationTypeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PagesSetupController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PickupPointController;
 use App\Http\Controllers\ProductBulkUploadController;
@@ -129,6 +130,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/brands/filter/brands', 'get_brands_by_filter')->name('brands.filter');
         Route::post('/bulk-brands-delete', 'bulk_brands_delete')->name('bulk-brands-delete');
         Route::get('/brand_category/show/{id}', 'showCategories')->name('brand_category.show');
+    });
+
+    // Product Groups
+    Route::resource('product-groups', \App\Http\Controllers\Admin\ProductGroupController::class);
+    Route::controller(\App\Http\Controllers\Admin\ProductGroupController::class)->group(function () {
+        Route::get('/product-groups/edit/{id}', 'edit')->name('product-groups.edit');
+        Route::get('/product-groups/destroy/{id}', 'destroy')->name('product-groups.destroy');
+        Route::get('/product-groups/by-category', 'getByCategory')->name('product-groups.by-category');
     });
 
     // Warranty
@@ -282,6 +291,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/customers/login/{id}', 'login')->name('customers.login');
         Route::get('/customers/destroy/{id}', 'destroy')->name('customers.destroy');
         Route::post('/bulk-customer-delete', 'bulk_customer_delete')->name('bulk-customer-delete');
+        Route::get('/customers/new', 'newCustomers')->name('customers.new');
+        Route::get('/customers/inquired', 'inquiredCustomers')->name('customers.inquired');
     });
 
     // Newsletter
@@ -439,6 +450,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
             Route::get('/custom-pages/destroy/{id}', 'destroy')->name('custom-pages.destroy');
         });
 
+        // Pages Setup Preview
+        Route::controller(PagesSetupController::class)->group(function () {
+            Route::get('/pages-setup/preview/homepage', 'previewHomepage')->name('pages-setup.preview.homepage');
+            Route::get('/pages-setup/preview/about-us', 'previewAboutUs')->name('pages-setup.preview.about-us');
+            Route::get('/pages-setup/preview/our-partners', 'previewOurPartners')->name('pages-setup.preview.our-partners');
+            Route::get('/pages-setup/preview/our-services', 'previewOurServices')->name('pages-setup.preview.our-services');
+            Route::get('/pages-setup/preview/footer', 'previewFooter')->name('pages-setup.preview.footer');
+        });
+
         // topbar
         Route::controller(TopBannerController::class)->group(function () {
             Route::get('/top-bar-list', 'index')->name('top_banner.index');
@@ -544,6 +564,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/user_search_report', 'user_search_report')->name('user_search_report.index');
         Route::get('/commission-log', 'commission_history')->name('commission-log.index');
         Route::get('/wallet-history', 'wallet_transaction_history')->name('wallet-history.index');
+        Route::get('/inquiries-report', 'inquiries_report')->name('inquiries_report.index');
+        Route::get('/search-reports', 'search_reports')->name('search_reports.index');
     });
 
     // Earning Report
@@ -622,7 +644,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::post('/settings/about-us', [AboutUsController::class, 'update'])->name('settings.about-us.update');
     Route::get('/settings/our-partners', [OurPartnersController::class, 'index'])->name('settings.our-partners');
     Route::post('/settings/our-partners', [OurPartnersController::class, 'update'])->name('settings.our-partners.update');
-    Route::get('/admin/settings/join-us', [PartnerController::class, 'index'])
+    Route::get('/settings/join-us', [PartnerController::class, 'index'])
         ->name('settings.join-us');
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {
