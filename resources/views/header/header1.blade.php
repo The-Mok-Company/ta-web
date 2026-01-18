@@ -32,7 +32,7 @@
         width: 90%;
         padding: 0 40px;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         background: #1a1a1a;
         border-radius: 100px;
@@ -55,6 +55,7 @@
         text-decoration: none;
         color: white;
         padding-right: 20px;
+        margin-top: 15px;
     }
 
     .logo1-icon {
@@ -139,7 +140,7 @@
         border: none;
         color: #999;
         cursor: pointer;
-        padding: 8px;
+        padding: 10px 8px 8px 8px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -680,7 +681,7 @@
             </div>
 
             <!-- User Icon -->
-            <div class="icon-btn" style="position: relative;">
+            <div class="icon-btn" style="position: relative; top:5px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -764,15 +765,7 @@
                     </div>
                 @endauth
             </div>
-            <!-- User Icon -->
-            <div>
-                {{-- Welcome text --}}
-                @auth
-                    <div class="welcome-text">
-                        Welcome, <strong>{{ Auth::user()->name }}</strong>
-                    </div>
-                @endauth
-            </div>
+
 
 
             <!-- Mobile Menu Button -->

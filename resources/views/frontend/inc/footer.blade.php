@@ -1,7 +1,37 @@
-<!-- Last Viewed Products  -->
-
 
 <!-- footer Description -->
+<style>
+.policy-file a {
+    transition: all 0.3s ease;
+}
+#text-dark22 { color: white; }
+
+.policy-file .policy-title,
+.policy-file svg path {
+    fill: #fff;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.policy-file .policy-title:hover {
+    color: rgba(46, 136, 214, 1) !important;
+}
+
+.policy-file a:hover svg path {
+    fill: rgba(46, 136, 214, 1) !important;
+}
+.policy-file a:hover {
+    #text-dark22{
+        color: rgba(46, 136, 214, 1) !important;
+    }
+
+}
+.policy-file a:hover .icon-mark {
+    fill: #2e88d6;
+}
+
+
+</style>
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
         <div class="container py-32px">
@@ -40,7 +70,8 @@
                             transform="translate(14513.998 -18900.002)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}</h4>
+                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Terms & conditions') }}
+                    </h4>
                 </a>
             </div>
 
@@ -54,7 +85,7 @@
                             transform="translate(14514.001 -18900)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
+                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Return Policy') }}</h4>
                 </a>
             </div>
 
@@ -84,7 +115,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
+                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Support Policy') }}</h4>
                 </a>
             </div>
 
@@ -97,7 +128,7 @@
                             <path id="Subtraction_11" data-name="Subtraction 11"
                                 d="M-14498,18932a15.894,15.894,0,0,1-11.312-4.687A15.909,15.909,0,0,1-14514,18916a15.884,15.884,0,0,1,4.685-11.309A15.9,15.9,0,0,1-14498,18900a15.909,15.909,0,0,1,11.316,4.688A15.885,15.885,0,0,1-14482,18916a15.9,15.9,0,0,1-4.687,11.316A15.909,15.909,0,0,1-14498,18932Zm0-31a14.9,14.9,0,0,0-10.605,4.393A14.9,14.9,0,0,0-14513,18916a14.9,14.9,0,0,0,4.395,10.607A14.9,14.9,0,0,0-14498,18931a14.9,14.9,0,0,0,10.607-4.393A14.9,14.9,0,0,0-14483,18916a14.9,14.9,0,0,0-4.393-10.607A14.9,14.9,0,0,0-14498,18901Z"
                                 transform="translate(15968 -16470)" fill="rgba(255, 255, 255, 1)" />
-                            <g id="Group_24196" data-name="Group 24196" transform="translate(0 -1)">
+                            <g id="Group_24196" data-name="Group 24196" transform="translate(0 -1)" >
                                 <rect id="Rectangle_18406" data-name="Rectangle 18406" width="2" height="10"
                                     transform="translate(1469 2440)" fill="rgba(255, 255, 255, 1)" />
                                 <rect id="Rectangle_18407" data-name="Rectangle 18407" width="2" height="2"
@@ -106,7 +137,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
+                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Privacy Policy') }}</h4>
                 </a>
             </div>
         </div>
