@@ -38,7 +38,7 @@ class FooterController extends Controller
             $logoImage = $request->file('logo_image');
             $logoImageName = 'footer_logo_' . time() . '.' . $logoImage->getClientOriginalExtension();
             $logoImage->move(public_path('assets/img/footer'), $logoImageName);
-            $logoImagePath = 'assets/img/footer/' . $logoImageName;
+            $logoImagePath = 'public/assets/img/footer/' . $logoImageName;
         }
 
         // Update Branding Section

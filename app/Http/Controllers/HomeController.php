@@ -73,6 +73,10 @@ class HomeController extends Controller
     {
         return view('frontend.about.about');
     }
+    public function ourservices()
+    {
+        return view('frontend.ourservices.index');
+    }
     public function ourpartners()
     {
         return view('frontend.ourpartners.index');

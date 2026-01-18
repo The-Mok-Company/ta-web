@@ -21,7 +21,8 @@
 
     $currentCategoryId = request()->segment(2);
 
-    $heroCategory = $mainCategory ?? ($levelOneCategories->first() ?? null);
+    // Hero category هو الـ main category المختار
+    $heroCategory = $mainCategory ?? null;
 @endphp
 
 <style>
@@ -156,6 +157,12 @@
         margin-top: 0;
     }
 
+    /* Active section header styling */
+    .category-sidebar h6.active-section {
+        color: #4a90e2;
+        font-weight: 700;
+    }
+
     .category-sidebar ul {
         list-style: none;
         padding: 0;
@@ -256,6 +263,7 @@
 
     .category-sidebar ul li.active i {
         opacity: 1;
+        color: #fff;
     }
 
     /* SUBMENUS VISIBILITY */
@@ -269,11 +277,92 @@
     .sub-categories.show,
     .sub-sub-categories.show {
         display: block;
+        margin-left: 16px;
     }
 
-    /* ALL MAIN CATEGORIES WRAPPER (تحت All Categories) */
-    .all-main-categories-wrapper.collapsed .main-level0 {
+    /* Rotate toggle icon when expanded */
+    .category-sidebar ul li.active>.category-header>.toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* ALL MAIN CATEGORIES WRAPPER */
+    .all-main-categories-wrapper {
+        padding-left: 0;
+        margin-top: 5px;
+    }
+
+    .all-main-categories-wrapper.collapsed {
         display: none;
+    }
+
+    /* Main Category Item Styling */
+    .main-category-item {
+        margin-bottom: 15px;
+    }
+
+    .main-category-item .main-category-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all .3s ease;
+        background: transparent;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .main-category-item .main-category-header:hover {
+        background: #f8f9fa;
+        color: #333;
+    }
+
+    .main-category-item.active .main-category-header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+    }
+
+    .main-category-item.active .main-category-header:hover {
+        filter: brightness(1.05);
+    }
+
+    .main-category-item .main-category-name {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .main-category-item .main-toggle-icon {
+        font-size: 10px;
+        opacity: 0.5;
+        transition: all .3s ease;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+
+    .main-category-item.active .main-toggle-icon {
+        opacity: 1;
+        color: #fff;
+    }
+
+    .main-category-item .main-toggle-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+    .main-category-children {
+        display: none;
+        padding-left: 0;
+        margin-top: 10px;
+    }
+
+    .main-category-children.show {
+        display: block;
+        margin-left: 16px;
     }
 
     /* CATEGORY CARD */
@@ -398,7 +487,7 @@
                 rgba(0, 0, 0, 0.75) 100%);
     }
 
-    /* RESPONSIVE – بدون تغيير منطقي */
+    /* RESPONSIVE */
 
     @media (min-width: 1400px) {
         .category-hero {
@@ -735,6 +824,46 @@
             transform: scale(0.95);
         }
     }
+
+    .sub-categories-bottom a.sub-cat-item {
+        text-decoration: none;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sub-categories-bottom a.sub-cat-item:hover {
+        opacity: 1;
+        text-decoration: underline;
+    }
+
+    .category-card-wrapper {
+        position: relative;
+    }
+
+    .category-main-link {
+        display: block;
+    }
+
+    .main-category-link {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+    }
+
+    .main-category-link:hover {
+        color: #28a745;
+    }
+
+    #title-filter {
+        font-weight: 600;
+        margin-bottom: 15px;
+        margin-top: 30px;
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 2px 0px;
+    }
 </style>
 
 @section('content')
@@ -748,7 +877,7 @@
                 </a>
                 <h1>
                     <span class="explore">Explore</span>
-                    {{ $heroCategory?->getTranslation('name') ?? 'Food & Beverages' }}
+                    {{ $heroCategory?->getTranslation('name') ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -778,142 +907,211 @@
                             {{-- كل الـ Main Level 0 تحت All Categories --}}
                             <div class="all-main-categories-wrapper">
                                 @foreach ($mainCategories as $main)
-                                    <h6>{{ $main->getTranslation('name') }}</h6>
+                                    @php
+                                        $isMainActive = false;
+                                        if (isset($mainCategory) && $mainCategory->id == $main->id) {
+                                            $isMainActive = true;
+                                        } elseif (isset($levelOneCategories)) {
+                                            foreach ($levelOneCategories as $l1) {
+                                                if ($l1->parent_id == $main->id) {
+                                                    $isMainActive = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    @endphp
 
-                                    <ul class="parent-category-list main-level0">
+                                    {{-- Main Category Item with Header --}}
+                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}"
+                                        data-main-id="{{ $main->id }}">
+
+                                        <div class="main-category-header">
+                                            <a href="{{ route('products.category', $main->slug) }}"
+                                                class="main-category-name">
+                                                {{ $main->getTranslation('name') }}
+                                            </a>
+                                            @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
+                                                <i class="fas fa-chevron-down main-toggle-icon"></i>
+                                            @endif
+                                        </div>
+
+                                        {{-- Main Category Children --}}
                                         @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
-                                            @foreach ($main->childrenCategories as $level1Category)
-                                                <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }}"
-                                                    data-category-id="{{ $level1Category->id }}">
+                                            <div class="main-category-children">
+                                                <span id="title-filter">SUB Categories</span>
+                                                <ul class="parent-category-list main-level0">
+                                                    @foreach ($main->childrenCategories as $level1Category)
+                                                        @php
+                                                            $isLevel1Active = $currentCategoryId == $level1Category->id;
+                                                            $hasActiveChild = false;
 
-                                                    @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
-                                                        <div class="category-header">
-                                                            <a href="{{ route('categories.level2', $level1Category->id) }}"
-                                                                class="category-name">
-                                                                <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                                {{-- <span class="product-count">
-                                                                    ({{ $level1Category->products_count ?? 0 }})
-                                                                </span> --}}
-                                                            </a>
-                                                            <i class="fas fa-chevron-down toggle-icon"></i>
-                                                        </div>
+                                                            if ($level1Category->childrenCategories) {
+                                                                foreach ($level1Category->childrenCategories as $l2) {
+                                                                    if ($currentCategoryId == $l2->id) {
+                                                                        $hasActiveChild = true;
+                                                                        $isLevel1Active = true;
+                                                                        break;
+                                                                    }
+                                                                    if ($l2->childrenCategories) {
+                                                                        foreach ($l2->childrenCategories as $l3) {
+                                                                            if ($currentCategoryId == $l3->id) {
+                                                                                $hasActiveChild = true;
+                                                                                $isLevel1Active = true;
+                                                                                break 2;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        <li class="parent-category {{ $isLevel1Active ? 'active' : '' }}"
+                                                            data-category-id="{{ $level1Category->id }}">
 
-                                                        <ul class="sub-categories"
-                                                            data-parent-id="{{ $level1Category->id }}">
-                                                            @foreach ($level1Category->childrenCategories as $level2Category)
-                                                                <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }}"
-                                                                    data-category-id="{{ $level2Category->id }}">
+                                                            @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
+                                                                <div class="category-header">
+                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                        class="category-name">
+                                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    </a>
+                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                </div>
 
-                                                                    @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
-                                                                        <div class="category-header">
-                                                                            <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                                class="category-name">
-                                                                                <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                                {{-- <span class="product-count">
-                                                                                    ({{ $level2Category->products_count ?? 0 }})
-                                                                                </span> --}}
-                                                                            </a>
-                                                                            <i class="fas fa-chevron-down toggle-icon"></i>
-                                                                        </div>
+                                                                <span id="title-filter"
+                                                                    class="products-title">Products</span>
 
-                                                                        <ul class="sub-sub-categories"
-                                                                            data-parent-id="{{ $level2Category->id }}">
-                                                                            @foreach ($level2Category->childrenCategories as $level3Category)
-                                                                                <li
-                                                                                    class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                    <a href="{{ route('products.level2', $level3Category->id) }}"
-                                                                                        class="category-link">
-                                                                                        <span>{{ $level3Category->getTranslation('name') }}</span>
-                                                                                        {{-- <span class="product-count">
-                                                                                            ({{ $level3Category->products_count ?? 0 }})
-                                                                                        </span> --}}
-                                                                                        <i class="fas fa-chevron-right"></i>
+                                                                <ul class="sub-categories {{ $hasActiveChild ? 'show' : '' }}"
+                                                                    data-parent-id="{{ $level1Category->id }}">
+                                                                    @foreach ($level1Category->childrenCategories as $level2Category)
+                                                                        @php
+                                                                            $isLevel2Active =
+                                                                                $currentCategoryId ==
+                                                                                $level2Category->id;
+                                                                            $hasActiveLevel3 = false;
+
+                                                                            if ($level2Category->childrenCategories) {
+                                                                                foreach (
+                                                                                    $level2Category->childrenCategories
+                                                                                    as $l3
+                                                                                ) {
+                                                                                    if ($currentCategoryId == $l3->id) {
+                                                                                        $hasActiveLevel3 = true;
+                                                                                        $isLevel2Active = true;
+                                                                                        break;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        @endphp
+
+                                                                        <li class="{{ $isLevel2Active ? 'active' : '' }}"
+                                                                            data-category-id="{{ $level2Category->id }}">
+
+                                                                            @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
+                                                                                <div class="category-header">
+                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                        class="category-name">
+                                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @else
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                            class="category-link">
-                                                                            <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                            {{-- <span class="product-count">
-
-                                                                                ({{ $level2Category->products_count ?? 0 }})
-                                                                            </span> --}}
-                                                                            <i class="fas fa-chevron-right"></i>
-                                                                        </a>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @else
-                                                        <a href="{{ route('products.level2', $level1Category->id) }}"
-                                                            class="category-link">
-                                                            <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                            {{-- <span class="product-count">
-                                                                ({{ $level1Category->products_count ?? 0 }})
-                                                            </span> --}}
-                                                            <i class="fas fa-chevron-right"></i>
-                                                        </a>
-                                                    @endif
-                                                </li>
-                                            @endforeach
-                                        @else
-                                            <li class="{{ $currentCategoryId == $main->id ? 'active' : '' }}">
-                                                <a href="#" class="category-link">
-
-                                                    {{-- <span>{{ $main->getTranslation('name') }}</span> --}}
-                                                    <span class="product-count">
-                                                        There are no sub categories available.
-                                                    </span>
-                                                    {{-- <i class="fas fa-chevron-right"></i>  --}}
-                                                </a>
-                                            </li>
+                                                                                    <i
+                                                                                        class="fas fa-chevron-down toggle-icon"></i>
+                                                                                </div>
+                                                                                <ul class="sub-sub-categories {{ $hasActiveLevel3 ? 'show' : '' }}"
+                                                                                    data-parent-id="{{ $level2Category->id }}">
+                                                                                    @foreach ($level2Category->childrenCategories as $level3Category)
+                                                                                        <li
+                                                                                            class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
+                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                                class="category-link">
+                                                                                                <span>{{ $level3Category->getTranslation('name') }}</span>
+                                                                                                <i
+                                                                                                    class="fas fa-chevron-right"></i>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @else
+                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    class="category-link">
+                                                                                    <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                                </a>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    class="category-link">
+                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    <i class="fas fa-chevron-right"></i>
+                                                                </a>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         @endif
-                                    </ul>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
                     </div>
 
-                    {{-- Cards Grid --}}
+
+                    {{-- Cards Grid - عرض الـ Sub Categories (Level 1) بتاعت الـ Main Category المختار --}}
                     <div class="col-lg-9">
                         <div class="row g-4">
-                            @foreach ($levelOneCategories as $category)
-                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                    <a href="{{ route('categories.level2', $category->id) }}" class="text-decoration-none">
-                                        <div class="category-card">
-                                            <img src="{{ uploaded_asset($category->banner) }}"
-                                                alt="{{ $category->getTranslation('name') }}"
-                                                onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
+                            @if ($levelOneCategories && $levelOneCategories->count() > 0)
+                                @foreach ($levelOneCategories as $subCategory)
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="category-card-wrapper"
+                                            onclick="window.location='{{ route('products.level2', $subCategory->id) }}'">
 
-                                            <div class="cart-icon">
-                                                <i class="fas fa-shopping-basket"></i>
-                                            </div>
+                                            <div class="category-card">
 
-                                            <div class="category-title">
-                                                <h5>{{ $category->getTranslation('name') }}</h5>
-                                            </div>
+                                                <img src="{{ uploaded_asset($subCategory->banner) }}"
+                                                    alt="{{ $subCategory->getTranslation('name') }}"
+                                                    onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
 
-                                            @if ($category->childrenCategories && $category->childrenCategories->count() > 0)
-                                                <div class="sub-categories-bottom">
-                                                    @foreach ($category->childrenCategories->take(5) as $subCat)
-                                                        <span class="sub-cat-item">
-                                                            {{ $subCat->getTranslation('name') }}
-                                                        </span>
-                                                    @endforeach
-
-                                                    @if ($category->childrenCategories->count() > 5)
-                                                        <span class="sub-cat-item">
-                                                            +{{ $category->childrenCategories->count() - 5 }}
-                                                        </span>
-                                                    @endif
+                                                <div class="cart-icon">
+                                                    <i class="fas fa-shopping-basket"></i>
                                                 </div>
-                                            @endif
+
+                                                <div class="category-title">
+                                                    <h5>{{ $subCategory->getTranslation('name') }}</h5>
+                                                </div>
+
+                                                {{-- عرض الـ Sub-Sub Categories (Level 2) تحت كل Sub Category --}}
+                                                @if ($subCategory->childrenCategories && $subCategory->childrenCategories->count() > 0)
+                                                    <div class="sub-categories-bottom" onclick="event.stopPropagation();">
+
+                                                        @foreach ($subCategory->childrenCategories->take(5) as $subSubCat)
+                                                            <a href="{{ route('products.level2', $subSubCat->id) }}"
+                                                                class="sub-cat-item" onclick="event.stopPropagation();">
+                                                                {{ $subSubCat->getTranslation('name') }}
+                                                            </a>
+                                                        @endforeach
+
+                                                        @if ($subCategory->childrenCategories->count() > 5)
+                                                            <a href="{{ route('products.level2', $subCategory->id) }}"
+                                                                class="sub-cat-item" onclick="event.stopPropagation();">
+                                                                +{{ $subCategory->childrenCategories->count() - 5 }}
+                                                            </a>
+                                                        @endif
+
+                                                    </div>
+                                                @endif
+
+                                            </div>
                                         </div>
-                                    </a>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-12">
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        No subcategories available for this category.
+                                    </div>
                                 </div>
-                            @endforeach
+                            @endif
                         </div>
                     </div>
 
@@ -928,10 +1126,36 @@
             const allToggleIcons = document.querySelectorAll('.toggle-icon');
             const allMainToggle = document.querySelector('.toggle-all-main');
             const allMainWrapper = document.querySelector('.all-main-categories-wrapper');
+            const mainCategoryItems = document.querySelectorAll('.main-category-item');
 
-            // توجّل السهام الداخلية (Level 1/2)
+            // Toggle للـ Main Categories
+            mainCategoryItems.forEach(function(mainItem) {
+                const mainHeader = mainItem.querySelector('.main-category-header');
+                const mainToggleIcon = mainItem.querySelector('.main-toggle-icon');
+                const mainChildren = mainItem.querySelector('.main-category-children');
+
+                if (mainHeader && mainToggleIcon && mainChildren) {
+                    mainToggleIcon.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const isVisible = mainChildren.classList.contains('show');
+
+                        if (isVisible) {
+                            mainChildren.classList.remove('show');
+                            mainToggleIcon.classList.remove('rotated');
+                        } else {
+                            mainChildren.classList.add('show');
+                            mainToggleIcon.classList.add('rotated');
+                        }
+                    });
+                }
+            });
+
+            // Toggle للـ Sub-Categories الداخلية (Level 1/2)
             allToggleIcons.forEach(function(toggleIcon) {
-                if (toggleIcon.classList.contains('toggle-all-main')) {
+                if (toggleIcon.classList.contains('toggle-all-main') ||
+                    toggleIcon.classList.contains('main-toggle-icon')) {
                     return;
                 }
 
@@ -942,6 +1166,9 @@
                     const categoryHeader = this.closest('.category-header');
                     const parentLi = categoryHeader.closest('li');
                     const categoryId = parentLi.getAttribute('data-category-id');
+
+                    // البحث عن الـ Products title
+                    const productsTitle = parentLi.querySelector('.products-title');
 
                     let subCategoriesUl = parentLi.querySelector(
                         `.sub-categories[data-parent-id="${categoryId}"]`
@@ -958,20 +1185,24 @@
                         if (isVisible) {
                             subCategoriesUl.classList.remove('show');
                             this.style.transform = 'rotate(0deg)';
+                            // إخفاء Products title
+                            if (productsTitle) {
+                                productsTitle.style.display = 'none';
+                            }
                         } else {
                             subCategoriesUl.classList.add('show');
                             this.style.transform = 'rotate(180deg)';
+                            // إظهار Products title
+                            if (productsTitle) {
+                                productsTitle.style.display = 'block';
+                            }
                         }
                     }
                 });
             });
 
-            // توجّل All Categories => يخفي/يظهر كل الـ main level0
+            // Toggle لـ "All Categories"
             if (allMainToggle && allMainWrapper) {
-                // لو عايزها تبدأ مفتوحة خلي السطر ده متشال
-                // allMainWrapper.classList.add('collapsed');
-                // allMainToggle.style.transform = 'rotate(0deg)';
-
                 allMainToggle.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -988,7 +1219,22 @@
                 });
             }
 
-            // Auto-expand active parents
+            // Auto-expand active main categories
+            mainCategoryItems.forEach(function(mainItem) {
+                if (mainItem.classList.contains('active')) {
+                    const mainChildren = mainItem.querySelector('.main-category-children');
+                    const mainToggleIcon = mainItem.querySelector('.main-toggle-icon');
+
+                    if (mainChildren) {
+                        mainChildren.classList.add('show');
+                    }
+                    if (mainToggleIcon) {
+                        mainToggleIcon.classList.add('rotated');
+                    }
+                }
+            });
+
+            // Auto-expand active sub categories
             const activeCategories = document.querySelectorAll('.category-sidebar li.active');
             activeCategories.forEach(function(activeLi) {
                 let parentUl = activeLi.closest('.sub-categories, .sub-sub-categories');
@@ -996,15 +1242,33 @@
                 while (parentUl) {
                     parentUl.classList.add('show');
 
-                    const parentToggle = parentUl
-                        .closest('li')
-                        ?.querySelector('.toggle-icon:not(.toggle-all-main)');
+                    const parentLi = parentUl.closest('li');
+                    const parentToggle = parentLi?.querySelector(
+                        '.category-header > .toggle-icon:not(.toggle-all-main):not(.main-toggle-icon)');
 
                     if (parentToggle) {
                         parentToggle.style.transform = 'rotate(180deg)';
                     }
 
-                    parentUl = parentUl.closest('li')?.closest('.sub-categories, .sub-sub-categories');
+                    // إظهار Products title للـ active categories
+                    const productsTitle = parentLi?.querySelector('.products-title');
+                    if (productsTitle) {
+                        productsTitle.style.display = 'block';
+                    }
+
+                    parentUl = parentLi?.closest('.sub-categories, .sub-sub-categories');
+                }
+            });
+
+            // إخفاء Products title في البداية
+            const allProductsTitles = document.querySelectorAll('.products-title');
+            allProductsTitles.forEach(function(title) {
+                const parentLi = title.closest('li');
+                const subCategories = parentLi.querySelector('.sub-categories');
+
+                // إخفاء إذا كانت الـ sub-categories مش ظاهرة
+                if (subCategories && !subCategories.classList.contains('show')) {
+                    title.style.display = 'none';
                 }
             });
         });

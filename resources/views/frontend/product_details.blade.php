@@ -56,7 +56,7 @@
 @endsection
 
 @section('content')
-    <section class="mb-4 pt-3">
+    <section class="mb-4 pt-3" style="margin-top : 70px">
         <div class="container">
             <div class="bg-white py-3">
                 <div class="row">
@@ -79,10 +79,10 @@
             @if ($detailedProduct->auction_product)
                 <!-- Reviews & Ratings -->
                 @include('frontend.product_details.review_section')
-                
+
                 <!-- Description, Video, Downloads -->
                 @include('frontend.product_details.description')
-                
+
                 <!-- Product Query -->
                 @include('frontend.product_details.product_queries')
             @else
@@ -100,19 +100,19 @@
 
                     <!-- Right side -->
                     <div class="col-lg-9">
-                        
+
                         <!-- Reviews & Ratings -->
                         @include('frontend.product_details.review_section')
 
                         <!-- Description, Video, Downloads -->
                         @include('frontend.product_details.description')
-                        
+
                         <!-- Frequently Bought products -->
                         @include('frontend.product_details.frequently_bought_products')
 
                         <!-- Product Query -->
                         @include('frontend.product_details.product_queries')
-                        
+
                         <!-- Top Selling Products -->
                         <div class="d-lg-none">
                              @include('frontend.product_details.top_selling_products')
@@ -189,7 +189,7 @@
 
     <!-- Bid Modal -->
     @if($detailedProduct->auction_product == 1)
-        @php 
+        @php
             $highest_bid = $detailedProduct->bids->max('amount');
             $min_bid_amount = $highest_bid != null ? $highest_bid+1 : $detailedProduct->starting_bid;
             $gst_rate = gst_applicable_product_rate($detailedProduct->id);
@@ -227,7 +227,7 @@
             </div>
         </div>
     @endif
-    
+
     <!-- Product Review Modal -->
     <div class="modal fade" id="product-review-modal">
         <div class="modal-dialog">
@@ -428,7 +428,7 @@
             const randomTime = getRandomNumber(5000, 10000);
             setTimeout(updateViewerCount, randomTime);
         }
-        
+
     </script>
     @if(get_setting('show_custom_product_visitors')==1)
     <script>

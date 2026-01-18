@@ -622,6 +622,465 @@
             }
         }
     </style>
+
+    <style>
+        /* Our Categories Section - New Design */
+        .categories-section-new {
+            padding: clamp(40px, 8vw, 80px) 0;
+            background-color: #ffffff;
+            position: relative;
+        }
+
+        .categories-section-new .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(15px, 3vw, 30px);
+            margin-bottom: clamp(30px, 5vw, 50px);
+            flex-wrap: wrap;
+            padding: 0 15px;
+        }
+
+        .categories-section-new .section-header h2 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+            text-align: center;
+        }
+
+        .categories-section-new .nav-btn {
+            width: clamp(40px, 5vw, 45px);
+            height: clamp(40px, 5vw, 45px);
+            border-radius: 50%;
+            border: none;
+            background-color: white;
+            color: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .categories-section-new .nav-btn:hover {
+            background-color: #007bff;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .categories-slider-new {
+            position: relative;
+            overflow: hidden;
+            padding: 0 15px;
+        }
+
+        .categories-wrapper-new {
+            display: flex;
+            gap: clamp(15px, 2vw, 25px);
+            transition: transform 0.5s ease;
+            padding: 10px 0;
+        }
+
+        .category-card-new {
+            flex: 0 0 calc(33.333% - 17px);
+            position: relative;
+            border-radius: clamp(12px, 2vw, 20px);
+            overflow: hidden;
+            height: clamp(200px, 30vw, 280px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .category-card-new:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-card-new img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .category-card-new:hover img {
+            transform: scale(1.08);
+        }
+
+        .category-card-new::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
+            z-index: 1;
+        }
+
+        .category-card-new .cart-icon {
+            position: absolute;
+            top: clamp(12px, 2vw, 20px);
+            left: clamp(12px, 2vw, 20px);
+            width: clamp(36px, 5vw, 42px);
+            height: clamp(36px, 5vw, 42px);
+            background-color: rgb(0, 0, 0);
+            border-radius: 50px;
+            display: flex;
+            color: white;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .category-card-new:hover .cart-icon {
+            background-color: white;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .category-card-new .cart-icon svg {
+            width: clamp(18px, 2.5vw, 22px);
+            height: clamp(18px, 2.5vw, 22px);
+        }
+
+        .category-card-new .content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: clamp(15px, 3vw, 25px);
+            z-index: 2;
+            color: white;
+        }
+
+        .category-card-new .content h3 {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Featured Products Section */
+        .featured-products-section {
+            padding: clamp(40px, 6vw, 60px) 0 clamp(50px, 8vw, 80px) 0;
+            background-color: #ffffff;
+        }
+
+        .featured-products-section .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: clamp(25px, 4vw, 40px);
+            padding: 0 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .featured-products-section .header-left {
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 2vw, 20px);
+            flex-wrap: wrap;
+        }
+
+        .featured-products-section .section-header h2 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .featured-products-section .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .featured-products-section .nav-btn {
+            width: clamp(36px, 5vw, 40px);
+            height: clamp(36px, 5vw, 40px);
+            border-radius: 50%;
+            border: none;
+            background-color: white;
+            color: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            flex-shrink: 0;
+        }
+
+        .featured-products-section .nav-btn:hover {
+            background-color: #007bff;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .featured-products-section .view-all {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .featured-products-section .view-all:hover {
+            color: #0056b3;
+        }
+
+        .products-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .products-wrapper {
+            display: flex;
+            gap: clamp(12px, 2vw, 20px);
+            margin: 10px 15px;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card {
+            flex: 0 0 calc(25% - 15px);
+            background: white;
+            border-radius: clamp(12px, 2vw, 15px);
+            overflow: hidden;
+            cursor: pointer;
+            padding: clamp(12px, 2vw, 16px);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-card .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: clamp(150px, 20vw, 200px);
+            overflow: hidden;
+        }
+
+        .product-card .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: clamp(8px, 1.5vw, 12px);
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .product-card .add-btn {
+            position: absolute;
+            bottom: clamp(10px, 1.5vw, 15px);
+            right: clamp(10px, 1.5vw, 15px);
+            width: clamp(32px, 4vw, 36px);
+            height: clamp(32px, 4vw, 36px);
+            background-color: #1a1a1a;
+            border-radius: 18px;
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 0;
+            z-index: 2;
+            transition: width 0.4s ease,
+                padding 0.4s ease,
+                background-color 0.3s ease;
+        }
+
+        .product-card .add-btn svg {
+            width: clamp(16px, 2vw, 18px);
+            height: clamp(16px, 2vw, 18px);
+            flex-shrink: 0;
+        }
+
+        .product-card .add-btn .btn-text {
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            font-weight: 500;
+            opacity: 0;
+            max-width: 0;
+            margin-left: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .product-card .add-btn:hover {
+            background-color: #000000;
+            width: auto;
+            padding: 0 16px 0 12px;
+        }
+
+        .product-card .add-btn:hover .btn-text {
+            opacity: 1;
+            max-width: 150px;
+            margin-left: 8px;
+            transform: translateX(0);
+        }
+
+        .product-card .product-info {
+            padding: clamp(12px, 2.5vw, 20px);
+            max-height: clamp(60px, 8vw, 70px);
+        }
+
+        .product-card .product-info h3 {
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .product-card .product-info p {
+            font-size: clamp(0.65rem, 1.2vw, 0.7rem);
+            color: #6c757d;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ================= Responsive Media Queries ================= */
+
+        /* Large Tablets and Small Desktops */
+        @media (max-width: 1024px) {
+            .category-card-new {
+                flex: 0 0 calc(50% - 12px);
+            }
+
+            .product-card {
+                flex: 0 0 calc(33.333% - 14px);
+            }
+        }
+
+        /* Tablets */
+        @media (max-width: 768px) {
+            .categories-section-new .section-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .category-card-new {
+                flex: 0 0 calc(50% - 10px);
+                height: clamp(180px, 35vw, 220px);
+            }
+
+            .product-card {
+                flex: 0 0 calc(50% - 10px);
+            }
+
+            .product-card .image-wrapper {
+                height: clamp(140px, 25vw, 180px);
+            }
+
+            .featured-products-section .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .featured-products-section .nav-buttons {
+                margin-top: 10px;
+            }
+        }
+
+        /* Mobile Devices */
+        @media (max-width: 640px) {
+            .categories-section-new {
+                padding: 30px 0;
+            }
+
+            .category-card-new {
+                flex: 0 0 100%;
+                height: clamp(220px, 50vw, 280px);
+            }
+
+            .product-card {
+                flex: 0 0 100%;
+            }
+
+            .product-card .image-wrapper {
+                height: clamp(200px, 50vw, 250px);
+            }
+
+            .categories-wrapper-new,
+            .products-wrapper {
+                gap: 15px;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {
+
+            .categories-section-new .nav-btn,
+            .featured-products-section .nav-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .product-card .add-btn:hover {
+                width: clamp(32px, 4vw, 36px);
+                padding: 0;
+            }
+
+            .product-card .add-btn:hover .btn-text {
+                opacity: 0;
+                max-width: 0;
+            }
+
+            .product-card .product-info {
+                padding: 15px;
+            }
+
+            .categories-slider-new,
+            .products-slider {
+                padding: 0 10px;
+            }
+
+            .products-wrapper {
+                margin: 10px;
+            }
+        }
+
+        /* Extra Small Devices */
+        @media (max-width: 360px) {
+
+            .categories-section-new .section-header h2,
+            .featured-products-section .section-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .category-card-new .content h3 {
+                font-size: 1.1rem;
+            }
+
+            .product-card .product-info h3 {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+
+
+
     @php
         use App\Models\HomePage;
 
@@ -742,135 +1201,200 @@
             </div>
         </div>
     </section>
+    <!-- Add this after the triangle-wrapper div -->
+    <section class="categories-section-new">
+        <div class="container">
+            <div class="section-header">
+                <button class="nav-btn" id="categoriesPrevBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <h2>Our Categories</h2>
+                <button class="nav-btn" id="categoriesNextBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
 
-    <!-- Categories Section -->
-    @if ($categories && count($categories) > 0)
-        <section class="categories-section">
-            <div class="container">
-                <div class="section-header">
-                    @if (count($categories) > 3)
-                        <div class="nav-arrows left">
-                            <button class="arrow-btn" id="prevBtn">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M15 18l-6-6 6-6" />
+            <div class="categories-slider-new">
+                <div class="categories-wrapper-new" id="categoriesWrapperNew">
+                    @foreach ($categories as $category)
+                        @php
+                            $categoryName = $category->getTranslation('name', $lang);
+                            $categoryImage = null;
+                            if ($category->banner) {
+                                $categoryImage = uploaded_asset($category->banner);
+                            } elseif ($category->cover_image) {
+                                $categoryImage = uploaded_asset($category->cover_image);
+                            }
+
+                            if (!$categoryImage) {
+                                $lowerName = strtolower($categoryName);
+                                if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
+                                    $categoryImage =
+                                        'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
+                                } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
+                                    $categoryImage =
+                                        'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
+                                } elseif (str_contains($lowerName, 'frozen')) {
+                                    $categoryImage =
+                                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
+                                } else {
+                                    $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
+                                }
+                            }
+
+                            $categoryUrl = route('products.category', $category->slug);
+                        @endphp
+
+                        <a href="{{ $categoryUrl }}" class="category-card-new">
+                            <div class="cart-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1" />
+                                    <circle cx="20" cy="21" r="1" />
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                                 </svg>
-                            </button>
-                        </div>
-                    @endif
-                    <h2>Our Categories</h2>
-                    @if (count($categories) > 3)
-                        <div class="nav-arrows right">
-                            <button class="arrow-btn" id="nextBtn">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M9 18l6-6-6-6" />
-                                </svg>
-                            </button>
-                        </div>
-                    @endif
+                            </div>
+                            <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
+                                onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
+                            <div class="content">
+                                <h3>{{ $categoryName }}</h3>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <div class="categories-slider">
-                    <div class="categories-wrapper" id="categoriesWrapper">
-                        @foreach ($categories as $category)
-                            @php
-                                $categoryName = $category->getTranslation('name', $lang);
-                                $categoryImage = null;
-                                if ($category->banner) {
-                                    $categoryImage = uploaded_asset($category->banner);
-                                } elseif ($category->cover_image) {
-                                    $categoryImage = uploaded_asset($category->cover_image);
-                                }
-
-                                if (!$categoryImage) {
-                                    $lowerName = strtolower($categoryName);
-                                    if (str_contains($lowerName, 'food') || str_contains($lowerName, 'beverage')) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800';
-                                    } elseif (
-                                        str_contains($lowerName, 'vegetable') ||
-                                        str_contains($lowerName, 'vegtable')
-                                    ) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
-                                    } elseif (str_contains($lowerName, 'fruit')) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=800';
-                                    } elseif (str_contains($lowerName, 'meat') || str_contains($lowerName, 'fish')) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=800';
-                                    } elseif (str_contains($lowerName, 'dairy')) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=800';
-                                    } elseif (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                                    } else {
-                                        $categoryImage =
-                                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
-                                    }
-                                }
-
-                                $categoryUrl = route('products.category', $category->slug);
-                            @endphp
-
-                            <a href="{{ $categoryUrl }}" class="category-card">
-                                <div class="cart-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="9" cy="21" r="1" />
-                                        <circle cx="20" cy="21" r="1" />
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                    </svg>
-                                </div>
-                                <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
-                                    onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
-                                <div class="content">
-                                    <h3>{{ $categoryName }}</h3>
-                                </div>
-                            </a>
-                        @endforeach
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="header-left">
+                    <h2>Featured Products</h2>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" id="productsPrevBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <button class="nav-btn" id="productsNextBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
+                <a href="#" class="view-all">View All</a>
             </div>
-        </section>
-    @endif
+
+            <div class="products-slider">
+                <div class="products-wrapper" id="productsWrapper">
+                    @php
+                        // Get featured products - multiple fallback options
+                        $featuredProducts = \App\Models\Product::where('published', 1)
+                            ->where('approved', 1)
+                            ->where('featured', 1)
+                            ->take(8)
+                            ->get();
+
+                        // If no featured products, get best selling products
+                        if ($featuredProducts->count() < 4) {
+                            $featuredProducts = \App\Models\Product::where('published', 1)
+                                ->where('approved', 1)
+                                ->orderBy('num_of_sale', 'desc')
+                                ->take(8)
+                                ->get();
+                        }
+
+                        // If still no products, get latest products
+                        if ($featuredProducts->count() == 0) {
+                            $featuredProducts = \App\Models\Product::where('published', 1)
+                                ->where('approved', 1)
+                                ->orderBy('created_at', 'desc')
+                                ->take(8)
+                                ->get();
+                        }
+                    @endphp
+
+                    @foreach ($featuredProducts as $product)
+                        @php
+                            $productName = $product->getTranslation('name', $lang);
+                            $productImage = uploaded_asset($product->thumbnail_img);
+                            $productUrl = route('product', $product->slug);
+                        @endphp
+
+                        <a href="{{ $productUrl }}" class="product-card">
+                            <div class="image-wrapper">
+                                <img src="{{ $productImage }}" alt="{{ $productName }}"
+                                    onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'">
+                                <button class="add-btn" onclick="event.preventDefault();">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <span class="btn-text">Inquire Now</span>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h3>{{ $productName }}</h3>
+                                <p>{{ $product->category ? $product->category->getTranslation('name', $lang) : 'Products' }}
+                                </p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- Gather Quality Section -->
-<section class="gather-section">
-    <div class="top-bar">
-        <div class="container">
-            <div class="left-content">
-                <div class="icon-grid">
-                    <div class="icon-box"></div>
-                    <div class="icon-box"></div>
-                    <div class="icon-box"></div>
-                    <div class="icon-box"></div>
+    <section class="gather-section">
+        <div class="top-bar">
+            <div class="container">
+                <div class="left-content">
+                    <div class="icon-grid">
+                        <div class="icon-box"></div>
+                        <div class="icon-box"></div>
+                        <div class="icon-box"></div>
+                        <div class="icon-box"></div>
+                    </div>
+                    <div class="text-content">
+                        <h3>{{ $gather && isset($gather->value['top_title']) ? $gather->value['top_title'] : 'Enjoy Most Completed Trading platform' }}
+                        </h3>
+                        <p>{{ $gather && isset($gather->value['top_description']) ? $gather->value['top_description'] : 'Explore through our large set of Categories. Find the products you need and inquire about them.' }}
+                        </p>
+                    </div>
                 </div>
-                <div class="text-content">
-                    <h3>{{ $gather && isset($gather->value['top_title']) ? $gather->value['top_title'] : 'Enjoy Most Completed Trading platform' }}</h3>
-                    <p>{{ $gather && isset($gather->value['top_description']) ? $gather->value['top_description'] : 'Explore through our large set of Categories. Find the products you need and inquire about them.' }}</p>
-                </div>
+                <a href="{{ $gather && isset($gather->value['button_url']) ? $gather->value['button_url'] : route('categories.all') }}"
+                    class="explore-btn">
+                    {{ $gather && isset($gather->value['button_text']) ? $gather->value['button_text'] : 'Explore Categories' }}
+                </a>
             </div>
-            <a href="{{ $gather && isset($gather->value['button_url']) ? $gather->value['button_url'] : route('categories.all') }}" class="explore-btn">
-                {{ $gather && isset($gather->value['button_text']) ? $gather->value['button_text'] : 'Explore Categories' }}
-            </a>
         </div>
-    </div>
 
-    <div class="image-section">
-        @if($gather && isset($gather->value['image']) && $gather->value['image'])
-            <img src="{{ asset($gather->value['image']) }}" alt="Quality Products"
-                 onerror="this.src='{{ static_asset('assets/img/gather.png') }}'">
-        @else
-            <img src="{{ static_asset('assets/img/gather.png') }}" alt="Quality Products">
-        @endif
+        <div class="image-section">
+            @if ($gather && isset($gather->value['image']) && $gather->value['image'])
+                <img src="{{ asset($gather->value['image']) }}" alt="Quality Products"
+                    onerror="this.src='{{ static_asset('assets/img/gather.png') }}'">
+            @else
+                <img src="{{ static_asset('assets/img/gather.png') }}" alt="Quality Products">
+            @endif
 
-        <div class="overlay-text">
-            <h2>{{ $gather && isset($gather->value['overlay_title']) ? $gather->value['overlay_title'] : 'We Gather the highest Quality Products' }}</h2>
+            <div class="overlay-text">
+                <h2>{{ $gather && isset($gather->value['overlay_title']) ? $gather->value['overlay_title'] : 'We Gather the highest Quality Products' }}
+                </h2>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
     @if (count($categories) > 3)
         <script>
@@ -910,4 +1434,80 @@
             });
         </script>
     @endif
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Categories slider
+            const categoriesWrapper = document.getElementById('categoriesWrapperNew');
+            const categoriesPrevBtn = document.getElementById('categoriesPrevBtn');
+            const categoriesNextBtn = document.getElementById('categoriesNextBtn');
+
+            if (categoriesWrapper && categoriesPrevBtn && categoriesNextBtn) {
+                let categoriesIndex = 0;
+
+                setTimeout(() => {
+                    const firstCard = categoriesWrapper.querySelector('.category-card-new');
+                    if (firstCard) {
+                        const cardWidth = firstCard.offsetWidth + 25;
+
+                        categoriesNextBtn.addEventListener('click', () => {
+                            const maxScroll = categoriesWrapper.scrollWidth - categoriesWrapper
+                                .parentElement.offsetWidth;
+                            if (categoriesIndex < maxScroll) {
+                                categoriesIndex += cardWidth;
+                                if (categoriesIndex > maxScroll) categoriesIndex = maxScroll;
+                                categoriesWrapper.style.transform =
+                                    `translateX(-${categoriesIndex}px)`;
+                            }
+                        });
+
+                        categoriesPrevBtn.addEventListener('click', () => {
+                            if (categoriesIndex > 0) {
+                                categoriesIndex -= cardWidth;
+                                if (categoriesIndex < 0) categoriesIndex = 0;
+                                categoriesWrapper.style.transform =
+                                    `translateX(-${categoriesIndex}px)`;
+                            }
+                        });
+                    }
+                }, 100);
+            }
+
+            // Products slider
+            const productsWrapper = document.getElementById('productsWrapper');
+            const productsPrevBtn = document.getElementById('productsPrevBtn');
+            const productsNextBtn = document.getElementById('productsNextBtn');
+
+            if (productsWrapper && productsPrevBtn && productsNextBtn) {
+                let productsIndex = 0;
+
+                setTimeout(() => {
+                    const firstProduct = productsWrapper.querySelector('.product-card');
+                    if (firstProduct) {
+                        const productWidth = firstProduct.offsetWidth + 20;
+
+                        productsNextBtn.addEventListener('click', () => {
+                            const maxScroll = productsWrapper.scrollWidth - productsWrapper
+                                .parentElement.offsetWidth;
+                            if (productsIndex < maxScroll) {
+                                productsIndex += productWidth;
+                                if (productsIndex > maxScroll) productsIndex = maxScroll;
+                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
+                            }
+                        });
+
+                        productsPrevBtn.addEventListener('click', () => {
+                            if (productsIndex > 0) {
+                                productsIndex -= productWidth;
+                                if (productsIndex < 0) productsIndex = 0;
+                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
+                            }
+                        });
+                    }
+                }, 100);
+            }
+        });
+    </script>
 @endsection

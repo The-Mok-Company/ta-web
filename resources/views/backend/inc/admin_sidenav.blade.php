@@ -624,16 +624,22 @@
                                     <span class="aiz-side-nav-text">{{ translate('Our Partners') }}</span>
                                 </a>
                             </li>
-                            {{-- Our Partners --}}
+                            {{-- Home Page --}}
                             <li class="aiz-side-nav-item">
                                 <a class="aiz-side-nav-link" href="{{ route('settings.home-page.index') }}">
                                     <span class="aiz-side-nav-text">{{ translate('Home Page') }}</span>
                                 </a>
                             </li>
-                            {{-- Our Partners --}}
+                            {{-- Footer --}}
                             <li class="aiz-side-nav-item">
                                 <a class="aiz-side-nav-link" href="{{ route('settings.footer') }}">
                                     <span class="aiz-side-nav-text">{{ translate('Footer') }}</span>
+                                </a>
+                            </li>
+                            {{-- Our Services --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.our-services') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Our Services') }}</span>
                                 </a>
                             </li>
 

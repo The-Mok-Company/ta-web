@@ -171,7 +171,6 @@ class SearchController extends Controller
             $category_ids[] = $category_id;
             $category = Category::with('childrenCategories')->find($category_id);
             $products = $category->products();
-
         }
         //------------------- category product count start here ----------------------
 
@@ -359,8 +358,7 @@ class SearchController extends Controller
             $products = PreorderProduct::where('is_published', 1);
 
             if (count($category_list_preorder) > 0) {
-                $products_ids = PreorderProductCategory::whereIn('category_id', $category_list_preorder)->pluck('preorder_product_id')->toArray();
-                ;
+                $products_ids = PreorderProductCategory::whereIn('category_id', $category_list_preorder)->pluck('preorder_product_id')->toArray();;
 
                 $products->whereIn('id', $products_ids);
             }
@@ -497,8 +495,7 @@ class SearchController extends Controller
         $products = Product::where($conditions);
 
         if (count($category_list) > 0) {
-            $products_ids = ProductCategory::whereIn('category_id', $category_list)->pluck('product_id')->toArray();
-            ;
+            $products_ids = ProductCategory::whereIn('category_id', $category_list)->pluck('product_id')->toArray();;
 
             $products = Product::whereIn('id', $products_ids);
         }
@@ -599,15 +596,28 @@ class SearchController extends Controller
 
     public function listingByCategory(Request $request, $category_slug)
     {
-                $mainCategory = Category::where('slug', $category_slug)->first();
+        $mainCategory = Category::where('slug', $category_slug)
+            ->with(['categories.categories'])
+            ->first();
 
-        $categoryId = Category::where('slug', $category_slug)->first()->id;
-        $levelOneCategories = Category::where('parent_id', $categoryId)->get();
-        return view('frontend.level_one_categories', compact('mainCategory','levelOneCategories'));
-        // if ($category != null) {
-        //     return $this->index($request, $category->id);
-        // }
-        abort(404);
+        if (!$mainCategory) {
+            abort(404);
+        }
+
+        $levelOneCategories = $mainCategory->categories;
+
+        $levelTwoCategories = $levelOneCategories->flatMap(function ($levelOne) {
+            return $levelOne->categories;
+        });
+
+        $levelTwoCategoriesGrouped = $levelTwoCategories->groupBy('parent_id');
+
+        return view('frontend.level_one_categories', compact(
+            'mainCategory',
+            'levelOneCategories',
+            'levelTwoCategories',
+            'levelTwoCategoriesGrouped'
+        ));
     }
     public function listingByCategory2(Request $request, $categoryId)
 

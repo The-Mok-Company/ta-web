@@ -135,16 +135,16 @@
                         </svg>
                     @endif
                     <span class="logo-text">
-                        <span class="trades">{{ $branding->value['logo_text_trades'] ?? 'TRADES' }}</span>
-                        <span class="axis">{{ $branding->value['logo_text_axis'] ?? 'AXIS' }}</span>
+                        <span class="trades">{{ $branding->value['logo_text_trades'] ?? ' ' }}</span>
+                        <span class="axis">{{ $branding->value['logo_text_axis'] ?? ' ' }}</span>
                     </span>
                 </div>
 
-                <p class="tagline">{{ $branding->value['tagline'] ?? 'Complete system for your eCommerce business' }}
+                <p class="tagline">{{ $branding->value['tagline'] ?? ' ' }}
                 </p>
 
                 <p class="newsletter-text">
-                    {{ $branding->value['newsletter_text'] ?? 'Subscribe to our newsletter for regular updates about Offers, Coupons & more' }}
+                    {{ $branding->value['newsletter_text'] ?? ' ' }}
                 </p>
 
                 <form class="newsletter-form">
@@ -166,7 +166,7 @@
                             </svg>
                         </a>
 
-                        <a href="{{ $social->value['twitter'] ?? '#' }}" class="social-icon twitter"
+                        {{-- <a href="{{ $social->value['twitter'] ?? '#' }}" class="social-icon twitter"
                             target="_blank">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18"
                                 height="18" fill="currentColor">
@@ -191,7 +191,7 @@
                                 <path
                                     d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" />
                             </svg>
-                        </a>
+                        </a> --}}
 
                         <a href="{{ $social->value['linkedin'] ?? '#' }}" class="social-icon linkedin"
                             target="_blank">
@@ -215,24 +215,24 @@
                         <li><a href="#">Privacy Policy</a></li>
                         <li><a href="#">Term & Conditions</a></li>
                     </ul>
-                    @if (get_setting('vendor_system_activation') == 1)
+                    {{-- @if (get_setting('vendor_system_activation') == 1)
                         <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}"
                             class="partner-btn">
                             {{ translate('Become a Partner') }}
                         </a>
-                    @endif
+                    @endif --}}
                 </div>
 
                 <div class="footer-column">
                     <h3>CONTACTS</h3>
                     <div class="contact-info">
                         <pclass="contact-label">Address</pclass=>
-                        <p class="contact-value">{{ $contact->value['address'] ?? 'Demo Address' }}</p>
+                        <p class="contact-value">{{ $contact->value['address'] ?? ' ' }}</p>
                         <p class="contact-label">Phone</p>
-                        <p class="contact-value">{{ $contact->value['phone'] ?? '123456789' }}</p>
+                        <p class="contact-value">{{ $contact->value['phone'] ?? ' ' }}</p>
 
                         <p class="contact-label">Email</p>
-                        <p class="contact-value">{{ $contact->value['email'] ?? 'demo.example@gmail.com' }}</p>
+                        <p class="contact-value">{{ $contact->value['email'] ?? ' ' }}</p>
                     </div>
                 </div>
 
@@ -440,6 +440,7 @@
 
         .footer-column ul {
             list-style: none;
+            padding: 0px;
         }
 
         .footer-column ul li {
@@ -465,7 +466,7 @@
             color: #fff;
             text-decoration: none;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             transition: background-color 0.3s;
         }
