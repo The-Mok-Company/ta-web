@@ -3,7 +3,7 @@
 @section('content')
 
     @include('auth.'.get_setting('authentication_layout_select').'.admin_login')
-
+    
 @endsection
 
 @section('script')
@@ -16,7 +16,7 @@
 
      @if(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_admin_login') == 1)
         <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_KEY') }}"></script>
-
+        
         <script type="text/javascript">
                 document.getElementById('login-form').addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -33,7 +33,7 @@
                             actionInput.setAttribute('name', 'recaptcha_action');
                             actionInput.setAttribute('value', 'recaptcha_admin_login');
                             e.target.appendChild(actionInput);
-
+                            
                             e.target.submit();
                         });
                     });

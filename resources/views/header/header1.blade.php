@@ -140,6 +140,7 @@
         color: #999;
         cursor: pointer;
         padding: 8px;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -160,16 +161,33 @@
 
     .badge-count {
         position: absolute;
-        top: 2px;
-        right: 2px;
-        background: #3b82f6;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
         color: white;
         font-size: 10px;
         font-weight: 700;
-        padding: 2px 5px;
-        border-radius: 10px;
+        padding: 2px 6px;
+        border-radius: 50%;
+        min-width: 18px;
+        text-align: center;
+        line-height: 14px;
+    }
+
+    .cart-icon-btn .cart-count {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        background: #e74c3c;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 50%;
         min-width: 16px;
         text-align: center;
+        line-height: 12px;
+        z-index: 10;
     }
 
     .mobile-menu-btn {
@@ -628,16 +646,14 @@
             @endif
 
             <!-- Cart -->
-            <div class="icon-btn" style="position: relative;">
+            <div class="icon-btn cart-icon-btn">
                 <a href="{{ route('cart') }}" style="color: inherit; display: flex;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </a>
-                @if (Session::has('cart'))
-                    <span class="badge-count">{{ count(Session::get('cart')) }}</span>
-                @endif
+                <span class="cart-count">{{ count(get_user_cart()) }}</span>
             </div>
 
             <!-- User Icon -->

@@ -573,15 +573,36 @@
     </section>
 
 @endsection
-
 @section('script')
     <script type="text/javascript">
         let category_page_first_time = true;
         let brand_page_first_time = true;
         let session_data_first_time = true;
 
+        // ✅ Re-init AIZ plugins after ajax render
+        function reInitAIZ() {
+            if (window.AIZ && AIZ.plugins) {
+                if (AIZ.plugins.tooltip) AIZ.plugins.tooltip();
+                if (AIZ.plugins.aizLazyload) AIZ.plugins.aizLazyload();
+                if (AIZ.plugins.bootstrapSelect) AIZ.plugins.bootstrapSelect();
+            }
+            try { $('.aiz-selectpicker').selectpicker('refresh'); } catch (e) {}
+        }
+
+        // ✅ Update navbar cart view + count (fallback selectors)
+        function applyNavCart(navHtml, count) {
+            // لو عندك function updateNavCart جاهزة في الثيم
+            if (typeof updateNavCart === 'function') {
+                updateNavCart(navHtml, count);
+                return;
+            }
+
+            // fallback (غير selectors لو مختلفة عندك)
+            $('.aiz-top-cart').html(navHtml);
+            $('.cart-count').text(count);
+        }
+
         function filter(e) {
-            // alert("working or not")
             if (e) e.preventDefault();
 
             const target = e ? e.target : null;
@@ -605,7 +626,6 @@
             filter_data();
         }
 
-
         function rangefilter(arg) {
             $('input[name=min_price]').val(arg[0]);
             $('input[name=max_price]').val(arg[1]);
@@ -615,18 +635,18 @@
         function filter_data(page = 1) {
             $("#search_product_count").hide();
             $("#searching_product").show();
+
             var formData = $('#search-form').serialize();
             formData += '&page=' + page;
 
             // preoerder route to search page time
             if (session_data_first_time) {
                 const form_all_preorder_page = @json($form_all_preorder_page);
-                // alert(form_all_preorder_page);
+
                 if (form_all_preorder_page && form_all_preorder_page === 'preorder_product') {
                     formData = formData.replace(/(&|^)product_type=[^&]*/g, '');
                     formData += '&product_type=' + 'preorder_product';
                     $('input[name="product_type"][value="preorder_product"]').prop('checked', true);
-                    // alert(formData)
                     session_data_first_time = false;
                 }
             }
@@ -634,6 +654,7 @@
             // category filter page some logic here
             let category_id = <?php echo $category_id ?? 'null'; ?>;
             let brand_id = <?php echo $brand_id ?? 'null'; ?>;
+
             if (category_page_first_time && category_id !== null && category_id !== 0 && category_id !== undefined) {
                 formData += '&categories[]=' + category_id;
                 category_page_first_time = false;
@@ -647,12 +668,11 @@
                 $('.show_cat1').removeClass('d-none');
             }
 
-            // alert(formData);
-
             // product types ways some action this page
             if (formData.includes('product_type=preorder_product')) {
                 $('#product_type_badge_preorder').removeClass('preorder-border-dashed my-2 text-muted  fw-600');
                 $('#product_type_badge_preorder').addClass('bg-soft-dark  my-2 text-white');
+
                 $('#product_type_badge_general').removeClass('bg-soft-dark my-2  text-white');
                 $('#product_type_badge_general').addClass('preorder-border-dashed  text-muted my-2 fw-600');
 
@@ -664,6 +684,7 @@
             } else {
                 $('#product_type_badge_general').removeClass('preorder-border-dashed my-2  text-muted  fw-600');
                 $('#product_type_badge_general').addClass('bg-soft-dark my-2  text-white');
+
                 $('#product_type_badge_preorder').removeClass('bg-soft-dark  my-2 text-white');
                 $('#product_type_badge_preorder').addClass('preorder-border-dashed my-2 text-muted  fw-600');
 
@@ -674,7 +695,6 @@
                 $('.preorder-time-show').slideUp(400);
             }
 
-            // alert(JSON.stringify(formData));
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -683,12 +703,15 @@
                 type: 'get',
                 data: formData,
                 success: function(response) {
-                    // alert(JSON.stringify(response))
                     $("#search_product_count").show();
                     $("#searching_product").hide();
+
                     $('#products-row').html(response.product_html);
                     $('#pagination').html(response.pagination_html);
                     $('#total_product_count').text(response.total_product_count);
+
+                    // ✅ VERY IMPORTANT: re-init plugins after ajax render
+                    reInitAIZ();
 
                     window.scrollTo({
                         top: 0,
@@ -706,6 +729,61 @@
             e.preventDefault();
             var page = $(this).data('page');
             filter_data(page);
+        });
+
+        // ✅ Delegated "Add to cart" click (works after ajax render)
+        $(document).on('click', '.aiz-add-to-cart, .add-to-cart, [data-add-to-cart]', function(e) {
+            e.preventDefault();
+
+            var $btn = $(this);
+
+            // حاول يجيب المنتج من أي attribute شائع
+            var id = $btn.data('id')
+                || $btn.attr('data-id')
+                || $btn.data('product-id')
+                || $btn.attr('data-product-id');
+
+            if (!id) {
+                console.log('No product id found on add-to-cart button');
+                return;
+            }
+
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cart.addToCart') }}", // ⚠️ غيرها لو عندك اسم route مختلف
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id,
+                    quantity: 1
+                },
+                success: function(data) {
+
+                    // ✅ Update nav cart instantly (بدون Refresh)
+                    if (data && data.nav_cart_view !== undefined) {
+                        applyNavCart(data.nav_cart_view, data.cart_count);
+                    }
+
+                    // ✅ Optional: update cart view لو موجودة
+                    if (data && data.cart_view !== undefined) {
+                        $('#cart_summary, #cart-details, .cart-details').html(data.cart_view);
+                    }
+
+                    if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                        AIZ.plugins.notify('success', "{{ translate('Added to cart') }}");
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                    }
+                },
+                complete: function() {
+                    $btn.prop('disabled', false);
+                }
+            });
         });
     </script>
 
@@ -742,7 +820,6 @@
                     .addClass('row-cols-' + cols);
             }
 
-
             setActiveButtonByWidth();
 
             $(window).resize(function() {
@@ -767,7 +844,6 @@
                 $row.addClass('row-cols-lg-' + colValue);
                 $row.addClass('row-cols-md-' + colValue);
                 $row.addClass('row-cols-2');
-
             });
         });
     </script>
@@ -780,25 +856,21 @@
                 const element_list = btn.parentElement.previousElementSibling;
                 const children = Array.from(element_list.children);
 
-
                 let visibleCount = 5;
 
-                // first five element show
                 children.forEach((child, index) => {
-                    // console.log(child)
                     if (index < visibleCount) {
                         child.style.setProperty('display', 'block', 'important');
                     } else {
                         child.style.setProperty('display', 'none', 'important');
                     }
                 });
+
                 if (children.length <= 5) {
                     btn.style.display = 'none';
                 }
 
-                // click to add more element
                 btn.addEventListener('click', () => {
-
                     visibleCount += 5;
 
                     children.forEach((child, index) => {
@@ -813,41 +885,33 @@
                     }
                 });
 
-
                 lessBtn.addEventListener('click', () => {
                     visibleCount = 5;
 
                     children.forEach((child, index) => {
-                        child.style.setProperty('display', index < visibleCount ? 'block' :
-                            'none', 'important');
+                        child.style.setProperty('display', index < visibleCount ? 'block' : 'none', 'important');
                     });
 
-                    // Toggle buttons
                     lessBtn.style.display = 'none';
                     btn.style.display = 'inline-block';
                 });
 
                 lessBtn.style.display = 'none';
-
-
             });
-
-
         });
     </script>
+
     <!-- Treeview js -->
     <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}"></script>
 
     <script>
         $(document).ready(function() {
 
-            // $("#treeview2").hummingbird();
             var $tree = $('#treeview2');
 
             var oldShow = $.fn.show;
             var oldHide = $.fn.hide;
 
-            // Override show for smooth animation
             $.fn.show = function(speed, oldCallback) {
                 if ($(this).closest($tree).length) {
                     return this.stop(true, true).slideDown(400, oldCallback);
@@ -856,7 +920,6 @@
                 }
             };
 
-            // Override hide for smooth animation
             $.fn.hide = function(speed, oldCallback) {
                 if ($(this).closest($tree).length) {
                     return this.stop(true, true).slideUp(400, oldCallback);
@@ -865,7 +928,6 @@
                 }
             };
 
-            // Initialize Hummingbird treeview2
             $tree.hummingbird();
 
             var selected_ids = '{{ implode(',', $old_categories) }}';
@@ -873,14 +935,12 @@
                 const myArray = selected_ids.split(",");
                 for (let i = 0; i < myArray.length; i++) {
                     const element = myArray[i];
-
                     $('#category_checkidgenerel_' + element).prop('checked', true);
                     $('#category_checkid_textgenerel_' + element).addClass('fw-bold');
                     $('#category_checkidgenerel_' + element).parents("ul").css("display", "block");
                 }
             }
         });
-
 
         function showLabels() {
             document.querySelectorAll('.slider-value-text').forEach(label => {
@@ -894,59 +954,41 @@
             });
         }
 
-
         document.querySelectorAll('.noUi-connect, .noUi-touch-area').forEach((element) => {
-            // Desktop 
             element.addEventListener('mouseenter', showLabels);
             element.addEventListener('mouseleave', function() {
-                setTimeout(() => {
-                    hideLabels();
-                }, 2000);
+                setTimeout(() => { hideLabels(); }, 2000);
             });
 
-            // Mobile 
             element.addEventListener('touchstart', showLabels);
             element.addEventListener('touchend', function() {
-                setTimeout(() => {
-                    hideLabels();
-                }, 2000);
+                setTimeout(() => { hideLabels(); }, 2000);
             });
         });
+
         document.getElementById('input-slider-range').addEventListener('click', function() {
             showLabels();
-
-            setTimeout(function() {
-                hideLabels();
-            }, 2000);
+            setTimeout(function() { hideLabels(); }, 2000);
         });
     </script>
-
-
 
     <script>
         window.onload = function() {
             setTimeout(function() {
-
                 const mainUl = $('#category_filter div ul');
-
                 if (mainUl.length === 0) {
                     return alert("Main UL not found!");
                 }
-
 
                 function processUl($ul) {
                     $ul.addClass('ul_is_empty');
 
                     $ul.children('li').each(function() {
                         const $li = $(this);
-
-
                         const $nestedUl = $li.children('ul');
+
                         if ($nestedUl.length > 0) {
-
                             processUl($nestedUl);
-
-
 
                             if ($nestedUl.children('li').length === 0) {
                                 $nestedUl.prev('i.las.pt-3px.la-angle-right').remove();
@@ -965,38 +1007,29 @@
 
                 $('.ul_is_empty').each(function() {
                     const $ul = $(this);
-
                     if ($ul.children('li').length === 0) {
                         $ul.prev('i.las.pt-3px.la-angle-right').remove();
                         $ul.remove();
                     }
                 });
 
-            }, 0000);
+            }, 0);
 
             setTimeout(function() {
-
                 const mainUl = $('#category_filter_preorder div ul');
-
                 if (mainUl.length === 0) {
                     return alert("Main UL not found!");
                 }
 
-
                 function processUl($ul) {
                     $ul.addClass('ul_is_empty');
 
-
                     $ul.children('li').each(function() {
                         const $li = $(this);
-
-
                         const $nestedUl = $li.children('ul');
+
                         if ($nestedUl.length > 0) {
-
                             processUl($nestedUl);
-
-
 
                             if ($nestedUl.children('li').length === 0) {
                                 $nestedUl.prev('i.las.pt-3px.la-angle-down').remove();
@@ -1015,16 +1048,13 @@
 
                 $('.ul_is_empty').each(function() {
                     const $ul = $(this);
-
                     if ($ul.children('li').length === 0) {
                         $ul.prev('i.las.pt-3px.la-angle-right').remove();
                         $ul.remove();
                     }
                 });
 
-            }, 0000);
-
+            }, 0);
         };
     </script>
-
 @endsection

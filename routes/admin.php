@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
+use App\Http\Controllers\Admin\Setting\HomePageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AreaController;
@@ -624,6 +625,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::post('/settings/our-partners', [OurPartnersController::class, 'update'])->name('settings.our-partners.update');
     Route::get('/admin/settings/join-us', [PartnerController::class, 'index'])
         ->name('settings.join-us');
+        Route::get('/admin/home-page-settings', [HomePageController::class, 'index'])
+    ->name('settings.home-page.index');
+
+Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
+    ->name('settings.home-page.update');
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {
         Route::get('/product-queries', 'index')->name('product_query.index');
