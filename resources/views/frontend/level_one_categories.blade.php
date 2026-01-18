@@ -1063,7 +1063,7 @@
                                 @foreach ($levelOneCategories as $subCategory)
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="category-card-wrapper"
-                                            onclick="window.location='{{ route('products.level2', $subCategory->id) }}'">
+                                            onclick="window.location='{{ route('categories.level2', $subCategory->id) }}'">
 
                                             <div class="category-card">
 
@@ -1078,27 +1078,6 @@
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
                                                 </div>
-
-                                                {{-- عرض الـ Sub-Sub Categories (Level 2) تحت كل Sub Category --}}
-                                                @if ($subCategory->childrenCategories && $subCategory->childrenCategories->count() > 0)
-                                                    <div class="sub-categories-bottom" onclick="event.stopPropagation();">
-
-                                                        @foreach ($subCategory->childrenCategories->take(5) as $subSubCat)
-                                                            <a href="{{ route('products.level2', $subSubCat->id) }}"
-                                                                class="sub-cat-item" onclick="event.stopPropagation();">
-                                                                {{ $subSubCat->getTranslation('name') }}
-                                                            </a>
-                                                        @endforeach
-
-                                                        @if ($subCategory->childrenCategories->count() > 5)
-                                                            <a href="{{ route('products.level2', $subCategory->id) }}"
-                                                                class="sub-cat-item" onclick="event.stopPropagation();">
-                                                                +{{ $subCategory->childrenCategories->count() - 5 }}
-                                                            </a>
-                                                        @endif
-
-                                                    </div>
-                                                @endif
 
                                             </div>
                                         </div>

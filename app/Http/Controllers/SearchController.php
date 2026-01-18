@@ -468,7 +468,12 @@ class SearchController extends Controller
             $products = $products->with('taxes')->paginate(12)->appends(request()->query());
 
             $product_type = "preorder_product";
-            $product_html = view('frontend.product_listing_products', compact('products', 'product_type'))->render();
+            $category_id = null;
+            if (count($category_list_preorder) > 0) {
+                $category_id = (int) end($category_list_preorder);
+            }
+
+            $product_html = view('frontend.product_listing_products', compact('products', 'product_type', 'category_id'))->render();
 
             $pagination_html = view('frontend.product_listing_pagination', [
                 'current' => $products->currentPage(),
@@ -481,6 +486,15 @@ class SearchController extends Controller
                 'total_product_count' => $products->total(),
                 'product_html' => $product_html,
                 'pagination_html' => $pagination_html,
+                'product_list' => $request->boolean('include_product_list')
+                    ? $products->getCollection()->map(function ($p) {
+                        return [
+                            'id' => $p->id,
+                            'slug' => $p->slug ?? null,
+                            'name' => method_exists($p, 'getTranslation') ? $p->getTranslation('name') : ($p->name ?? ''),
+                        ];
+                    })->values()
+                    : null,
             ]);
         }
 
@@ -575,7 +589,14 @@ class SearchController extends Controller
 
         $products = filter_products($products)->with('taxes')->paginate(24)->appends(request()->query());
 
-        $product_html = view('frontend.product_listing_products', compact('products'))->render();
+        // Keep the active category context in AJAX results so product links can
+        // carry it into the product details page (to keep the same sidebar/menu).
+        $category_id = null;
+        if (count($category_list) > 0) {
+            $category_id = (int) end($category_list);
+        }
+
+        $product_html = view('frontend.product_listing_products', compact('products', 'category_id', 'product_type'))->render();
         $pagination_html = view('frontend.product_listing_pagination', [
             'current' => $products->currentPage(),
             'last' => $products->lastPage()
@@ -586,6 +607,15 @@ class SearchController extends Controller
             'total_product_count' => $products->total(),
             'product_html' => $product_html,
             'pagination_html' => $pagination_html,
+            'product_list' => $request->boolean('include_product_list')
+                ? $products->getCollection()->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'slug' => $p->slug,
+                        'name' => $p->getTranslation('name'),
+                    ];
+                })->values()
+                : null,
         ]);
     }
 
@@ -622,7 +652,17 @@ class SearchController extends Controller
     public function listingByCategory2(Request $request, $categoryId)
 
     {
-        $levelTwoCategories = Category::where('parent_id', $categoryId)->get();
+        // Load children for "sublist under headline" on tiles.
+        // Also load a few products as a fallback when a category has no children.
+        $levelTwoCategories = Category::where('parent_id', $categoryId)
+            ->with('childrenCategories')
+            ->with([
+                'products' => function ($q) {
+                    // keep it lightweight (used only for the tile sublist fallback)
+                    $q->select('products.id', 'products.slug', 'products.name')->limit(5);
+                },
+            ])
+            ->get();
         return view('frontend.level_Two_categories', compact('levelTwoCategories'));
         // if ($category != null) {
         //     return $this->index($request, $category->id);
