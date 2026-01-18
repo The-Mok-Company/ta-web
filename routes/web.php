@@ -168,6 +168,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/featured-products', 'featured_products')->name('featured-products');
 
     Route::get('/product/{slug}', 'product')->name('product');
+    Route::get('/product-modal/{slug}', 'product_modal')->name('product.modal');
     Route::post('/product/variant-price', 'variant_price')->name('products.variant_price');
     Route::get('/shop/{slug}', 'shop')->name('shop.visit');
     Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');

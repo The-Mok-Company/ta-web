@@ -2,17 +2,32 @@
     $cart_added = [];
     $current_quantity = 1;
 @endphp
-
 <div class="featured-product-card">
     @php
         $product_url = route('product', $product->slug);
         if ($product->auction_product == 1) {
             $product_url = route('auction-product', $product->slug);
         }
+
+        // Keep category context (for category sidebar / inline modal flows)
+        if (isset($category_id) && !empty($category_id)) {
+            $product_url .= (str_contains($product_url, '?') ? '&' : '?') . http_build_query([
+                'category_id' => $category_id,
+            ]);
+        }
+
+        $product_modal_url = route('product.modal', $product->slug);
+        if (isset($category_id) && !empty($category_id)) {
+            $product_modal_url .= '?' . http_build_query(['category_id' => $category_id]);
+        }
     @endphp
 
     <!-- Image Container -->
-    <a href="{{ $product_url }}" class="featured-image-wrapper">
+    <a href="{{ $product_url }}"
+        class="featured-image-wrapper js-open-product-details"
+        data-modal-url="{{ $product_modal_url }}"
+        data-product-id="{{ $product->id }}"
+        data-product-slug="{{ $product->slug }}">
         <img class="lazyload featured-product-image"
             src="{{ get_image($product->thumbnail) }}"
             alt="{{ $product->getTranslation('name') }}"
@@ -99,7 +114,12 @@
     <div class="featured-product-info">
         <div class="featured-product-header">
             <h3 class="featured-product-title">
-                <a href="{{ $product_url }}" title="{{ $product->getTranslation('name') }}">
+                <a href="{{ $product_url }}"
+                    class="js-open-product-details"
+                    data-modal-url="{{ $product_modal_url }}"
+                    data-product-id="{{ $product->id }}"
+                    data-product-slug="{{ $product->slug }}"
+                    title="{{ $product->getTranslation('name') }}">
                     {{ $product->getTranslation('name') }}
                 </a>
             </h3>

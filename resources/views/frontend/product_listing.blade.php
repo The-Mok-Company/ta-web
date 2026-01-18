@@ -1451,6 +1451,25 @@
         </div>
     </section>
 
+    <!-- Product Details Modal (stay on same page) -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-600">{{ translate('Product details') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-0" id="productDetailModalBody">
+                    <div class="text-center p-4">
+                        <div class="spinner-border" role="status" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('script')
@@ -1458,6 +1477,8 @@
         let category_page_first_time = true;
         let brand_page_first_time = true;
         let session_data_first_time = true;
+
+        const enableInlineProductDetails = {{ isset($category_id) ? 'true' : 'false' }};
 
         // Toggle category expansion
         function toggleCategory(element, categoryId) {
@@ -1603,6 +1624,65 @@
                 $activeItem.addClass('active expanded');
                 $activeItem.parents('.category-item').addClass('parent-active expanded');
             }
+        });
+
+        // Open product details in modal on category listing pages
+        $(document).on('click', 'a.js-open-product-details', function(e) {
+            if (!enableInlineProductDetails) {
+                return true;
+            }
+
+            // allow open-in-new-tab behaviors
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                return true;
+            }
+
+            const modalUrl = $(this).data('modal-url');
+            if (!modalUrl) {
+                return true;
+            }
+
+            e.preventDefault();
+
+            $('#productDetailModalBody').html(
+                '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
+            );
+            $('#productDetailModal').modal('show');
+
+            $.get(modalUrl, function(html) {
+                $('#productDetailModalBody').html(html);
+
+                try {
+                    // Re-init dynamic plugins for injected content
+                    if (typeof AIZ !== 'undefined' && AIZ.plugins) {
+                        AIZ.plugins.slickCarousel();
+                        AIZ.plugins.zoom();
+                    }
+                    if (typeof AIZ !== 'undefined' && AIZ.extra) {
+                        AIZ.extra.plusMinus();
+                    }
+
+                    // Rebind variant price handler for newly injected form
+                    if (typeof getVariantPrice === 'function') {
+                        $('#option-choice-form input').off('change').on('change', function() {
+                            getVariantPrice();
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Product modal init error:', err);
+                }
+            }).fail(function() {
+                $('#productDetailModalBody').html(
+                    '<div class="p-4 text-center text-danger">{{ translate('Something went wrong') }}</div>'
+                );
+            });
+        });
+
+        // Cleanup modal content on close (avoid duplicated IDs / handlers)
+        $('#productDetailModal').on('hidden.bs.modal', function() {
+            $('#productDetailModalBody').html(
+                '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
+            );
         });
     </script>
 
