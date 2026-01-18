@@ -300,6 +300,9 @@
         transition: background 0.2s;
         border-bottom: 1px solid #f0f0f0;
     }
+    /* #ourpartners:hover {
+    fill: black !important;
+    } */
 
     .dropdown-item span {
         color: black !important;
@@ -311,6 +314,7 @@
 
     .dropdown-item:hover {
         background: #dbdbdb;
+        color: black !important;
     }
 
     .dropdown-footer {
@@ -333,7 +337,7 @@
 
     .sub-dropdown {
         position: absolute;
-        top: 0;
+        top: -64;
         left: 95%;
         background: white;
         border-radius: 8px;
@@ -518,7 +522,7 @@
                                                             @if ($subCategory->childrenCategories->count() > 0)
                                                                 <div class="sub-dropdown level-2">
                                                                     <div class="dropdown-header">
-                                                                        {{ translate('Products') }}</div>
+                                                                        {{ translate('Product Group') }}</div>
 
                                                                     @foreach ($subCategory->childrenCategories as $level2Category)
                                                                         <a href="{{ route('products.level2', $level2Category->id) }}"
@@ -561,7 +565,7 @@
                             <div class="header-dropdown">
                                 <a href="{{ route('ourpartners') }}" class="dropdown-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ourpartners">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="9" cy="7" r="4"></circle>
                                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
