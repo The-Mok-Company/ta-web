@@ -19,6 +19,7 @@
         min-height: 100vh;
         padding: 100px 0;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        margin-top: 60px;
     }
 
     /* Hero Section */
@@ -26,11 +27,10 @@
         text-align: center;
         margin-bottom: 100px;
         position: relative;
-
     }
 
     .imagetwosection {
-        background-image: url("{{ asset('assets/img/about/8aa53b5cb1926d6f320a563c04c919b68484e0b1.png') }}");
+        background-image: url("{{ asset('assets/img/about/ac70617a702d56c2d3485fb65532dbcabb5a30a8.png') }}");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: left center;
@@ -69,36 +69,13 @@
         font-weight: 400;
     }
 
-    /* Trapezoid Container - Enhanced */
+    /* Trapezoid Container - Enhanced with Floating Effect */
     .trapezoid-container {
         position: relative;
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 50px 80px;
-    }
-
-    .trapezoid-border {
-        position: absolute;
-
-    }
-
-    .trapezoid-border::before {
-        content: '';
-        position: absolute;
-        inset: 2px;
-        background: rgba(255, 255, 255, 0.95);
-        clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
-        backdrop-filter: blur(10px);
-    }
-
-    .trapezoid-border::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border: 2px solid rgba(95, 110, 246, 0.3);
-        clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
-        box-shadow: 0 8px 32px rgba(95, 98, 246, 0.12);
-        border-radius: 16px;
+        padding: 80px 40px;
+        perspective: 1500px;
     }
 
     .trapezoid-content {
@@ -107,29 +84,82 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: fadeInUp 0.8s ease-out;
-        padding: 20px;
+        animation: floatingImage 6s ease-in-out infinite;
     }
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+    @keyframes floatingImage {
+        0%, 100% {
+            transform: translateY(0px) rotateX(2deg);
         }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        50% {
+            transform: translateY(-20px) rotateX(-2deg);
         }
     }
 
     .hero-illustration {
-        max-width: 100%;
-        max-height: 400px;
+        width: 100%;
+        max-width: 800px;
         height: auto;
         object-fit: contain;
-        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08));
-        opacity: 0.95;
+        filter: drop-shadow(0 25px 50px rgba(95, 110, 246, 0.3))
+                drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px;
+        transform-style: preserve-3d;
+    }
+
+    .hero-illustration:hover {
+        transform: scale(1.05) translateY(-10px);
+        filter: drop-shadow(0 35px 70px rgba(95, 110, 246, 0.4))
+                drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Decorative Elements for Floating Effect */
+    .trapezoid-content::before {
+        content: '';
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle, rgba(95, 110, 246, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: -1;
+        animation: pulseGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+    }
+
+    .trapezoid-content::after {
+        content: '';
+        position: absolute;
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70%;
+        height: 30px;
+        background: radial-gradient(ellipse, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        filter: blur(20px);
+        animation: shadowPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes shadowPulse {
+        0%, 100% {
+            transform: translateX(-50%) scale(0.9);
+            opacity: 0.4;
+        }
+        50% {
+            transform: translateX(-50%) scale(1.1);
+            opacity: 0.6;
+        }
     }
 
     /* Mission Section */
@@ -204,7 +234,7 @@
     /* Vision Section */
     .vision-section {
         max-width: 1100px;
-        margin: 0 auto;
+        margin: 0 auto 100px;
         display: flex;
         align-items: center;
         gap: 80px;
@@ -282,6 +312,148 @@
         font-weight: 400;
     }
 
+    /* Our Categories Section - New Design */
+    .categories-section-new {
+        padding: clamp(40px, 8vw, 80px) 0;
+        background-color: #ffffff;
+        position: relative;
+    }
+
+    .categories-section-new .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(15px, 3vw, 30px);
+        margin-bottom: clamp(30px, 5vw, 50px);
+        flex-wrap: wrap;
+        padding: 0 15px;
+    }
+
+    .categories-section-new .section-header h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+        text-align: center;
+    }
+
+    .categories-section-new .nav-btn {
+        width: clamp(40px, 5vw, 45px);
+        height: clamp(40px, 5vw, 45px);
+        border-radius: 50%;
+        border: none;
+        background-color: white;
+        color: #007bff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .categories-section-new .nav-btn:hover {
+        background-color: #007bff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .categories-slider-new {
+        position: relative;
+        overflow: hidden;
+        padding: 0 15px;
+    }
+
+    .categories-wrapper-new {
+        display: flex;
+        gap: clamp(15px, 2vw, 25px);
+        transition: transform 0.5s ease;
+        padding: 10px 0;
+    }
+
+    .category-card-new {
+        flex: 0 0 calc(33.333% - 17px);
+        position: relative;
+        border-radius: clamp(12px, 2vw, 20px);
+        overflow: hidden;
+        height: clamp(200px, 30vw, 280px);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+    }
+
+    .category-card-new:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-card-new img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .category-card-new:hover img {
+        transform: scale(1.08);
+    }
+
+    .category-card-new::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
+        z-index: 1;
+    }
+
+    .category-card-new .cart-icon {
+        position: absolute;
+        top: clamp(12px, 2vw, 20px);
+        left: clamp(12px, 2vw, 20px);
+        width: clamp(36px, 5vw, 42px);
+        height: clamp(36px, 5vw, 42px);
+        background-color: rgb(0, 0, 0);
+        border-radius: 50px;
+        display: flex;
+        color: white;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .category-card-new:hover .cart-icon {
+        background-color: white;
+        color: #000;
+        transform: scale(1.1);
+    }
+
+    .category-card-new .cart-icon svg {
+        width: clamp(18px, 2.5vw, 22px);
+        height: clamp(18px, 2.5vw, 22px);
+    }
+
+    .category-card-new .content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: clamp(15px, 3vw, 25px);
+        z-index: 2;
+        color: white;
+    }
+
+    .category-card-new .content h3 {
+        font-size: clamp(1.2rem, 3vw, 1.6rem);
+        font-weight: 700;
+        margin: 0;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
         .who-we-are-page {
@@ -293,7 +465,11 @@
         }
 
         .trapezoid-container {
-            padding: 45px 60px;
+            padding: 60px 40px;
+        }
+
+        .hero-illustration {
+            max-width: 700px;
         }
 
         .mission-container {
@@ -313,6 +489,10 @@
 
         .vision-content {
             text-align: center;
+        }
+
+        .category-card-new {
+            flex: 0 0 calc(50% - 13px);
         }
     }
 
@@ -334,18 +514,11 @@
         }
 
         .trapezoid-container {
-            padding: 35px 30px;
-            max-width: 90%;
-        }
-
-        .trapezoid-border,
-        .trapezoid-border::before,
-        .trapezoid-border::after {
-            clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+            padding: 50px 20px;
         }
 
         .hero-illustration {
-            max-height: 300px;
+            max-width: 100%;
         }
 
         .mission-container {
@@ -370,6 +543,10 @@
         .vision-section {
             gap: 40px;
         }
+
+        .category-card-new {
+            flex: 0 0 100%;
+        }
     }
 
     @media (max-width: 480px) {
@@ -383,11 +560,7 @@
         }
 
         .trapezoid-container {
-            padding: 30px 20px;
-        }
-
-        .hero-illustration {
-            max-height: 250px;
+            padding: 40px 15px;
         }
 
         .mission-container {
@@ -430,17 +603,16 @@
                         {{ $hero && isset($hero->value['subtitle']) ? $hero->value['subtitle'] : 'Trades Axis was founded as an extension of our sister distribution business, which has been thriving in the regional market since 20XX. Our evolution from the import-export field reflects our ongoing commitment to expand our value chain and deliver excellence in every market we serve.' }}
                     </p>
 
-                    {{-- Trapezoid Container with Illustration --}}
+                    {{-- Trapezoid Container with Floating Illustration --}}
                     <div class="trapezoid-container">
-                        <div class="trapezoid-border"></div>
                         <div class="trapezoid-content">
                             @if ($hero && isset($hero->value['image']) && $hero->value['image'])
                                 <img src="{{ asset($hero->value['image']) }}" alt="Who We Are" class="hero-illustration"
-                                    onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                                    onerror="this.src='https://via.placeholder.com/800x500?text=Who+We+Are+Illustration'">
                             @else
                                 <img src="{{ asset('assets/img/about/60e4d4135fac5d6e76b09f98b4a872dfa0909dfb.png') }}"
                                     alt="Who We Are" class="hero-illustration"
-                                    onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                                    onerror="this.src='https://via.placeholder.com/800x500?text=Who+We+Are+Illustration'">
                             @endif
                         </div>
                     </div>
@@ -464,8 +636,6 @@
                     </div>
                 </div>
             </div>
-
-
 
             {{-- Vision Section --}}
             <div class="vision-section">
@@ -508,5 +678,144 @@
             </div>
 
         </div>
+
+        {{-- Categories Section --}}
+        <section class="categories-section-new">
+            <div class="container">
+                <div class="section-header">
+                    <button class="nav-btn" id="categoriesPrevBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <h2>Our Categories</h2>
+                    <button class="nav-btn" id="categoriesNextBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="categories-slider-new">
+                    <div class="categories-wrapper-new" id="categoriesWrapperNew">
+                        @foreach ($categories as $category)
+                            @php
+                                $categoryName = $category->getTranslation('name', $lang);
+                                $categoryImage = null;
+                                if ($category->banner) {
+                                    $categoryImage = uploaded_asset($category->banner);
+                                } elseif ($category->cover_image) {
+                                    $categoryImage = uploaded_asset($category->cover_image);
+                                }
+
+                                if (!$categoryImage) {
+                                    $lowerName = strtolower($categoryName);
+                                    if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
+                                        $categoryImage =
+                                            'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
+                                    } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
+                                        $categoryImage =
+                                            'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
+                                    } elseif (str_contains($lowerName, 'frozen')) {
+                                        $categoryImage =
+                                            'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
+                                    } else {
+                                        $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
+                                    }
+                                }
+
+                                $categoryUrl = route('products.category', $category->slug);
+                            @endphp
+
+                            <a href="{{ $categoryUrl }}" class="category-card-new">
+                                <div class="cart-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="9" cy="21" r="1" />
+                                        <circle cx="20" cy="21" r="1" />
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                                    </svg>
+                                </div>
+                                <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
+                                    onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
+                                <div class="content">
+                                    <h3>{{ $categoryName }}</h3>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
+    {{-- JavaScript for Categories Slider --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.getElementById('categoriesWrapperNew');
+            const prevBtn = document.getElementById('categoriesPrevBtn');
+            const nextBtn = document.getElementById('categoriesNextBtn');
+
+            if (!wrapper || !prevBtn || !nextBtn) return;
+
+            let currentIndex = 0;
+            const cards = wrapper.querySelectorAll('.category-card-new');
+            const totalCards = cards.length;
+
+            // Get number of visible cards based on screen width
+            function getVisibleCards() {
+                if (window.innerWidth <= 768) return 1;
+                if (window.innerWidth <= 992) return 2;
+                return 3;
+            }
+
+            function updateSlider() {
+                const visibleCards = getVisibleCards();
+                const maxIndex = Math.max(0, totalCards - visibleCards);
+                currentIndex = Math.min(currentIndex, maxIndex);
+
+                const cardWidth = cards[0].offsetWidth;
+                const gap = parseInt(getComputedStyle(wrapper).gap) || 25;
+                const offset = currentIndex * (cardWidth + gap);
+
+                wrapper.style.transform = `translateX(-${offset}px)`;
+
+                // Update button states
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex >= maxIndex;
+
+                prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+                nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+            }
+
+            prevBtn.addEventListener('click', function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlider();
+                }
+            });
+
+            nextBtn.addEventListener('click', function() {
+                const visibleCards = getVisibleCards();
+                const maxIndex = totalCards - visibleCards;
+                if (currentIndex < maxIndex) {
+                    currentIndex++;
+                    updateSlider();
+                }
+            });
+
+            // Reset on window resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    updateSlider();
+                }, 250);
+            });
+
+            // Initialize
+            updateSlider();
+        });
+    </script>
 @endsection
