@@ -537,11 +537,11 @@
 
         @media (max-width: 768px) {
             .hero-content h1 {
-                font-size: 2.5rem;
+                font-size: 2.0rem;
             }
 
             .hero-content p {
-                font-size: 1rem;
+                font-size: 0.6rem;
             }
 
             .carousel-control-prev,

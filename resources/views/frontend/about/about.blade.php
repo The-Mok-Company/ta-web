@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section("meta_title",'About Us')
+@section('meta_title', 'About Us')
 
 
 @php
@@ -32,6 +32,14 @@
         position: relative;
     }
 
+    @media (min-width: 1500px) {
+
+        .container,
+        .container-xxl {
+            max-width: 1520px !important;
+        }
+    }
+
     .imagetwosection {
         background-image: url("{{ asset('assets/img/about/ac70617a702d56c2d3485fb65532dbcabb5a30a8.png') }}");
         background-repeat: no-repeat;
@@ -46,6 +54,7 @@
             background-position: left center;
         }
     }
+
     @media (max-width: 768px) {
         .imagetwosection {
             background-size: contain;
@@ -91,9 +100,12 @@
     }
 
     @keyframes floatingImage {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translateY(0px) rotateX(2deg);
         }
+
         50% {
             transform: translateY(-20px) rotateX(-2deg);
         }
@@ -104,8 +116,7 @@
         max-width: 800px;
         height: auto;
         object-fit: contain;
-        filter: drop-shadow(0 25px 50px rgba(95, 110, 246, 0.3))
-                drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
+        filter: drop-shadow(0 25px 50px rgba(95, 110, 246, 0.3)) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
         transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         border-radius: 20px;
         transform-style: preserve-3d;
@@ -113,8 +124,7 @@
 
     .hero-illustration:hover {
         transform: scale(1.05) translateY(-10px);
-        filter: drop-shadow(0 35px 70px rgba(95, 110, 246, 0.4))
-                drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 35px 70px rgba(95, 110, 246, 0.4)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
     }
 
     /* Decorative Elements for Floating Effect */
@@ -130,10 +140,13 @@
     }
 
     @keyframes pulseGlow {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: scale(0.95);
             opacity: 0.5;
         }
+
         50% {
             transform: scale(1.05);
             opacity: 0.8;
@@ -155,10 +168,13 @@
     }
 
     @keyframes shadowPulse {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translateX(-50%) scale(0.9);
             opacity: 0.4;
         }
+
         50% {
             transform: translateX(-50%) scale(1.1);
             opacity: 0.6;
@@ -718,14 +734,18 @@
                                     if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
                                         $categoryImage =
                                             'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                                    } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
+                                    } elseif (
+                                        str_contains($lowerName, 'beverage') ||
+                                        str_contains($lowerName, 'juice')
+                                    ) {
                                         $categoryImage =
                                             'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
                                     } elseif (str_contains($lowerName, 'frozen')) {
                                         $categoryImage =
                                             'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
                                     } else {
-                                        $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
+                                        $categoryImage =
+                                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
                                     }
                                 }
 
