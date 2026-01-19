@@ -1,5 +1,13 @@
 @extends('frontend.layouts.app')
-@section("meta_title",'Join Us as Partner')
+@section('meta_title', 'Join Us as Partner')
+
+@php
+    use App\Models\JoinUs;
+
+    $hero = JoinUs::where('key', 'hero')->first();
+    $info = JoinUs::where('key', 'info')->first();
+    $contact = JoinUs::where('key', 'contact')->first();
+@endphp
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -313,11 +321,16 @@
 
         {{-- Hero Section --}}
         <section class="partner-hero">
-            <img src="{{ asset('assets/img/about/d7ff66e347d816519af68001ac9e107f35ac9bea.png') }}" alt="Join Us as Partner"
-                class="partner-hero-bg">
+            @if ($hero && isset($hero->value['image']) && $hero->value['image'])
+                <img src="{{ asset($hero->value['image']) }}" alt="Join Us as Partner" class="partner-hero-bg">
+            @else
+                <img src="{{ asset('assets/img/about/d7ff66e347d816519af68001ac9e107f35ac9bea.png') }}"
+                    alt="Join Us as Partner" class="partner-hero-bg">
+            @endif
+
             <div class="partner-hero-content">
-                <h1>Join Us</h1>
-                <h2>a Partner</h2>
+                <h1>{{ $hero->value['title_line1'] ?? 'Join Us' }}</h1>
+                <h2>{{ $hero->value['title_line2'] ?? 'a Partner' }}</h2>
             </div>
         </section>
 
@@ -327,11 +340,9 @@
 
                 {{-- Left Side - Info --}}
                 <div class="form-info">
-                    <h3>Join us as Partner</h3>
+                    <h3>{{ $info->value['title'] ?? 'Join us as Partner' }}</h3>
                     <p class="form-info-description">
-                        We're here to help! Whether you have a question about your order,
-                        need assistance with a product, or just want to share feedback,
-                        our team is ready to assist you.
+                        {{ $info->value['description'] ?? "We're here to help! Whether you have a question about your order, need assistance with a product, or just want to share feedback, our team is ready to assist you." }}
                     </p>
 
                     <div class="contact-info-item">
@@ -343,7 +354,7 @@
                         </div>
                         <div class="contact-details">
                             <h4>Address</h4>
-                            <p>13th Street, 47 W 13th St, New York, NY 10011, USA</p>
+                            <p>{{ $contact->value['address'] ?? '13th Street, 47 W 13th St, New York, NY 10011, USA' }}</p>
                         </div>
                     </div>
 
@@ -356,7 +367,7 @@
                         </div>
                         <div class="contact-details">
                             <h4>Phone</h4>
-                            <p>124-251-524</p>
+                            <p>{{ $contact->value['phone'] ?? '124-251-524' }}</p>
                         </div>
                     </div>
 
@@ -369,12 +380,12 @@
                         </div>
                         <div class="contact-details">
                             <h4>Email Address</h4>
-                            <p>mokhtari@gmail.com</p>
+                            <p>{{ $contact->value['email'] ?? 'mokhtari@gmail.com' }}</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Right Side - Form --}}
+                {{-- Right Side - Form (نفس الكود بدون تغيير) --}}
                 <div class="partner-form">
                     <form action="{{ route('partner.store') }}" method="POST">
                         @csrf

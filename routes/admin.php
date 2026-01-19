@@ -5,6 +5,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
 use App\Http\Controllers\Admin\Setting\FooterController;
 use App\Http\Controllers\Admin\Setting\HomePageController;
+use App\Http\Controllers\Admin\Setting\JoinUsController;
 use App\Http\Controllers\Admin\Setting\OurServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
@@ -638,6 +639,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
     Route::post('/settings/our-services/update', [OurServiceController::class, 'update'])
         ->name('settings.our-services.update');
+    Route::get('/settings/join-us', [JoinUsController::class, 'index'])->name('settings.join-us');
+    Route::post('/settings/join-us/update', [JoinUsController::class, 'update'])->name('settings.join-us.update');
 
 
     Route::get('/settings/footer', [FooterController::class, 'index'])->name('settings.footer');
