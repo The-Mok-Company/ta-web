@@ -273,8 +273,7 @@ class CustomerProductController extends Controller
     {
         if(get_setting('classified_product') != 1){
             return redirect('/');
-            }
-
+        }
 
         $brand_id = (Brand::where('slug', $request->brand)->first() != null) ? Brand::where('slug', $request->brand)->first()->id : null;
         $category_id = (Category::where('slug', $request->category)->first() != null) ? Category::where('slug', $request->category)->first()->id : null;

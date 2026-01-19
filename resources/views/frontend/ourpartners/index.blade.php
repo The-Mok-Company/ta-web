@@ -1,6 +1,4 @@
 @extends('frontend.layouts.app')
-@section("meta_title",'Our Partners')
-
 
 @php
     use App\Models\OurPartners;
@@ -12,12 +10,13 @@
 @endphp
 
 <style>
+
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     .our-partners-page {
         background: #ffffff;
         min-height: 100vh;
-        padding: 130px 0;
+        padding: 100px 0;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
@@ -36,17 +35,43 @@
         line-height: 1.2;
     }
 
-    /* Trapezoid Container - Floating Image */
+    /* Trapezoid Container for Hero */
     .hero-trapezoid-container {
         position: relative;
-        max-width: 1200px;
+        max-width: 900px;
         margin: 0 auto 40px;
-        padding: 0;
+        padding: 60px 80px;
     }
 
-    .imagetwosection {
-        position: relative;
-        background: none;
+    .hero-trapezoid-border {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(100, 181, 246, 0.08) 0%, rgba(66, 165, 245, 0.05) 100%);
+        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+        z-index: 1;
+        border-radius: 16px;
+    }
+
+    .hero-trapezoid-border::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        background: rgba(255, 255, 255, 0.95);
+        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-trapezoid-border::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border: 4px solid rgba(100, 181, 246, 0.3);
+        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+        box-shadow: 0 8px 32px rgba(100, 181, 246, 0.12);
+        border-radius: 16px;
     }
 
     .hero-trapezoid-content {
@@ -55,33 +80,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: floatAnimation 3s ease-in-out infinite;
-        padding: 0;
+        animation: fadeInUp 0.8s ease-out;
+        padding: 20px;
     }
 
-    @keyframes floatAnimation {
-
-        0%,
-        100% {
-            transform: translateY(0px);
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
         }
 
-        50% {
-            transform: translateY(-20px);
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 
     .hero-illustration {
         max-width: 100%;
-        max-height: 500px;
+        max-height: 350px;
         height: auto;
         object-fit: contain;
-        filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15));
-        transition: transform 0.3s ease;
-    }
-
-    .hero-illustration:hover {
-        transform: scale(1.05);
     }
 
     /* Subtitle Below Hero */
@@ -200,11 +219,7 @@
         }
 
         .hero-trapezoid-container {
-            max-width: 90%;
-        }
-
-        .hero-illustration {
-            max-height: 400px;
+            padding: 50px 60px;
         }
     }
 
@@ -219,11 +234,12 @@
         }
 
         .hero-trapezoid-container {
-            max-width: 95%;
+            padding: 40px 40px;
+            max-width: 90%;
         }
 
         .hero-illustration {
-            max-height: 320px;
+            max-height: 280px;
         }
 
         .hero-subtitle {
@@ -249,8 +265,12 @@
             font-size: 32px;
         }
 
+        .hero-trapezoid-container {
+            padding: 30px 20px;
+        }
+
         .hero-illustration {
-            max-height: 280px;
+            max-height: 240px;
         }
 
         .hero-subtitle {
@@ -295,14 +315,6 @@
     .partner-logo-item:hover .brand-name {
         color: #0a0a0a;
     }
-
-    .imagetwosection {
-        background-image: url("{{ asset('assets/img/partners/8aa53b5cb1926d6f320a563c04c919b68484e0b1.png') }}");
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: center;
-        position: relative;
-    }
 </style>
 
 @section('content')
@@ -313,18 +325,16 @@
             <div class="partners-hero">
                 <h1>{{ $hero && isset($hero->value['title']) ? $hero->value['title'] : 'Our Partners' }}</h1>
 
-                {{-- Floating Image Container --}}
+                {{-- Trapezoid Container with Illustration --}}
                 <div class="hero-trapezoid-container">
-                        <div class="imagetwosection">
-                        <div class="hero-trapezoid-content">
-                            @if ($hero && isset($hero->value['image']) && $hero->value['image'])
-                                <img src="{{ asset($hero->value['image']) }}" alt="Our Partners" class="hero-illustration"
-                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 800 400%27%3E%3Ctext x=%27400%27 y=%27200%27 font-size=%2724%27 text-anchor=%27middle%27 fill=%27%23999%27%3EPartnership Illustration%3C/text%3E%3C/svg%3E'">
-                            @else
-                                <img src="{{ asset('assets/img/partners/f539e3f31e94302e4e1f745004803908c4aa2e1d.png') }}"
-                                    alt="Our Partners" class="hero-illustration">
-                            @endif
-                        </div>
+                    <div class="hero-trapezoid-border"></div>
+                    <div class="hero-trapezoid-content">
+                        @if ($hero && isset($hero->value['image']) && $hero->value['image'])
+                            <img src="{{ asset($hero->value['image']) }}" alt="Our Partners" class="hero-illustration"
+                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 800 400%27%3E%3Ctext x=%27400%27 y=%27200%27 font-size=%2724%27 text-anchor=%27middle%27 fill=%27%23999%27%3EPartnership Illustration%3C/text%3E%3C/svg%3E'">
+                        @else
+                        <img src="{{ asset('assets/img/partners/f539e3f31e94302e4e1f745004803908c4aa2e1d.png') }}" alt="Our Partners" class="hero-illustration">
+                        @endif
                     </div>
                 </div>
 

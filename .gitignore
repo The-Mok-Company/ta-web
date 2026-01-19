@@ -5,7 +5,6 @@
 
 /node_modules
 /storage/debugbar
-storage/logs
 /vendor
 /temp
 /.idea
@@ -25,7 +24,13 @@ ecommerce.zip
 install.zip
 /nbproject/private/
 /nbproject
+/public/app-translations
+public/uploads.zip
 .env
 .env.example
 
+# local logs/temp
+/storage/logs
+tmpclaude-*
+ 
 

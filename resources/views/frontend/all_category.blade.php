@@ -192,7 +192,7 @@
 
         @media (min-width: 1025px) {
             .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -212,8 +212,7 @@
                 @foreach ($categories as $key => $category)
                     <a href="{{ route('products.category', $category->slug) }}" class="category-card">
                         <img src="{{ $category->banner ? uploaded_asset($category->banner) : asset('assets/img/eaf877854196422d963fe04e58d086e83a98ac67.png') }}"
-                            class="category-image" alt="{{ $category->name }}"
-                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                            class="category-image" alt="{{ $category->name }}">
 
                         <div class="icon-badge">
                             <i class="fas fa-shopping-basket"></i>
