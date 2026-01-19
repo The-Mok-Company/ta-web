@@ -88,7 +88,7 @@
     function updateStatus(el, id) {
         if ('{{env('DEMO_MODE')}}' == 'On') {
             AIZ.plugins.notify('info', '{{ translate('Data can not change in demo mode.') }}');
-            $(el).prop('checked', !$(el).is(':checked')); 
+            $(el).prop('checked', !$(el).is(':checked'));
             return;
         }
 
@@ -96,13 +96,13 @@
             var status = 1;
             if ($(el).data('identifier') == 'gst_system') {
                 if (!gstConfirmed) {
-                    showAlert(el, id); 
+                    showAlert(el, id);
                     return;
                 }
             }
         } else {
             var status = 0;
-            gstConfirmed = false; 
+            gstConfirmed = false;
         }
 
         // Perform AJAX
@@ -113,7 +113,7 @@
                 AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 $(el).prop('checked', !$(el).is(':checked')); // Reset on error
             }
-            gstConfirmed = false; 
+            gstConfirmed = false;
         });
     }
 
@@ -127,16 +127,16 @@
         $('#impact-message').html('{{ translate('This action cannot be undone. All existing VAT taxes linked to products will be permanently removed. In addition, any products without an assigned HSN/GST code will be automatically unpublished.') }}');
         $('.confirmation-icon').addClass('d-none');
         $('#exclamation-icon').removeClass('d-none');
-        
+
         $('#conform-yes-btn').attr("onclick", "activeGST()");
     }
 
     function activeGST() {
         gstConfirmed = true;
-        hideBulkActionModal(); 
+        hideBulkActionModal();
         updateStatus(lastEl, lastId);
     }
-    
+
     $(document).on('click', '#back-btn, [data-dismiss="modal"]', function(){
         if(!gstConfirmed && lastEl){
              $(lastEl).prop('checked', false);

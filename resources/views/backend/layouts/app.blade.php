@@ -7,8 +7,10 @@
 
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="app-url" content="{{ rtrim(config('app.url'), '/') }}/">
-<meta name="file-base-url" content="{{ rtrim(config('app.url'), '/') }}/">
+<meta name="app-url" content="{{ rtrim(url('/'), '/') }}">
+<meta name="file-base-url" content="{{ url('/') }}/">
+
+
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -142,7 +144,7 @@
         </div><!-- .aiz-content-wrapper -->
     </div><!-- .aiz-main-wrapper -->
 
-
+    
     <!-- Bulk Action modal -->
     @include('modals.bulk_action_modal')
     @yield('modal')

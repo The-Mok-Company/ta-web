@@ -10,7 +10,6 @@
 @endphp
 
 <style>
-
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     .our-partners-page {
@@ -45,14 +44,6 @@
 
     .hero-trapezoid-border {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(100, 181, 246, 0.08) 0%, rgba(66, 165, 245, 0.05) 100%);
-        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
-        z-index: 1;
-        border-radius: 16px;
     }
 
     .hero-trapezoid-border::before {
@@ -315,6 +306,15 @@
     .partner-logo-item:hover .brand-name {
         color: #0a0a0a;
     }
+
+    .imagetwosection {
+        background-image: url("{{ asset('assets/img/partners/8aa53b5cb1926d6f320a563c04c919b68484e0b1.png') }}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position:center top;
+        position: relative;
+
+    }
 </style>
 
 @section('content')
@@ -327,15 +327,19 @@
 
                 {{-- Trapezoid Container with Illustration --}}
                 <div class="hero-trapezoid-container">
-                    <div class="hero-trapezoid-border"></div>
-                    <div class="hero-trapezoid-content">
-                        @if ($hero && isset($hero->value['image']) && $hero->value['image'])
-                            <img src="{{ asset($hero->value['image']) }}" alt="Our Partners" class="hero-illustration"
-                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 800 400%27%3E%3Ctext x=%27400%27 y=%27200%27 font-size=%2724%27 text-anchor=%27middle%27 fill=%27%23999%27%3EPartnership Illustration%3C/text%3E%3C/svg%3E'">
-                        @else
-                        <img src="{{ asset('assets/img/partners/f539e3f31e94302e4e1f745004803908c4aa2e1d.png') }}" alt="Our Partners" class="hero-illustration">
-                        @endif
+                    <div class="imagetwosection">
+                        <div class="hero-trapezoid-border"></div>
+                        <div class="hero-trapezoid-content">
+                            @if ($hero && isset($hero->value['image']) && $hero->value['image'])
+                                <img src="{{ asset($hero->value['image']) }}" alt="Our Partners" class="hero-illustration"
+                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 800 400%27%3E%3Ctext x=%27400%27 y=%27200%27 font-size=%2724%27 text-anchor=%27middle%27 fill=%27%23999%27%3EPartnership Illustration%3C/text%3E%3C/svg%3E'">
+                            @else
+                                <img src="{{ asset('assets/img/partners/f539e3f31e94302e4e1f745004803908c4aa2e1d.png') }}"
+                                    alt="Our Partners" class="hero-illustration">
+                            @endif
+                        </div>
                     </div>
+
                 </div>
 
                 {{-- Subtitle --}}
