@@ -1,36 +1,57 @@
-
 <!-- footer Description -->
 <style>
-.policy-file a {
-    transition: all 0.3s ease;
-}
-#text-dark22 { color: white; }
+    .policy-file a {
+        transition: all 0.3s ease;
+    }
 
-.policy-file .policy-title,
-.policy-file svg path {
-    fill: #fff;
-    color: #fff;
-    transition: all 0.3s ease;
-}
+    #text-dark22 {
+        color: white;
+    }
 
-.policy-file .policy-title:hover {
-    color: rgba(46, 136, 214, 1) !important;
-}
+    .policy-file .policy-title,
+    .policy-file svg path {
+        fill: #fff;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
 
-.policy-file a:hover svg path {
-    fill: rgba(46, 136, 214, 1) !important;
-}
-.policy-file a:hover {
-    #text-dark22{
+    .policy-file .policy-title:hover {
         color: rgba(46, 136, 214, 1) !important;
     }
 
-}
-.policy-file a:hover .icon-mark {
-    fill: #2e88d6;
-}
+    .policy-file a:hover svg path {
+        fill: rgba(46, 136, 214, 1) !important;
+    }
 
+    .policy-file a:hover {
+        #text-dark22 {
+            color: rgba(46, 136, 214, 1) !important;
+        }
 
+    }
+
+    .policy-file a:hover .icon-mark {
+        fill: #2e88d6;
+    }
+
+    #logofootre {
+        height: 40px;
+    }
+
+    @media (max-width: 768px) {
+        #logofootre {
+            height: 20px;
+        }
+    }
+
+        #logotopfooter {
+            padding-top: 31px;
+        }
+    @media (max-width: 767px) {
+        #logotopfooter {
+            padding-top: 10px;
+        }
+    }
 </style>
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
@@ -78,7 +99,7 @@
             <!-- Return Policy -->
             <div class="col-lg-3 col-6 policy-file">
                 <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
-                    href="{{ route('returnpolicy') }}" style="    padding-top: 31px !important;">
+                    href="{{ route('returnpolicy') }}" id="logotopfooter">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.001" height="23.971" viewBox="0 0 32.001 23.971">
                         <path id="Union_7" data-name="Union 7"
                             d="M-14490,18922.967a6.972,6.972,0,0,0,4.949-2.051,6.944,6.944,0,0,0,2.052-4.943,7.008,7.008,0,0,0-7-7v0h-22.1l7.295,7.295-.707.707-7.779-7.779-.708-.707.708-.7,7.774-7.779.712.707-7.261,7.258H-14490v0a8.01,8.01,0,0,1,8,8,8.008,8.008,0,0,1-8,8Z"
@@ -128,7 +149,7 @@
                             <path id="Subtraction_11" data-name="Subtraction 11"
                                 d="M-14498,18932a15.894,15.894,0,0,1-11.312-4.687A15.909,15.909,0,0,1-14514,18916a15.884,15.884,0,0,1,4.685-11.309A15.9,15.9,0,0,1-14498,18900a15.909,15.909,0,0,1,11.316,4.688A15.885,15.885,0,0,1-14482,18916a15.9,15.9,0,0,1-4.687,11.316A15.909,15.909,0,0,1-14498,18932Zm0-31a14.9,14.9,0,0,0-10.605,4.393A14.9,14.9,0,0,0-14513,18916a14.9,14.9,0,0,0,4.395,10.607A14.9,14.9,0,0,0-14498,18931a14.9,14.9,0,0,0,10.607-4.393A14.9,14.9,0,0,0-14483,18916a14.9,14.9,0,0,0-4.393-10.607A14.9,14.9,0,0,0-14498,18901Z"
                                 transform="translate(15968 -16470)" fill="rgba(255, 255, 255, 1)" />
-                            <g id="Group_24196" data-name="Group 24196" transform="translate(0 -1)" >
+                            <g id="Group_24196" data-name="Group 24196" transform="translate(0 -1)">
                                 <rect id="Rectangle_18406" data-name="Rectangle 18406" width="2" height="10"
                                     transform="translate(1469 2440)" fill="rgba(255, 255, 255, 1)" />
                                 <rect id="Rectangle_18407" data-name="Rectangle 18407" width="2" height="2"
@@ -158,7 +179,7 @@
             <div class="footer-left">
                 <div class="logo">
                     @if ($branding && isset($branding->value['logo_image']) && $branding->value['logo_image'])
-                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" style="height: 40px;">
+                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" id="logofootre">
                     @else
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3b9df8" />

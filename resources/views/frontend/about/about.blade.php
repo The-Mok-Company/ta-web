@@ -1,5 +1,8 @@
 @extends('frontend.layouts.app')
 
+@section("meta_title",'About Us')
+
+
 @php
     use App\Models\AboutUs;
 

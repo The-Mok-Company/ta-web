@@ -47,6 +47,8 @@
         padding: 12px 40px;
     }
 
+
+
     /* Logo */
     .logo1 {
         display: flex;
@@ -77,7 +79,7 @@
     .nav {
         display: flex;
         align-items: center;
-        gap: 40px;
+        gap: 39px;
         flex: 1;
         justify-content: center;
     }
@@ -300,6 +302,7 @@
         transition: background 0.2s;
         border-bottom: 1px solid #f0f0f0;
     }
+
     /* #ourpartners:hover {
     fill: black !important;
     } */
@@ -379,6 +382,23 @@
             padding: 12px 0;
         }
 
+        .nav-dropdown:hover .header-dropdown {
+            transform: translateX(-23%) translateY(0px);
+        }
+
+        .nav-dropdown.active .header-dropdown {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            top: 0;
+            left: 0;
+            transform: none;
+            box-shadow: none;
+            margin-top: 8px;
+            background: #ffffff;
+            border-radius: 8px;
+        }
+
         .header-container {
             border-radius: 16px;
             padding: 0 20px;
@@ -402,13 +422,14 @@
 
         .nav.active {
             display: flex;
+            align-items: flex-start;
         }
 
         .nav-link,
         .dropdown-btn {
             padding: 12px 24px;
             width: 100%;
-            text-align: right;
+            text-align: left;
         }
 
         .mobile-menu-btn {
@@ -425,8 +446,47 @@
             padding: 10px 40px 10px 16px;
         }
 
+        /* إظهار الـ sub-dropdown على الموبايل (كل المستويات) */
         .sub-dropdown {
             display: none;
+            position: static;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            margin-left: 0;
+            padding-left: 20px;
+            box-shadow: none;
+            background: #ffffff;
+            margin-top: 4px;
+            border-radius: 6px;
+        }
+
+        .category-item-wrapper.active>.sub-dropdown {
+            display: block;
+        }
+
+        /* Level 2 dropdown styling */
+        .sub-dropdown .sub-dropdown {
+            background: #ffffff;
+            padding-left: 15px;
+        }
+
+        /* Level 2 في الموبايل */
+        .sub-dropdown.level-2 {
+            background: #ffffff;
+        }
+
+        /* تعديل شكل الـ dropdown items في الموبايل */
+        .nav-dropdown.active .dropdown-item {
+            color: #fff;
+        }
+
+        .nav-dropdown.active .dropdown-item span {
+            color: #fff !important;
+        }
+
+        .nav-dropdown.active .dropdown-item:hover {
+            background: #3a3a3a;
         }
     }
 
@@ -434,7 +494,31 @@
         font-size: 12px;
         color: rgba(255, 255, 255, 1);
     }
+
+    #logo-iconstyle {
+        max-height: 40px;
+        max-width: 200px;
+        object-fit: contain;
+    }
+
+    @media (max-width: 600px) {
+        #logo-iconstyle {
+            max-height: 20px;
+            max-width: 150px;
+            margin-top: 5px;
+        }
+    }
+        @media (max-width: 1161px) and (min-width: 968px) {
+        .header-container {
+            width: 100%;
+        }
+
+        .nav {
+            gap: 18px;
+        }
+    }
 </style>
+
 
 <header class="header">
     <div class="header-container" id="headerContainer">
@@ -445,7 +529,7 @@
             @endphp
             @if ($header_logo != null)
                 <img src="{{ uploaded_asset($header_logo) }}" alt="{{ env('APP_NAME') }}" class="logo-icon"
-                    style="width: 200px">
+                    id="logo-iconstyle">
             @else
                 <svg class="logo1-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3B82F6" stroke="#3B82F6" stroke-width="2"
@@ -565,7 +649,8 @@
                             <div class="header-dropdown">
                                 <a href="{{ route('ourpartners') }}" class="dropdown-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ourpartners">
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        id="ourpartners">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="9" cy="7" r="4"></circle>
                                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -842,5 +927,75 @@
         if (e.key === 'Enter') {
             this.closest('form').submit();
         }
+    });
+
+    // كود الـ dropdown للموبايل
+    document.addEventListener('DOMContentLoaded', function() {
+        // للـ dropdown الرئيسي
+        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (window.innerWidth <= 968) {
+                    e.preventDefault();
+                    const parent = this.closest('.nav-dropdown');
+
+                    // إغلاق باقي الـ dropdowns
+                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                        if (dropdown !== parent) {
+                            dropdown.classList.remove('active');
+                        }
+                    });
+
+                    parent.classList.toggle('active');
+                    this.classList.toggle('active');
+                }
+            });
+        });
+
+        // للـ sub-categories (كل المستويات المتداخلة)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 968) {
+                // تحقق إذا الضغطة على dropdown-item جوه category-item-wrapper
+                const clickedItem = e.target.closest('.category-item-wrapper > .dropdown-item');
+
+                if (clickedItem) {
+                    const wrapper = clickedItem.parentElement;
+                    const hasSubDropdown = wrapper.querySelector(':scope > .sub-dropdown');
+
+                    if (hasSubDropdown) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // إغلاق الـ wrappers الأخرى في نفس المستوى فقط
+                        const parentContainer = wrapper.parentElement;
+                        const siblings = parentContainer.querySelectorAll(
+                            ':scope > .category-item-wrapper');
+
+                        siblings.forEach(sibling => {
+                            if (sibling !== wrapper) {
+                                sibling.classList.remove('active');
+                            }
+                        });
+
+                        // فتح/إغلاق الـ wrapper الحالي
+                        wrapper.classList.toggle('active');
+                    }
+                }
+
+                // إغلاق كل الـ dropdowns لما تضغط بره
+                if (!e.target.closest('.nav-dropdown') && !e.target.closest('.category-item-wrapper')) {
+                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                    document.querySelectorAll('.category-item-wrapper').forEach(wrapper => {
+                        wrapper.classList.remove('active');
+                    });
+                    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
+            }
+        });
     });
 </script>

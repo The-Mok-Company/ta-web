@@ -3,6 +3,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+@section("meta_title",'Home Page')
 
 @section('content')
     <style>
@@ -976,7 +977,7 @@
         /* Tablets */
         @media (max-width: 768px) {
             .categories-section-new .section-header {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 15px;
             }
 
@@ -1076,6 +1077,15 @@
             .product-card .product-info h3 {
                 font-size: 0.9rem;
             }
+        }
+    </style>
+    <style>
+        .product-info {
+            cursor: pointer;
+        }
+
+        .product-info:hover .featured-product-category {
+            text-decoration: underline;
         }
     </style>
 
@@ -1298,14 +1308,12 @@
             <div class="products-slider">
                 <div class="products-wrapper" id="productsWrapper">
                     @php
-                        // Get featured products - multiple fallback options
                         $featuredProducts = \App\Models\Product::where('published', 1)
                             ->where('approved', 1)
                             ->where('featured', 1)
                             ->take(8)
                             ->get();
 
-                        // If no featured products, get best selling products
                         if ($featuredProducts->count() < 4) {
                             $featuredProducts = \App\Models\Product::where('published', 1)
                                 ->where('approved', 1)
@@ -1314,7 +1322,6 @@
                                 ->get();
                         }
 
-                        // If still no products, get latest products
                         if ($featuredProducts->count() == 0) {
                             $featuredProducts = \App\Models\Product::where('published', 1)
                                 ->where('approved', 1)
@@ -1329,6 +1336,10 @@
                             $productName = $product->getTranslation('name', $lang);
                             $productImage = uploaded_asset($product->thumbnail_img);
                             $productUrl = route('product', $product->slug);
+
+                            $category = \App\Models\Category::find($product->category_id);
+                            $categoryName = $category?->getTranslation('name');
+                            $categoryUrl = $category ? route('products.level2', $category->id) : '#';
                         @endphp
 
                         <a href="{{ $productUrl }}" class="product-card">
@@ -1343,9 +1354,13 @@
                                     <span class="btn-text">Inquire Now</span>
                                 </button>
                             </div>
-                            <div class="product-info">
+
+                            <div class="product-info" data-category-url="{{ $categoryUrl }}"
+                                onclick="event.preventDefault(); event.stopPropagation(); window.location.href = this.getAttribute('data-category-url');">
                                 <h3>{{ $productName }}</h3>
-                                <p>{{ $product->category ? $product->category->getTranslation('name', $lang) : 'Products' }}
+
+                                <p class="featured-product-category">
+                                    {{ $categoryName ?? translate('Products') }}
                                 </p>
                             </div>
                         </a>
@@ -1354,6 +1369,7 @@
             </div>
         </div>
     </section>
+
 
 
     <!-- Gather Quality Section -->

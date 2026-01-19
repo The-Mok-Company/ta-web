@@ -1,4 +1,5 @@
 @extends('frontend.layouts.app')
+@section("meta_title",'Join Us as Partner')
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
