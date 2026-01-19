@@ -1108,8 +1108,9 @@
                                         data-category-id="{{ $category->id }}"
                                         data-category-name="{{ $category->getTranslation('name') }}">
                                         <div class="category-card">
-                                            <img src="{{ uploaded_asset($category->banner) }}"
-                                                alt="{{ $category->getTranslation('name') }}">
+                                            <img src="{{ $category->banner ? uploaded_asset($category->banner) : static_asset('assets/img/placeholder.jpg') }}"
+                                                alt="{{ $category->getTranslation('name') }}"
+                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
 
                                             {{-- Cart Icon - Top Left --}}
                                             <div class="cart-icon">

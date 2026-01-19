@@ -492,8 +492,10 @@
 
     .category-card .category-title {
         position: absolute;
-        bottom: 60px;
+        /* Make bottom padding match left/right spacing */
+        bottom: 20px;
         left: 20px;
+        right: 20px;
         z-index: 2;
         text-align: left;
     }
@@ -515,10 +517,18 @@
         color: rgba(255, 255, 255, 0.9);
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
         max-width: 320px;
-        white-space: normal;       /* allow wrapping */
+        white-space: normal; /* allow wrapping */
         overflow: visible;
         text-overflow: clip;
         word-break: break-word;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px; /* real spacing between items */
+        align-items: center;
+    }
+
+    .category-card .category-subline .subline-item {
+        display: inline-block;
     }
 
     .category-card .sub-categories-bottom {
@@ -1167,7 +1177,16 @@
                                                     @endphp
                                                     @if (!empty($cardChildNames))
                                                         <div class="category-subline">
-                                                            {{ implode(' / ', $cardChildNames) }}
+                                                            @foreach ($cardChildNames as $childName)
+                                                                @php
+                                                                    // Remove slashes coming from names like "Rice Pulses / Grains / Seeds"
+                                                                    $cleanChildName = preg_replace('/\s+/', ' ', str_replace('/', ' ', (string) $childName));
+                                                                    $cleanChildName = trim($cleanChildName);
+                                                                @endphp
+                                                                @if (!empty($cleanChildName))
+                                                                    <span class="subline-item">{{ $cleanChildName }}</span>
+                                                                @endif
+                                                            @endforeach
                                                         </div>
                                                     @endif
                                                 </div>
