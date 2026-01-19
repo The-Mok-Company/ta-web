@@ -240,18 +240,31 @@
                         </a>
                     @endif
                 </div>
-
-                <div class="footer-column">
-                    <h3>CONTACTS</h3>
-                    <div class="contact-info">
-                        <p class="contact-label">Address</p>
-                        <p class="contact-value">Demo Address</p>
-                        <p class="contact-label">Phone</p>
-                        <p class="contact-value">123456789</p>
-                        <p class="contact-label">Email</p>
-                        <p class="contact-value">demo.example@gmail.com</p>
-                    </div>
+@php
+    $col_values = ((get_setting('vendor_system_activation') == 1) || addon_is_activated('delivery_boy')) ? "col-lg-3 col-md-6 col-sm-6" : "col-md-4 col-sm-6";
+@endphp
+                 <!-- Contacts -->
+            <div class="{{ $col_values }}">
+                <div class="text-center text-sm-left mt-4">
+                    <h4 class="fs-14 text-secondary text-uppercase fw-700 mb-3">{{ translate('Contacts') }}</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <p  class="fs-13 text-secondary mb-1">{{ translate('Address') }}</p>
+                            <p  class="fs-13 text-soft-light">{{ get_setting('contact_address',null,App::getLocale()) }}</p>
+                        </li>
+                        <li class="mb-2">
+                            <p  class="fs-13 text-secondary mb-1">{{ translate('Phone') }}</p>
+                            <p  class="fs-13 text-soft-light">{{ get_setting('contact_phone') }}</p>
+                        </li>
+                        <li class="mb-2">
+                            <p  class="fs-13 text-secondary mb-1">{{ translate('Email') }}</p>
+                            <p  class="">
+                                <a href="mailto:{{ get_setting('contact_email') }}" class="fs-13 text-soft-light hov-text-primary">{{ get_setting('contact_email')  }}</a>
+                            </p>
+                        </li>
+                    </ul>
                 </div>
+            </div>
 
                 <div class="footer-column">
                     <h3>{{ translate('MY ACCOUNT') }}</h3>

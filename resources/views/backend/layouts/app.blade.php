@@ -7,7 +7,7 @@
 
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="app-url" content="{{ rtrim(config('app.url'), '/') }}/">
+    <meta name="app-url" content="{{ rtrim(config('app.url'), '/') }}/">
 <meta name="file-base-url" content="{{ rtrim(config('app.url'), '/') }}/">
 
     <!-- Required meta tags -->

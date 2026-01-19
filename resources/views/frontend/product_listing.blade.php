@@ -896,7 +896,7 @@
 
 
         document.querySelectorAll('.noUi-connect, .noUi-touch-area').forEach((element) => {
-            // Desktop 
+            // Desktop
             element.addEventListener('mouseenter', showLabels);
             element.addEventListener('mouseleave', function() {
                 setTimeout(() => {
@@ -904,7 +904,7 @@
                 }, 2000);
             });
 
-            // Mobile 
+            // Mobile
             element.addEventListener('touchstart', showLabels);
             element.addEventListener('touchend', function() {
                 setTimeout(() => {

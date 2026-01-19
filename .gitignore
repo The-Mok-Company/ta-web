@@ -28,5 +28,9 @@ install.zip
 public/uploads.zip
 .env
 .env.example
+
+# local logs/temp
+/storage/logs
+tmpclaude-*
  
 

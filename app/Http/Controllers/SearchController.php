@@ -610,6 +610,7 @@ class SearchController extends Controller
         abort(404);
     }
     public function listingByCategory2(Request $request, $categoryId)
+
     {
         $levelTwoCategories = Category::where('parent_id', $categoryId)->get();
         return view('frontend.level_Two_categories', compact('levelTwoCategories'));
