@@ -157,40 +157,6 @@
             color: #000;
         }
 
-        /* Add to Cart Button */
-        .category-add-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 40px;
-            height: 40px;
-            background: #0891B2;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-        }
-
-        .category-card:hover .category-add-btn {
-            opacity: 1;
-        }
-
-        .category-add-btn:hover {
-            transform: scale(1.1);
-            background: #0E7490;
-        }
-
-        .category-add-btn i {
-            font-size: 18px;
-            color: #fff;
-        }
-
         @media (max-width: 768px) {
             .categories-hero {
                 padding: 60px 20px;
@@ -244,25 +210,18 @@
         <div class="container">
             <div class="categories-grid">
                 @foreach ($categories as $key => $category)
-                    <div class="category-card" style="position: relative;">
-                        <a href="{{ route('products.category', $category->slug) }}" style="display: block; height: 100%;">
-                            <img src="{{ $category->banner ? uploaded_asset($category->banner) : asset('assets/img/eaf877854196422d963fe04e58d086e83a98ac67.png') }}"
-                                class="category-image" alt="{{ $category->name }}">
+                    <a href="{{ route('products.category', $category->slug) }}" class="category-card">
+                        <img src="{{ $category->banner ? uploaded_asset($category->banner) : asset('assets/img/eaf877854196422d963fe04e58d086e83a98ac67.png') }}"
+                            class="category-image" alt="{{ $category->name }}">
 
-                            <div class="icon-badge">
-                                <i class="fas fa-shopping-basket"></i>
-                            </div>
+                        <div class="icon-badge">
+                            <i class="fas fa-shopping-basket"></i>
+                        </div>
 
-                            <div class="category-content">
-                                <h3 class="category-name">{{ $category->getTranslation('name') }}</h3>
-                            </div>
-                        </a>
-
-                        <!-- Add to Cart Button -->
-                        <button type="button" class="category-add-btn" onclick="addCategoryToCart({{ $category->id }}, '{{ $category->getTranslation('name') }}')" title="{{ translate('Add to Cart') }}">
-                            <i class="las la-plus"></i>
-                        </button>
-                    </div>
+                        <div class="category-content">
+                            <h3 class="category-name">{{ $category->getTranslation('name') }}</h3>
+                        </div>
+                    </a>
                 @endforeach
             </div>
         </div>
@@ -281,39 +240,5 @@
                 $(this).html('{{ translate('More') }} <i class="las la-angle-down"></i>');
             }
         });
-
-        // Add Category to Cart
-        function addCategoryToCart(categoryId, categoryName) {
-            $.ajax({
-                type: "POST",
-                url: '{{ route("cart.addCategoryToCart") }}',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    category_id: categoryId
-                },
-                success: function(data) {
-                    console.log('Response:', data);
-
-                    if (data && data.status == 1) {
-                        // Update cart count in navbar
-                        if(data.cart_count !== undefined) {
-                            $('.cart-count').html(data.cart_count);
-                        }
-
-                        if(data.message == 'Category already in cart') {
-                            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-                        } else {
-                            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
-                        }
-                    } else {
-                        AIZ.plugins.notify('danger', data.message || "{{ translate('Something went wrong') }}");
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', xhr.responseText);
-                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                }
-            });
-        }
     </script>
 @endsection

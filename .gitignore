@@ -1,51 +1,32 @@
-# Environment files
 .env
-.env.*
+/bootstrap/compiled.php
+.env.*.php
 .env.php
 
-# Dependencies
 /node_modules
-/vendor
-
-# Compiled / Cache files
-/bootstrap/compiled.php
-/storage/*.key
 /storage/debugbar
-/storage/logs
-/storage/framework/cache
-/storage/framework/sessions
-/storage/framework/views
-
-# IDE / Editor files
-.idea/
-.vscode/
-.nbproject/
-.nbproject/private/
-.vagrant/
+/vendor
+/temp
+/.idea
+/.vscode
+/.vagrant
 Homestead.json
 Homestead.yaml
-
-# OS files
-.DS_Store
-
-# Logs
 npm-debug.log
 yarn-error.log
-
-# Lock files (اختياري – شيلها لو حابب ترفعها)
+.DS_Store
+.idea
 composer.lock
-package-lock.json
-yarn.lock
 *.lock
-
-# Archives / Zips
-*.zip
+resources/lang/en.json
 updates.zip
 ecommerce.zip
 install.zip
+/nbproject/private/
+/nbproject
+/public/app-translations
 public/uploads.zip
+.env
+.env.example
+ 
 
-
-
-# Temp
-/temp

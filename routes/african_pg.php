@@ -52,6 +52,4 @@ Route::controller(PayfastController::class)->group(function () {
   Route::any('/payfast/customer_package_payment/return', 'customer_package_return')->name('payfast.customer_package_payment.return');
   Route::any('/payfast/customer_package_payment/cancel', 'customer_package_cancel')->name('payfast.customer_package_payment.cancel');
 });
-
-   Route::post('/inquiry/request-offer', [InquiryController::class, 'requestOffer'])
-        ->name('inquiry.request_offer');
+//Payfast routes <ends>
