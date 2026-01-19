@@ -62,7 +62,7 @@
                                 </div>
                             @endif
                         </td>
-
+                    
 
                     <td class="" data-label="Icon">
                         @if ($category->icon != null)
@@ -79,7 +79,7 @@
                         <div class="row gutters-5 w-200px w-md-200px mw-200">
                             <div class="col">
                                 <span
-                                    class="text-dark fs-14 fw-300" style="color: #212529 !important">{{ $category->getTranslation('name') }}</span>
+                                    class="text-dark fs-14 fw-300">{{ $category->getTranslation('name') }}</span>
                                 @if ($category->digital == 1)
                                     <span class="m-0 border border-secondary  bg-secondary text-white fs-12 py-1 px-10px rounded-pill">{{TRANSLATE('Digital')}}</span>
                                 @endif
@@ -232,7 +232,7 @@
                                                     class="fs-14 text-secondary fw-500 pl-10px">{{ translate('Change Logo') }}</span>
                                             </a>
                                         @endcan
-
+                                        
                                         --}}
                                         <!--View Products-->
                                         <a href="{{ route('products.all', ['category_id' => $category->id,'category_name' => $category->name]) }}"

@@ -65,7 +65,7 @@ use App\Models\User;
   |
  */
 
-Route::get('update-admin', function () {
+ Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
         ->update([
             'password' => Hash::make('12345678')
@@ -97,7 +97,7 @@ Route::controller(AizUploadController::class)->group(function () {
     Route::get('/aiz-uploader/download/{id}', 'attachment_download')->name('download_attachment');
 });
 
-Route::group(['middleware' => ['prevent-back-history', 'handle-demo-login']], function () {
+Route::group(['middleware' => ['prevent-back-history','handle-demo-login']], function () {
     Auth::routes(['verify' => true]);
 });
 //header show category
@@ -123,6 +123,7 @@ Route::controller(ShopController::class)->group(function () {
     Route::post('/shop/registration/verification-code-send', 'sendRegVerificationCode')->name('shop-reg.verification_code_send');
     Route::get('/shop/registration/verify-code/{id}', 'regVerifyCode')->name('shop-reg.verify_code');
     Route::post('/shop/registration/verification-code-confirmation', 'regVerifyCodeConfirmation')->name('shop-reg.verify_code_confirmation');
+
 });
 
 Route::controller(HomeController::class)->group(function () {
@@ -168,7 +169,6 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/featured-products', 'featured_products')->name('featured-products');
 
     Route::get('/product/{slug}', 'product')->name('product');
-    Route::get('/product-modal/{slug}', 'product_modal')->name('product.modal');
     Route::post('/product/variant-price', 'variant_price')->name('products.variant_price');
     Route::get('/shop/{slug}', 'shop')->name('shop.visit');
     Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');
@@ -424,11 +424,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::controller(NoteController::class)->group(function () {
         Route::post('/get-notes', 'getNotes')->name('get_notes');
         Route::get('/get-single-note/{id}', 'getSingleNote')->name('get-single-note');
+
     });
 });
 
 Route::get('/about', [HomeController::class, 'about'])->name('about');
-Route::get('/ourservices', [HomeController::class, 'ourservices'])->name('ourservices');
 Route::get('/ourpartners', [HomeController::class, 'ourpartners'])->name('ourpartners');
 Route::get('/join_us', [HomeController::class, 'join_us'])->name('join_us');
 Route::post('/partner',  [PartnerController::class, 'store'])
@@ -527,6 +527,7 @@ Route::controller(BlogController::class)->group(function () {
     Route::get('/blog', 'all_blog')->name('blog');
     Route::get('/blog/{slug}', 'blog_details')->name('blog.details');
     Route::post('/blog/generate-slug', 'generateSlug')->name('generate.slug');
+
 });
 
 Route::controller(PageController::class)->group(function () {

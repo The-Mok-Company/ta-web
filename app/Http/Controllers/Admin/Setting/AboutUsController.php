@@ -26,11 +26,11 @@ class AboutUsController extends Controller
     {
         // Validate
         $request->validate([
-            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'vision_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'vision_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'vision_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'vision_image_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'vision_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'vision_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'vision_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'vision_image_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $heroImagePath = $request->hero_image_old;
@@ -38,7 +38,7 @@ class AboutUsController extends Controller
             if ($heroImagePath && file_exists(public_path($heroImagePath))) {
                 unlink(public_path($heroImagePath));
             }
-
+            
             $heroImage = $request->file('hero_image');
             $heroImageName = 'hero_' . time() . '.' . $heroImage->getClientOriginalExtension();
             $heroImage->move(public_path('assets/img/about'), $heroImageName);
@@ -70,20 +70,20 @@ class AboutUsController extends Controller
         for ($i = 1; $i <= 4; $i++) {
             $fieldName = 'vision_image_' . $i;
             $oldFieldName = 'vision_image_' . $i . '_old';
-
+            
             $imagePath = $request->$oldFieldName;
-
+            
             if ($request->hasFile($fieldName)) {
                 if ($imagePath && file_exists(public_path($imagePath))) {
                     unlink(public_path($imagePath));
                 }
-
+                
                 $image = $request->file($fieldName);
                 $imageName = 'vision_' . $i . '_' . time() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/about/vision'), $imageName);
                 $imagePath = 'assets/img/about/vision/' . $imageName;
             }
-
+            
             $visionImages[] = $imagePath;
         }
 

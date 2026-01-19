@@ -56,454 +56,73 @@
 @endsection
 
 @section('content')
-    @if (!empty($sidebar_category_id))
-        @php
-            $mainCategories = App\Models\Category::where('level', 0)
-                ->with([
-                    'childrenCategories' => function ($query) {
-                        $query->with([
-                            'childrenCategories' => function ($q) {
-                                $q->withCount('products');
-                            },
-                        ])->withCount('products');
-                    },
-                ])
-                ->withCount('products')
-                ->orderBy('order_level', 'desc')
-                ->get();
+    <section class="mb-4 pt-3">
+        <div class="container">
+            <div class="bg-white py-3">
+                <div class="row">
+                    <!-- Product Image Gallery -->
+                    <div class="col-xl-5 col-lg-6 mb-4">
+                        @include('frontend.product_details.image_gallery')
+                    </div>
 
-            $currentCategoryId = $sidebar_category_id;
-        @endphp
+                    <!-- Product Details -->
+                    <div class="col-xl-7 col-lg-6">
+                        @include('frontend.product_details.details')
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <style>
-            /* Sidebar styles (aligned with category pages) */
-            .category-sidebar {
-                background: #fff;
-                padding: 20px 16px;
-                border-radius: 16px;
-                box-shadow: 0 2px 15px rgba(0, 0, 0, .08);
-                position: sticky;
-                top: 20px;
-                max-height: calc(100vh - 40px);
-                overflow-y: auto;
-            }
-
-            .category-sidebar::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .category-sidebar::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-            }
-
-            .category-sidebar::-webkit-scrollbar-thumb {
-                background: #ccc;
-                border-radius: 10px;
-            }
-
-            .category-sidebar h6 {
-                font-weight: 600;
-                margin: 18px 0 12px;
-                font-size: 10px;
-                color: #999;
-                text-transform: uppercase;
-                letter-spacing: 1.2px;
-                padding: 0 12px;
-            }
-
-            .category-sidebar h6:first-of-type {
-                margin-top: 0;
-            }
-
-            .category-sidebar ul {
-                list-style: none;
-                padding: 0;
-                margin: 0 0 12px 0;
-            }
-
-            .category-sidebar ul li {
-                border-radius: 12px;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all .3s ease;
-                margin-bottom: 6px;
-                color: #555;
-                font-weight: 500;
-                background: transparent;
-            }
-
-            .category-sidebar ul li a.category-link {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 12px 16px;
-                color: inherit;
-                text-decoration: none;
-                width: 100%;
-                border-radius: 12px;
-                transition: all .3s ease;
-            }
-
-            .category-sidebar .category-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 12px 16px;
-                border-radius: 12px;
-                cursor: pointer;
-                transition: all .3s ease;
-            }
-
-            .category-sidebar .category-header .category-name {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                text-decoration: none;
-                color: inherit;
-            }
-
-            .category-sidebar .toggle-icon {
-                font-size: 10px;
-                opacity: 0.6;
-                transition: all .3s ease;
-                cursor: pointer;
-                padding: 4px 8px;
-                margin-left: 8px;
-                flex-shrink: 0;
-            }
-
-            .category-sidebar ul li:hover:not(.active) {
-                background: #f8f9fa;
-            }
-
-            .category-sidebar ul li.active {
-                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-                color: #fff;
-                box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
-            }
-
-            .category-sidebar ul li.active a.category-link,
-            .category-sidebar ul li.active .category-header,
-            .category-sidebar ul li.active .category-name {
-                color: #fff;
-            }
-
-            .sub-categories,
-            .sub-sub-categories {
-                margin: 8px 0 0 0 !important;
-                padding-left: 16px !important;
-                list-style: none;
-                display: none;
-            }
-
-            .sub-categories.show,
-            .sub-sub-categories.show {
-                display: block;
-                padding-top: 6px;
-            }
-
-            .sub-categories li {
-                font-size: 13px;
-                margin-bottom: 5px;
-            }
-
-            .sub-sub-categories li {
-                font-size: 12px;
-                margin-bottom: 4px;
-            }
-
-            /* Product list inside sidebar */
-            .sidebar-product-list li {
-                cursor: default;
-            }
-
-            .sidebar-product-list a {
-                font-size: 13px;
-                padding: 10px 14px;
-            }
-        </style>
-
-        <section class="mb-4 pt-3">
-            <div class="container">
+    <section class="mb-4">
+        <div class="container">
+            @if ($detailedProduct->auction_product)
+                <!-- Reviews & Ratings -->
+                @include('frontend.product_details.review_section')
+                
+                <!-- Description, Video, Downloads -->
+                @include('frontend.product_details.description')
+                
+                <!-- Product Query -->
+                @include('frontend.product_details.product_queries')
+            @else
                 <div class="row gutters-16">
-                    <!-- Left side (keep category menu) -->
+                    <!-- Left side -->
                     <div class="col-lg-3">
-                        <div class="category-sidebar">
-                            <h6>Categories</h6>
+                        <!-- Seller Info -->
+                        @include('frontend.product_details.seller_info')
 
-                            <ul>
-                                <li>
-                                    <a href="{{ route('categories.all') }}" class="category-link">
-                                        <span>All Categories</span>
-                                    </a>
-                                </li>
-                            </ul>
-
-                            @foreach ($mainCategories as $mainCategory)
-                                <h6>{{ $mainCategory->getTranslation('name') }}</h6>
-
-                                <ul class="parent-category-list">
-                                    @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
-                                        @foreach ($mainCategory->childrenCategories as $level1Category)
-                                            <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }}"
-                                                data-category-id="{{ $level1Category->id }}">
-
-                                                @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
-                                                    <div class="category-header">
-                                                        <a href="{{ route('categories.level2', $level1Category->id) }}"
-                                                            class="category-name">
-                                                            <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                        </a>
-                                                        <i class="fas fa-chevron-down toggle-icon"></i>
-                                                    </div>
-
-                                                    <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
-                                                        @foreach ($level1Category->childrenCategories as $level2Category)
-                                                            <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }}"
-                                                                data-category-id="{{ $level2Category->id }}">
-
-                                                                @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
-                                                                    <div class="category-header">
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                            class="category-name">
-                                                                            <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                        </a>
-                                                                        <i class="fas fa-chevron-down toggle-icon"></i>
-                                                                    </div>
-
-                                                                    <ul class="sub-sub-categories"
-                                                                        data-parent-id="{{ $level2Category->id }}">
-                                                                        @foreach ($level2Category->childrenCategories as $level3Category)
-                                                                            <li
-                                                                                class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                <a href="{{ route('products.level2', $level3Category->id) }}"
-                                                                                    class="category-link">
-                                                                                    <span>{{ $level3Category->getTranslation('name') }}</span>
-                                                                                    <i class="fas fa-chevron-right"></i>
-                                                                                </a>
-                                                                            </li>
-                                                                        @endforeach
-                                                                    </ul>
-                                                                @else
-                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                        class="category-link">
-                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                        <i class="fas fa-chevron-right"></i>
-                                                                    </a>
-                                                                @endif
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
-                                                @else
-                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
-                                                        class="category-link">
-                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                        <i class="fas fa-chevron-right"></i>
-                                                    </a>
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                    @else
-                                        <li>
-                                            <a href="#" class="category-link">
-                                                <span class="product-count">There are no sub categories available.</span>
-                                            </a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            @endforeach
-
-                            @if (!empty($sidebar_products) && $sidebar_products->count() > 0)
-                                <h6>Products</h6>
-                                <ul class="sidebar-product-list">
-                                    @foreach ($sidebar_products as $p)
-                                        <li class="{{ $p->id == $detailedProduct->id ? 'active' : '' }}">
-                                            <a class="category-link"
-                                                href="{{ route('product', $p->slug) }}?category_id={{ $sidebar_category_id }}">
-                                                <span>{{ $p->getTranslation('name') }}</span>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                        </div>
+                        <!-- Top Selling Products -->
+                       <div class="d-none d-lg-block">
+                            @include('frontend.product_details.top_selling_products')
+                       </div>
                     </div>
 
-                    <!-- Right side (product details) -->
+                    <!-- Right side -->
                     <div class="col-lg-9">
-                        <div class="bg-white py-3 mb-4">
-                            <div class="row">
-                                <!-- Product Image Gallery -->
-                                <div class="col-xl-5 col-lg-6 mb-4">
-                                    @include('frontend.product_details.image_gallery')
-                                </div>
+                        
+                        <!-- Reviews & Ratings -->
+                        @include('frontend.product_details.review_section')
 
-                                <!-- Product Details -->
-                                <div class="col-xl-7 col-lg-6">
-                                    @include('frontend.product_details.details')
-                                </div>
-                            </div>
+                        <!-- Description, Video, Downloads -->
+                        @include('frontend.product_details.description')
+                        
+                        <!-- Frequently Bought products -->
+                        @include('frontend.product_details.frequently_bought_products')
+
+                        <!-- Product Query -->
+                        @include('frontend.product_details.product_queries')
+                        
+                        <!-- Top Selling Products -->
+                        <div class="d-lg-none">
+                             @include('frontend.product_details.top_selling_products')
                         </div>
 
-                        @if ($detailedProduct->auction_product)
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
-                            <!-- Description, Video, Downloads -->
-                            @include('frontend.product_details.description')
-
-                            <!-- Product Query -->
-                            @include('frontend.product_details.product_queries')
-                        @else
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
-                            <!-- Description, Video, Downloads -->
-                            @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
-
-                            <!-- Product Query -->
-                            @include('frontend.product_details.product_queries')
-
-                            <!-- Top Selling Products (optional, now inside main column) -->
-                            <div class="mt-3">
-                                @include('frontend.product_details.top_selling_products')
-                            </div>
-                        @endif
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Handle toggle icons
-                const allToggleIcons = document.querySelectorAll('.toggle-icon');
-                allToggleIcons.forEach(function(toggleIcon) {
-                    toggleIcon.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const categoryHeader = this.closest('.category-header');
-                        const parentLi = categoryHeader.closest('li');
-                        const categoryId = parentLi.getAttribute('data-category-id');
-
-                        let subCategoriesUl = parentLi.querySelector(`.sub-categories[data-parent-id="${categoryId}"]`);
-                        if (!subCategoriesUl) {
-                            subCategoriesUl = parentLi.querySelector(`.sub-sub-categories[data-parent-id="${categoryId}"]`);
-                        }
-
-                        if (subCategoriesUl) {
-                            const isVisible = subCategoriesUl.classList.contains('show');
-                            if (isVisible) {
-                                subCategoriesUl.classList.remove('show');
-                                this.style.transform = 'rotate(0deg)';
-                            } else {
-                                subCategoriesUl.classList.add('show');
-                                this.style.transform = 'rotate(180deg)';
-                            }
-                        }
-                    });
-                });
-
-                // Auto-expand active category's parents
-                const activeCategories = document.querySelectorAll('.category-sidebar li.active');
-                activeCategories.forEach(function(activeLi) {
-                    let parentUl = activeLi.closest('.sub-categories, .sub-sub-categories');
-                    while (parentUl) {
-                        parentUl.classList.add('show');
-                        const parentToggle =
-                            parentUl.previousElementSibling?.querySelector('.toggle-icon') ||
-                            parentUl.closest('li')?.querySelector('.toggle-icon');
-                        if (parentToggle) {
-                            parentToggle.style.transform = 'rotate(180deg)';
-                        }
-                        parentUl = parentUl.closest('li')?.closest('.sub-categories, .sub-sub-categories');
-                    }
-                });
-
-                // Ensure the active product is visible in the sidebar product list
-                const activeProduct = document.querySelector('.sidebar-product-list li.active');
-                if (activeProduct) {
-                    activeProduct.scrollIntoView({
-                        block: 'nearest'
-                    });
-                }
-            });
-        </script>
-    @else
-        <section class="mb-4 pt-3">
-            <div class="container">
-                <div class="bg-white py-3">
-                    <div class="row">
-                        <!-- Product Image Gallery -->
-                        <div class="col-xl-5 col-lg-6 mb-4">
-                            @include('frontend.product_details.image_gallery')
-                        </div>
-
-                        <!-- Product Details -->
-                        <div class="col-xl-7 col-lg-6">
-                            @include('frontend.product_details.details')
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-4">
-            <div class="container">
-                @if ($detailedProduct->auction_product)
-                    <!-- Reviews & Ratings -->
-                    @include('frontend.product_details.review_section')
-
-                    <!-- Description, Video, Downloads -->
-                    @include('frontend.product_details.description')
-
-                    <!-- Product Query -->
-                    @include('frontend.product_details.product_queries')
-                @else
-                    <div class="row gutters-16">
-                        <!-- Left side -->
-                        <div class="col-lg-3">
-                            <!-- Seller Info -->
-                            @include('frontend.product_details.seller_info')
-
-                            <!-- Top Selling Products -->
-                            <div class="d-none d-lg-block">
-                                @include('frontend.product_details.top_selling_products')
-                            </div>
-                        </div>
-
-                        <!-- Right side -->
-                        <div class="col-lg-9">
-
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
-                            <!-- Description, Video, Downloads -->
-                            @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
-
-                            <!-- Product Query -->
-                            @include('frontend.product_details.product_queries')
-
-                            <!-- Top Selling Products -->
-                            <div class="d-lg-none">
-                                @include('frontend.product_details.top_selling_products')
-                            </div>
-
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </section>
-    @endif
+            @endif
+        </div>
+    </section>
 
     @include('frontend.smart_bar')
 
@@ -570,7 +189,7 @@
 
     <!-- Bid Modal -->
     @if($detailedProduct->auction_product == 1)
-        @php
+        @php 
             $highest_bid = $detailedProduct->bids->max('amount');
             $min_bid_amount = $highest_bid != null ? $highest_bid+1 : $detailedProduct->starting_bid;
             $gst_rate = gst_applicable_product_rate($detailedProduct->id);
@@ -608,7 +227,7 @@
             </div>
         </div>
     @endif
-
+    
     <!-- Product Review Modal -->
     <div class="modal fade" id="product-review-modal">
         <div class="modal-dialog">
@@ -809,7 +428,7 @@
             const randomTime = getRandomNumber(5000, 10000);
             setTimeout(updateViewerCount, randomTime);
         }
-
+        
     </script>
     @if(get_setting('show_custom_product_visitors')==1)
     <script>

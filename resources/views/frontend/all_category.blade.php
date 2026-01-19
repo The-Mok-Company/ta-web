@@ -192,7 +192,7 @@
 
         @media (min-width: 1025px) {
             .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
