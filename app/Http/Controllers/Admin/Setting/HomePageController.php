@@ -21,11 +21,11 @@ class HomePageController extends Controller
     {
         // Validation
         $request->validate([
-            'hero_slide_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'hero_slide_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'hero_slide_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'customers_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'gather_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'hero_slide_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'hero_slide_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'hero_slide_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'customers_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+            'gather_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
         ]);
 
         // ============ Hero Slides ============

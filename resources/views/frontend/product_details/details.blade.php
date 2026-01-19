@@ -95,7 +95,7 @@
             <span class="border border-secondary-base btn fs-12 ml-3 px-3 py-1 rounded-1 text-secondary">
                 {{ $detailedProduct->warranty->getTranslation('text')}}
                 @if($detailedProduct->warranty_note_id != null)
-                    <span href="javascript:void(1);" 
+                    <span href="javascript:void(1);"
                         data-toggle="modal" data-target="#warranty-note-modal"
                         class="border-bottom border-bottom-4 ml-2 text-secondary-base">
                         {{ translate('View Details') }}
@@ -481,16 +481,16 @@
                                 (<span id="available-quantity">{{ translate('In Stock') }}</span>)
                             @endif
                         </div>
-                       
+
                     </div>
                      <!-- Add to cart & Buy now Buttons -->
                     <div class="col-sm-4">
-                        
+
                     </div>
                     <div class="col-sm-3"></div>
                 </div>
 
-              
+
                 <div class="row  no-gutters mb-3">
                  <!-- Add to cart & Buy now Buttons -->
                     <div class="col-sm-9">
@@ -567,7 +567,7 @@
                     <div class="col-sm-9">
                         <button type="button" class="btn btn-dark buy-now fw-600 add-to-cart min-w-150px rounded-1 w-100"
                             @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
-                            
+
                             <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
                         </button>
                     </div>
@@ -606,8 +606,8 @@
             </div>
         @endif
     @else
-   
-   
+
+
 
         <!-- Promote Link -->
         <div class="d-table width-100 mt-3">
@@ -655,15 +655,15 @@
                             @endif
                         </a>
                         @if($detailedProduct->refund_note_id != null)
-                            <span href="javascript:void(1);" 
+                            <span href="javascript:void(1);"
                                 data-toggle="modal" data-target="#refund-note-modal"
                                 class="border-bottom border-bottom-4 ml-2 text-secondary-base">
                                 {{ translate('Refund Note') }}
                             </span>
                         @endif
-                        
+
                         <a href="{{ route('returnpolicy') }}" class="text-blue hov-text-primary fs-13 ml-3" target="_blank">{{ translate('View Policy') }}</a>
-                        
+
                     @else
                         <div class="text-dark fs-13 fw-400 mt-2">{{ translate('Not Applicable') }}</div>
                     @endif
