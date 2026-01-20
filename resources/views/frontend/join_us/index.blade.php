@@ -1,5 +1,4 @@
 @extends('frontend.layouts.app')
-<<<<<<< HEAD
 @section('meta_title', 'Join Us as Partner')
 
 @php
@@ -9,8 +8,7 @@
     $info = JoinUs::where('key', 'info')->first();
     $contact = JoinUs::where('key', 'contact')->first();
 @endphp
-=======
->>>>>>> 31e8cea3a5b55cc781b1e5f15a05e6b585e78d91
+
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
