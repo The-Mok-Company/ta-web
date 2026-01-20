@@ -71,7 +71,10 @@ class HomeController extends Controller
 
     public function about()
     {
-        return view('frontend.about.about');
+        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
+        $lang = app()->getLocale();
+
+        return view('frontend.about.about', compact('categories', 'lang'));
     }
     public function ourservices()
     {
