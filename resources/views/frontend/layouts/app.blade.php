@@ -634,6 +634,47 @@
             });
         }
 
+        // Remove from cart in cart view page
+        function removeFromCartView(event, cartId) {
+            event.preventDefault();
+
+            // Find the cart item element
+            var $cartItem = $(event.target).closest('.list-group-item, li');
+
+            $.ajax({
+                type: "POST",
+                url: '{{ route("cart.removeFromCart") }}',
+                data: {
+                    _token: AIZ.data.csrf,
+                    id: cartId
+                },
+                success: function(data) {
+                    // Remove the item from DOM with animation
+                    $cartItem.fadeOut(300, function() {
+                        $(this).remove();
+
+                        // Check if cart is empty
+                        var remainingItems = $('.list-group-item').length;
+                        if (remainingItems === 0) {
+                            location.reload();
+                        }
+                    });
+
+                    // Update navigation cart
+                    updateNavCart(data.nav_cart_view, data.cart_count);
+
+                    // Show success message
+                    AIZ.plugins.notify('success', "{{ translate('Item has been removed from cart') }}");
+
+                    // Update cart items count in sidenav
+                    $('#cart_items_sidenav').html(parseInt($('#cart_items_sidenav').html())-1);
+                },
+                error: function() {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
+            });
+        }
+
         function showLoginModal() {
             $('#login_modal').modal();
         }
@@ -812,49 +853,30 @@
                 _token: '{{ csrf_token() }}'
             };
 
-            if(checkAddToCartValidity()) {
-                $('.c-preloader').show();
-                $('#addToCart-modal-body').html('<div class="text-center p-5"><div class="c-preloader"></div></div>');
-                $('#modal-size').removeClass('modal-lg');
-                $('#addToCart').modal('show'); 
-
-                $.ajax({
-                    type: "POST",
-                    url: '{{ route('cart.addToCart') }}',
-                    data: formData,
-                    success: function(data){
-                        $('#addToCart .c-preloader').hide(); 
-
-                        if (data && data.modal_view) {
-                            $('#addToCart-modal-body').html(data.modal_view);
-
-                            try {
-                                AIZ.extra.plusMinus();
-                                AIZ.plugins.slickCarousel();
-                                if (typeof updateNavCart === 'function') {
-                                    updateNavCart(data.nav_cart_view, data.cart_count);
-                                }
-                            } catch (e) {
-                                console.warn("JS init error:", e);
-                            }
-
-                            $('#addToCart .modal-body').scrollTop(0);
-                        } else {
-                            $('#addToCart-modal-body').html('<div class="text-center p-5 text-danger">Product details not available.</div>');
+            $.ajax({
+                type: "POST",
+                url: '{{ route('cart.addToCart') }}',
+                data: formData,
+                success: function(data){
+                    if (data) {
+                        // Update cart count in header
+                        if(data.cart_count !== undefined) {
+                            $('.cart-count').html(data.cart_count);
                         }
-                    },
-                    error: function() {
-                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                        $('.c-preloader').hide();
+                        // Update cart dropdown if exists
+                        if(data.nav_cart_view) {
+                            $('#cart_items').html(data.nav_cart_view);
+                        }
+                        AIZ.plugins.notify('success', "{{ translate('Product added to cart successfully') }}");
                     }
-                });
-
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
-                    fbq('track', 'AddToCart', {content_type: 'product'});
+                },
+                error: function(xhr, status, error) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
                 }
-            }
-            else{
-                AIZ.plugins.notify('warning', "{{ translate('Please choose all the options') }}");
+            });
+
+            if ("{{ get_setting('facebook_pixel') }}" == 1){
+                fbq('track', 'AddToCart', {content_type: 'product'});
             }
         }
 

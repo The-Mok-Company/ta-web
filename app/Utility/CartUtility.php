@@ -2,43 +2,49 @@
 
 namespace App\Utility;
 
-use App\Models\Cart;
+use App\Models\Product;
 use Cookie;
 
 class CartUtility
 {
-
     public static function create_cart_variant($product, $request)
     {
         $str = null;
+
         if (isset($request['color'])) {
             $str = $request['color'];
         }
 
         if (isset($product->choice_options) && count(json_decode($product->choice_options)) > 0) {
-            //Gets all the choice values of customer choice option and generate a string like Black-S-Cotton
             foreach (json_decode($product->choice_options) as $key => $choice) {
+                $val = $request['attribute_id_' . $choice->attribute_id] ?? '';
+                $val = str_replace(' ', '', $val);
+
                 if ($str != null) {
-                    $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+                    $str .= '-' . $val;
                 } else {
-                    $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+                    $str .= $val;
                 }
             }
         }
+
         return $str;
     }
 
     public static function get_price($product, $product_stock, $quantity)
     {
         $price = $product_stock->price;
+
         if ($product->auction_product == 1) {
             $price = $product->bids->max('amount');
         }
 
         if ($product->wholesale_product) {
-            $wholesalePrice = $product_stock->wholesalePrices->where('min_qty', '<=', $quantity)
+            $wholesalePrice = $product_stock->wholesalePrices
+                ->where('min_qty', '<=', $quantity)
                 ->where('max_qty', '>=', $quantity)
                 ->first();
+
             if ($wholesalePrice) {
                 $price = $wholesalePrice->price;
             }
@@ -55,7 +61,7 @@ class CartUtility
         if (
             $product->discount_start_date == null ||
             (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-                strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
+             strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
         ) {
             $discount_applicable = true;
         }
@@ -67,12 +73,14 @@ class CartUtility
                 $price -= $product->discount;
             }
         }
+
         return $price;
     }
 
     public static function tax_calculation($product, $price)
     {
         $tax = 0;
+
         foreach ($product->taxes as $product_tax) {
             if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
@@ -97,15 +105,37 @@ class CartUtility
             $cart->product_referral_code = Cookie::get('product_referral_code');
         }
 
-        // Cart::create($data);
         $cart->save();
     }
 
+    /**
+     * ✅ FIXED:
+     * Works for:
+     * - DB cart model (has ->product relation)
+     * - Cache cart array (['product_id'=>...]) OR category item
+     */
     public static function check_auction_in_cart($carts)
     {
         foreach ($carts as $cart) {
-            if ($cart->product->auction_product == 1) {
-                return true;
+
+            // 1) لو cart model (من DB)
+            if (is_object($cart) && isset($cart->product) && $cart->product) {
+                if ((int) $cart->product->auction_product === 1) {
+                    return true;
+                }
+                continue;
+            }
+
+            // 2) لو array (من الكاش) — تجاهل category items
+            if (is_array($cart)) {
+                if (!isset($cart['product_id'])) {
+                    continue; // category item => مش auction
+                }
+
+                $p = Product::find($cart['product_id']);
+                if ($p && (int)$p->auction_product === 1) {
+                    return true;
+                }
             }
         }
 

@@ -4,6 +4,27 @@
     $form_all_preorder_page = session('preorder_all_page');
     session()->forget('preorder_all_page');
 @endphp
+@php
+    use App\Models\Category;
+
+    $mainCategories = Category::where('level', 0)
+        ->with([
+            'childrenCategories' => function ($query) {
+                $query
+                    ->with([
+                        'childrenCategories' => function ($q) {
+                            $q->with('childrenCategories')->withCount('products');
+                        },
+                    ])
+                    ->withCount('products');
+            },
+        ])
+        ->orderBy('order_level', 'desc')
+        ->get();
+
+    $currentCategoryId = request()->segment(2);
+@endphp
+
 
 @if (isset($category_id))
     @php
@@ -125,8 +146,8 @@
         }
 
         /* =======================
-                           CATEGORY SIDEBAR (LIKE IMAGE)
-                        ======================= */
+                                                                                                           CATEGORY SIDEBAR (LIKE IMAGE)
+                                                                                                        ======================= */
 
         .category-list {
             list-style: none;
@@ -177,8 +198,8 @@
         }
 
         /* =======================
-                           CHILDREN
-                        ======================= */
+                                                                                                           CHILDREN
+                                                                                                        ======================= */
 
         .category-children {
             list-style: none;
@@ -208,8 +229,8 @@
         }
 
         /* =======================
-                           SUB CHILD
-                        ======================= */
+                                                                                                           SUB CHILD
+                                                                                                        ======================= */
 
         .category-children .category-children {
             padding-left: 12px;
@@ -241,10 +262,8 @@
 
         /* Product Grid Container */
         .products-container {
-            background: #fff;
             border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         /* Breadcrumb */
@@ -298,7 +317,7 @@
         /* Action Bar */
         .action-bar {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
@@ -308,10 +327,10 @@
         }
 
         .btn-add-inquiry {
-            background: #007bff;
+            background: rgba(5, 133, 188, 1);
             color: #fff;
+            border-radius: 50px;
             padding: 12px 30px;
-            border-radius: 6px;
             border: none;
             font-size: 14px;
             font-weight: 500;
@@ -337,7 +356,7 @@
         .sort-dropdown {
             padding: 10px 18px;
             border: 1px solid #dee2e6;
-            border-radius: 6px;
+            border-radius: 50px;
             font-size: 13px;
             color: #495057;
             cursor: pointer;
@@ -352,44 +371,6 @@
             outline: none;
         }
 
-        /* View Toggle Buttons */
-        .view-toggle {
-            display: flex;
-            gap: 8px;
-            background: #f8f9fa;
-            padding: 4px;
-            border-radius: 6px;
-        }
-
-        .view-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            transition: all 0.2s;
-        }
-
-        .view-btn.active {
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .view-btn .grid-dot {
-            width: 4px;
-            height: 4px;
-            background: #6c757d;
-            border-radius: 1px;
-        }
-
-        .view-btn.active .grid-dot {
-            background: #007bff;
-        }
 
         /* Product Card */
         .product-card {
@@ -747,6 +728,371 @@
             font-size: 14px;
         }
     </style>
+    <style>
+        /* ========== CATEGORY SIDEBAR STYLING ========== */
+        .category-sidebar {
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, .08);
+            position: sticky;
+            top: 20px;
+            margin-bottom: 30px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        .category-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* Header Styling */
+        .category-sidebar h6 {
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            font-size: 10px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 0 12px;
+        }
+
+        .category-sidebar h6:first-of-type {
+            margin-top: 0;
+        }
+
+        /* List Base Styling */
+        .category-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .category-sidebar ul li {
+            padding: 0;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all .3s ease;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            background: transparent;
+            position: relative;
+        }
+
+        /* Category Links */
+        .category-sidebar ul li a.category-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            color: inherit !important;
+            text-decoration: none;
+            margin: 4px;
+            width: 100%;
+            border-radius: 12px;
+            transition: all .3s ease;
+        }
+
+        .category-sidebar .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+
+        .category-sidebar .category-header .category-name {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Toggle Icons */
+        .category-sidebar .toggle-icon {
+            font-size: 10px;
+            opacity: 0.5;
+            transition: all .3s ease;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Hover States */
+        .category-sidebar ul li:hover:not(.active) {
+            background: #f8f9fa !important;
+        }
+
+        .category-sidebar ul li:hover:not(.active) a.category-link,
+        .category-sidebar ul li:hover:not(.active) .category-header:not(.active) {
+            color: #333;
+        }
+
+        /* Active States for LI */
+        .category-sidebar ul li.active {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+        }
+
+        .category-sidebar ul li.active a.category-link,
+        .category-sidebar ul li.active .category-name {
+            color: #fff;
+        }
+
+        .category-sidebar ul li.active:hover {
+            filter: brightness(1.05);
+        }
+
+        /* ========== ACTIVE HEADER STYLING (الجديد) ========== */
+
+        /* Main Category Header Active */
+        .main-category-item .main-category-header.active {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+        }
+
+        .main-category-item .main-category-header.active .main-category-name {
+            color: #fff !important;
+        }
+
+        .main-category-item .main-category-header.active .main-toggle-icon {
+            opacity: 1;
+            color: #fff !important;
+        }
+
+        .main-category-item .main-category-header.active:hover {
+            filter: brightness(1.05);
+        }
+
+        /* Level 1 & Level 2 Category Header Active */
+        .category-sidebar .category-header.active {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+        }
+
+        .category-sidebar .category-header.active .category-name,
+        .category-sidebar .category-header.active .category-name span {
+            color: #fff !important;
+        }
+
+        .category-sidebar .category-header.active .toggle-icon {
+            opacity: 1 !important;
+            color: #fff !important;
+        }
+
+        .category-sidebar .category-header.active:hover {
+            filter: brightness(1.05);
+        }
+
+        /* إلغاء الـ background من الـ LI لو الـ header عنده active class */
+        .category-sidebar ul li:has(> .category-header.active) {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Chevron Icons */
+        .category-sidebar ul li i.fa-chevron-right {
+            font-size: 9px;
+            opacity: 0.5;
+            transition: .3s;
+            flex-shrink: 0;
+        }
+
+        .category-sidebar ul li:hover i.fa-chevron-right {
+            opacity: 0.8;
+        }
+
+        .category-sidebar ul li.active i {
+            opacity: 1;
+            color: #fff;
+        }
+
+        /* Sub-categories Visibility */
+        .sub-categories,
+        .sub-sub-categories {
+            display: none;
+            padding-left: 10px;
+            margin-top: 5px;
+        }
+
+        .sub-categories.show,
+        .sub-sub-categories.show {
+            display: block;
+            margin-left: 16px;
+        }
+
+        /* Rotate toggle icon when expanded */
+        .category-sidebar ul li.active>.category-header>.toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* All Main Categories Wrapper */
+        .all-main-categories-wrapper {
+            padding-left: 0;
+            margin-top: 5px;
+        }
+
+        .all-main-categories-wrapper.collapsed {
+            display: none;
+        }
+
+        /* Main Category Item Styling */
+        .main-category-item {
+            margin-bottom: 15px;
+        }
+
+        .main-category-item .main-category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .3s ease;
+            background: transparent;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .main-category-item .main-category-header:hover:not(.active) {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .main-category-item .main-category-name {
+            flex: 1;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .main-category-item .main-toggle-icon {
+            font-size: 10px;
+            opacity: 0.5;
+            transition: all .3s ease;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .main-category-item .main-toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .main-category-children {
+            display: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .main-category-children.show {
+            display: block;
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+        @media (max-width: 1024px) {
+            .category-sidebar {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .category-sidebar {
+                margin-bottom: 25px;
+                padding: 25px 20px;
+                border-radius: 14px;
+            }
+
+            .category-sidebar h6 {
+                font-size: 10px;
+                margin-bottom: 16px;
+            }
+
+            .category-sidebar ul li a.category-link,
+            .category-sidebar .category-header {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+
+            .category-sidebar ul li {
+                margin-bottom: 6px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .category-sidebar {
+                padding: 22px 18px;
+                margin-bottom: 20px;
+                border-radius: 12px;
+            }
+
+            .category-sidebar h6 {
+                font-size: 9px;
+                margin-bottom: 14px;
+            }
+
+            .category-sidebar ul li a.category-link,
+            .category-sidebar .category-header {
+                padding: 11px 16px;
+                font-size: 13px;
+            }
+
+            .category-sidebar ul li {
+                margin-bottom: 5px;
+            }
+        }
+
+        /* Touch Devices Optimization */
+        @media (hover: none) and (pointer: coarse) {
+            .category-sidebar ul li:hover {
+                background: transparent !important;
+            }
+
+            .category-sidebar ul li:active:not(.active) {
+                background: #f8f9fa !important;
+            }
+        }
+
+        #title-filter {
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 2px 0px;
+        }
+    </style>
+
 
     <!-- Hero Header -->
     @php
@@ -786,281 +1132,209 @@
                 <div class="row">
                     <!-- Sidebar -->
                     <div class="col-lg-3 mb-4">
-                        <div class="sidebar-wrapper">
-                            <!-- Mobile Filter Toggle -->
-                            <div class="d-lg-none">
-                                <button type="button" class="btn btn-block btn-light mb-3" data-toggle="collapse"
-                                    data-target="#filterSidebar">
-                                    <i class="las la-filter"></i> {{ translate('Show Filters') }}
-                                </button>
-                            </div>
+                        <div class="category-sidebar">
+                            <h6>CATEGORIES</h6>
 
-                            <div id="filterSidebar" class="collapse d-lg-block">
-                                <!-- Categories -->
-                                <div class="sidebar-header">
-                                    <h3 class="sidebar-title">{{ translate('CATEGORIES') }}</h3>
-                                </div>
-
-                                <div class="display-none" id="general_cagegories_box">
-                                    <ul class="category-list" id="category_filter">
-                                        <!-- All Categories -->
-                                        <li class="category-item all-categories-item">
-                                            <a href="{{ route('search') }}" class="category-item-link">
-                                                <span class="category-name">{{ translate('All Categories') }}</span>
-                                            </a>
-                                        </li>
-
-                                        @foreach ($categories as $category)
-                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
-                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
-                                                    data-id="{{ $category->id }}">
-                                                    <div class="category-item-link"
-                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                        <span
-                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
-                                                        @if (count($category->childrenCategories) > 0)
-                                                            <i class="las la-angle-down category-toggle"></i>
-                                                        @endif
-                                                    </div>
-
-                                                    @if (count($category->childrenCategories) > 0)
-                                                        <ul class="category-children">
-                                                            @foreach ($category->childrenCategories as $childCategory)
-                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
-                                                                    data-id="{{ $childCategory->id }}">
-                                                                    <div class="category-item-link"
-                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                                        <span
-                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
-                                                                        @if (count($childCategory->childrenCategories) > 0)
-                                                                            <i
-                                                                                class="las la-angle-down category-toggle"></i>
-                                                                        @endif
-                                                                    </div>
-
-                                                                    @if (count($childCategory->childrenCategories) > 0)
-                                                                        <ul class="category-children">
-                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
-                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
-                                                                                    data-id="{{ $subChildCategory->id }}">
-                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
-                                                                                        class="category-item-link">
-                                                                                        <span
-                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
-                                                                                    </a>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                <div class="display-none" id="preorder_cagegories_box">
-                                    <ul class="category-list" id="category_filter_preorder">
-                                        <!-- All Categories -->
-                                        <li class="category-item all-categories-item">
-                                            <a href="{{ route('search') }}" class="category-item-link">
-                                                <span class="category-name">{{ translate('All Categories') }}</span>
-                                            </a>
-                                        </li>
-
-                                        @foreach ($preorder_categories as $category)
-                                            @if ($category->products_count > 0 || count($category->childrenCategories) > 0)
-                                                <li class="category-item @if (count($category->childrenCategories) > 0) has-children @endif @if (isset($category_id) && $category_id == $category->id) active @endif"
-                                                    data-id="{{ $category->id }}">
-                                                    <div class="category-item-link"
-                                                        onclick="handleCategoryClick(event, {{ $category->id }}, '{{ route('products.category', $category->slug) }}', {{ count($category->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                        <span
-                                                            class="category-name">{{ $category->getTranslation('name') }}</span>
-                                                        @if (count($category->childrenCategories) > 0)
-                                                            <i class="las la-angle-down category-toggle"></i>
-                                                        @endif
-                                                    </div>
-
-                                                    @if (count($category->childrenCategories) > 0)
-                                                        <ul class="category-children">
-                                                            @foreach ($category->childrenCategories as $childCategory)
-                                                                <li class="category-item @if (isset($category_id) && $category_id == $childCategory->id) active @endif"
-                                                                    data-id="{{ $childCategory->id }}">
-                                                                    <div class="category-item-link"
-                                                                        onclick="handleCategoryClick(event, {{ $childCategory->id }}, '{{ route('products.category', $childCategory->slug) }}', {{ count($childCategory->childrenCategories) > 0 ? 'true' : 'false' }})">
-                                                                        <span
-                                                                            class="category-name">{{ $childCategory->getTranslation('name') }}</span>
-                                                                        @if (count($childCategory->childrenCategories) > 0)
-                                                                            <i
-                                                                                class="las la-angle-down category-toggle"></i>
-                                                                        @endif
-                                                                    </div>
-
-                                                                    @if (count($childCategory->childrenCategories) > 0)
-                                                                        <ul class="category-children">
-                                                                            @foreach ($childCategory->childrenCategories as $subChildCategory)
-                                                                                <li class="category-item @if (isset($category_id) && $category_id == $subChildCategory->id) active @endif"
-                                                                                    data-id="{{ $subChildCategory->id }}">
-                                                                                    <a href="{{ route('products.category', $subChildCategory->slug) }}"
-                                                                                        class="category-item-link">
-                                                                                        <span
-                                                                                            class="category-name">{{ $subChildCategory->getTranslation('name') }}</span>
-                                                                                    </a>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                <!-- Price Range Filter -->
-                                <div class="filter-section-wrapper">
-                                    <div class="filter-section-header" data-toggle="collapse" data-target="#priceFilter">
-                                        <h4 class="filter-section-title">{{ translate('Price range') }}</h4>
-                                        <i class="las la-angle-down"></i>
+                            {{-- All Categories + Toggle --}}
+                            <ul>
+                                <li class="{{ !request()->segment(2) ? 'active' : '' }} parent-category" data-all-main="1">
+                                    <div class="category-header">
+                                        <a href="{{ route('categories.all') }}" class="category-name">
+                                            <span>All Categories</span>
+                                        </a>
+                                        <i class="fas fa-chevron-down toggle-icon toggle-all-main"></i>
                                     </div>
-                                    <div id="priceFilter" class="collapse">
-                                        <div class="price-range-wrapper">
-                                            @php
-                                                $product_count = get_products_count();
-                                            @endphp
-                                            <div class="aiz-range-slider">
-                                                <div id="input-slider-range" data-range-value-min="0"
-                                                    data-range-value-max="@if ($product_count < 1) 0 @else {{ get_product_max_unit_price() }} @endif">
-                                                </div>
-                                                <div class="price-values">
-                                                    <span class="price-value" id="input-slider-range-value-low">0</span>
-                                                    <span class="price-value" id="input-slider-range-value-high"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" name="min_price" value="">
-                                        <input type="hidden" name="max_price" value="">
-                                    </div>
-                                </div>
+                                </li>
+                            </ul>
 
-                                <!-- Attribute Filters -->
-                                @foreach ($attributes as $attribute)
-                                    @if ($attribute->product_count > 0)
-                                        <div class="filter-section-wrapper preorder-time-hide">
-                                            <div class="filter-section-header" data-toggle="collapse"
-                                                data-target="#filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}">
-                                                <h4 class="filter-section-title">{{ $attribute->getTranslation('name') }}
-                                                </h4>
-                                                <i class="las la-angle-down"></i>
-                                            </div>
-                                            @php
-                                                $show = '';
-                                                foreach ($attribute->attribute_values as $attribute_value) {
-                                                    if (in_array($attribute_value->value, $selected_attribute_values)) {
-                                                        $show = 'show';
+                            {{-- Main Categories Wrapper --}}
+                            <div class="all-main-categories-wrapper">
+                                @foreach ($mainCategories as $main)
+                                    @php
+                                        $isMainActive = false;
+                                        $hasActiveDescendant = false;
+
+                                        if (isset($mainCategory) && $mainCategory->id == $main->id) {
+                                            $isMainActive = true;
+                                        }
+
+                                        if ($main->childrenCategories) {
+                                            foreach ($main->childrenCategories as $level1) {
+                                                // تشيك Level 1
+                                                if ($currentCategoryId == $level1->id) {
+                                                    $hasActiveDescendant = true;
+                                                    break;
+                                                }
+
+                                                // تشيك Level 2
+                                                if ($level1->childrenCategories) {
+                                                    foreach ($level1->childrenCategories as $level2) {
+                                                        if ($currentCategoryId == $level2->id) {
+                                                            $hasActiveDescendant = true;
+                                                            break 2;
+                                                        }
+
+                                                        // تشيك Level 3
+                                                        if ($level2->childrenCategories) {
+                                                            foreach ($level2->childrenCategories as $level3) {
+                                                                if ($currentCategoryId == $level3->id) {
+                                                                    $hasActiveDescendant = true;
+                                                                    break 3;
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
-                                            @endphp
-                                            <div id="filter_{{ str_replace(' ', '_', preg_replace('/[^a-zA-Z]/', '', $attribute->name)) }}"
-                                                class="collapse {{ $show }} filter-section-content">
-                                                @foreach ($attribute->attribute_values as $attribute_value)
-                                                    @if ($attribute_value->product_count > 0)
-                                                        <div class="filter-checkbox">
-                                                            <input type="checkbox" name="selected_attribute_values[]"
-                                                                value="{{ $attribute_value->value }}"
-                                                                id="attr_{{ $attribute_value->id }}"
-                                                                @if (in_array($attribute_value->value, $selected_attribute_values)) checked @endif
-                                                                onchange="filter(event)">
-                                                            <label for="attr_{{ $attribute_value->id }}">
-                                                                {{ $attribute_value->value }}
-                                                                ({{ $attribute_value->product_count }})
-                                                            </label>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
-
-                                <!-- Color Filter -->
-                                @if (get_setting('color_filter_activation'))
-                                    <div class="filter-section-wrapper preorder-time-hide">
-                                        <div class="filter-section-header" data-toggle="collapse"
-                                            data-target="#colorFilter">
-                                            <h4 class="filter-section-title">{{ translate('Filter by color') }}</h4>
-                                            <i class="las la-angle-down"></i>
-                                        </div>
-                                        @php
-                                            $show = '';
-                                            foreach ($colors as $key => $color) {
-                                                if (isset($selected_color) && $selected_color == $color->code) {
-                                                    $show = 'show';
-                                                }
                                             }
-                                        @endphp
-                                        <div id="colorFilter"
-                                            class="collapse {{ $show }} filter-section-content">
-                                            @foreach ($colors as $key => $color)
-                                                @if ($color->product_count > 0)
-                                                    <div class="filter-checkbox">
-                                                        <input type="checkbox" name="colors[]"
-                                                            value="{{ $color->code }}" id="color_{{ $color->id }}"
-                                                            @if (isset($selected_color) && $selected_color == $color->code) checked @endif
-                                                            onchange="filter(event)">
-                                                        <label for="color_{{ $color->id }}"
-                                                            class="d-flex align-items-center">
-                                                            <span
-                                                                style="width: 20px; height: 20px; background-color: {{ $color->code }}; border-radius: 50%; margin-right: 8px; display: inline-block;"></span>
-                                                            {{ $color->name }} ({{ $color->product_count }})
-                                                        </label>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
+                                        }
 
-                                <!-- Availability Filter (for preorder) -->
-                                <div class="filter-section-wrapper preorder-time-show display-none">
-                                    <div class="filter-section-header" data-toggle="collapse"
-                                        data-target="#availabilityFilter">
-                                        <h4 class="filter-section-title">{{ translate('Filter by Availability') }}</h4>
-                                        <i class="las la-angle-down"></i>
-                                    </div>
-                                    @php
-                                        $show = $is_available !== null ? 'show' : '';
+                                        $isMainActive = $isMainActive || $hasActiveDescendant;
                                     @endphp
-                                    <div id="availabilityFilter"
-                                        class="collapse {{ $show }} filter-section-content">
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value="1" id="available_now"
-                                                @if ($is_available == 1) checked @endif onchange="filter(event)">
-                                            <label for="available_now">{{ translate('Available Now') }}</label>
+
+                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}"
+                                        data-main-id="{{ $main->id }}">
+
+                                        <div class="main-category-header {{ $isMainActive ? 'active' : '' }}">
+                                            <a href="{{ route('products.category', $main->slug) }}"
+                                                class="main-category-name">
+                                                {{ $main->getTranslation('name') }}
+                                            </a>
+                                            @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
+                                                <i class="fas fa-chevron-down main-toggle-icon"></i>
+                                            @endif
                                         </div>
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value="0" id="upcoming"
-                                                @if ($is_available === '0') checked @endif
-                                                onchange="filter(event)">
-                                            <label for="upcoming">{{ translate('Upcoming') }}</label>
-                                        </div>
-                                        <div class="filter-checkbox">
-                                            <input type="radio" name="is_available" value=""
-                                                id="all_availability" @if ($is_available === null) checked @endif
-                                                onchange="filter(event)">
-                                            <label for="all_availability">{{ translate('All') }}</label>
-                                        </div>
+
+                                        @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
+                                            <div class="main-category-children">
+                                                <span id="title-filter">SUB Categories</span>
+
+                                                <ul class="parent-category-list main-level0" style="margin-left: 16px;">
+                                                    @foreach ($main->childrenCategories as $level1Category)
+                                                        @php
+                                                            $isLevel1Active = $currentCategoryId == $level1Category->id;
+                                                            $hasActiveChild = false;
+
+                                                            // تشيك لو Level 1 نفسه active
+                                                            if ($isLevel1Active) {
+                                                                $hasActiveChild = true;
+                                                            }
+
+                                                            // تشيك على Level 2 و 3
+                                                            if ($level1Category->childrenCategories) {
+                                                                foreach ($level1Category->childrenCategories as $l2) {
+                                                                    if ($currentCategoryId == $l2->id) {
+                                                                        $hasActiveChild = true;
+                                                                        $isLevel1Active = true;
+                                                                        break;
+                                                                    }
+                                                                    if ($l2->childrenCategories) {
+                                                                        foreach ($l2->childrenCategories as $l3) {
+                                                                            if ($currentCategoryId == $l3->id) {
+                                                                                $hasActiveChild = true;
+                                                                                $isLevel1Active = true;
+                                                                                break 2;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        @endphp
+
+                                                        <li class="parent-category {{ $isLevel1Active ? 'active' : '' }}"
+                                                            data-category-id="{{ $level1Category->id }}">
+
+                                                            @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
+                                                                <div
+                                                                    class="category-header {{ $isLevel1Active ? 'active' : '' }}">
+                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                        class="category-name">
+                                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    </a>
+                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                </div>
+
+                                                                <span id="title-filter"
+                                                                    class="products-title">Products</span>
+
+                                                                <ul class="sub-categories {{ $hasActiveChild ? 'show' : '' }}"
+                                                                    data-parent-id="{{ $level1Category->id }}">
+                                                                    @foreach ($level1Category->childrenCategories as $level2Category)
+                                                                        @php
+                                                                            $isLevel2Active =
+                                                                                $currentCategoryId ==
+                                                                                $level2Category->id;
+                                                                            $hasActiveLevel3 = false;
+
+                                                                            if ($level2Category->childrenCategories) {
+                                                                                foreach (
+                                                                                    $level2Category->childrenCategories
+                                                                                    as $l3
+                                                                                ) {
+                                                                                    if ($currentCategoryId == $l3->id) {
+                                                                                        $hasActiveLevel3 = true;
+                                                                                        $isLevel2Active = true;
+                                                                                        break;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        @endphp
+
+                                                                        <li class="{{ $isLevel2Active ? 'active' : '' }}"
+                                                                            data-category-id="{{ $level2Category->id }}">
+
+                                                                            @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
+                                                                                <div
+                                                                                    class="category-header {{ $isLevel2Active ? 'active' : '' }}">
+                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                        class="category-name">
+                                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                                    </a>
+                                                                                    <i
+                                                                                        class="fas fa-chevron-down toggle-icon"></i>
+                                                                                </div>
+
+                                                                                <ul class="sub-sub-categories {{ $hasActiveLevel3 ? 'show' : '' }}"
+                                                                                    data-parent-id="{{ $level2Category->id }}">
+                                                                                    @foreach ($level2Category->childrenCategories as $level3Category)
+                                                                                        <li
+                                                                                            class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
+                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                                class="category-link">
+                                                                                                <span>{{ $level3Category->getTranslation('name') }}</span>
+                                                                                                <i
+                                                                                                    class="fas fa-chevron-right"></i>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @else
+                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    class="category-link">
+                                                                                    <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                                </a>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    class="category-link">
+                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    <i class="fas fa-chevron-right"></i>
+                                                                </a>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Products Section -->
                     <div class="col-lg-9">
@@ -1129,10 +1403,6 @@
 
                             <!-- Action Bar -->
                             <div class="action-bar">
-                                <button type="button" class="btn-add-inquiry">
-                                    <i class="las la-plus"></i> Add to inquiry
-                                </button>
-
                                 <div class="toolbar">
                                     <select id="select_option" class="sort-dropdown" name="sort_by"
                                         onchange="filter(event)">
@@ -1150,24 +1420,9 @@
                                             @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>
                                             {{ translate('Price high to low') }}</option>
                                     </select>
-
-                                    <div class="view-toggle">
-                                        <button type="button" class="view-btn view-2-hide" data-cols="2">
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                        </button>
-                                        <button type="button" class="view-btn view-3-hide" data-cols="3">
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                        </button>
-                                        <button type="button" class="view-btn view-4-hide active" data-cols="4">
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                            <span class="grid-dot"></span>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn-add-inquiry">
+                                        <i class="las la-plus"></i> Add to inquiry
+                                    </button>
                                 </div>
                             </div>
 
@@ -1183,7 +1438,7 @@
                             <input type="hidden" name="keyword" value="{{ $query ?? '' }}">
 
                             <!-- Products Grid -->
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="products-row">
+                            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-3" id="products-row">
                                 <!-- Products will be loaded here via AJAX -->
                             </div>
 
@@ -1196,6 +1451,25 @@
         </div>
     </section>
 
+    <!-- Product Details Modal (stay on same page) -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-600">{{ translate('Product details') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-0" id="productDetailModalBody">
+                    <div class="text-center p-4">
+                        <div class="spinner-border" role="status" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('script')
@@ -1203,6 +1477,8 @@
         let category_page_first_time = true;
         let brand_page_first_time = true;
         let session_data_first_time = true;
+
+        const enableInlineProductDetails = {{ isset($category_id) ? 'true' : 'false' }};
 
         // Toggle category expansion
         function toggleCategory(element, categoryId) {
@@ -1332,28 +1608,6 @@
             filter_data(page);
         });
 
-        // View toggle buttons
-        $('.view-btn').on('click', function() {
-            $('.view-btn').removeClass('active');
-            $(this).addClass('active');
-
-            var colValue = $(this).data('cols');
-            var $row = $('#products-row');
-
-            $row.removeClass(function(index, className) {
-                return (className.match(/(^|\s)row-cols-\S+/g) || []).join(' ');
-            });
-
-            $row.addClass('row-cols-1 row-cols-sm-2 row-cols-md-3');
-
-            if (colValue == 2) {
-                $row.addClass('row-cols-lg-2');
-            } else if (colValue == 3) {
-                $row.addClass('row-cols-lg-3');
-            } else {
-                $row.addClass('row-cols-lg-4');
-            }
-        });
 
         $(document).ready(function() {
             const path = window.location.pathname;
@@ -1370,6 +1624,65 @@
                 $activeItem.addClass('active expanded');
                 $activeItem.parents('.category-item').addClass('parent-active expanded');
             }
+        });
+
+        // Open product details in modal on category listing pages
+        $(document).on('click', 'a.js-open-product-details', function(e) {
+            if (!enableInlineProductDetails) {
+                return true;
+            }
+
+            // allow open-in-new-tab behaviors
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                return true;
+            }
+
+            const modalUrl = $(this).data('modal-url');
+            if (!modalUrl) {
+                return true;
+            }
+
+            e.preventDefault();
+
+            $('#productDetailModalBody').html(
+                '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
+            );
+            $('#productDetailModal').modal('show');
+
+            $.get(modalUrl, function(html) {
+                $('#productDetailModalBody').html(html);
+
+                try {
+                    // Re-init dynamic plugins for injected content
+                    if (typeof AIZ !== 'undefined' && AIZ.plugins) {
+                        AIZ.plugins.slickCarousel();
+                        AIZ.plugins.zoom();
+                    }
+                    if (typeof AIZ !== 'undefined' && AIZ.extra) {
+                        AIZ.extra.plusMinus();
+                    }
+
+                    // Rebind variant price handler for newly injected form
+                    if (typeof getVariantPrice === 'function') {
+                        $('#option-choice-form input').off('change').on('change', function() {
+                            getVariantPrice();
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Product modal init error:', err);
+                }
+            }).fail(function() {
+                $('#productDetailModalBody').html(
+                    '<div class="p-4 text-center text-danger">{{ translate('Something went wrong') }}</div>'
+                );
+            });
+        });
+
+        // Cleanup modal content on close (avoid duplicated IDs / handlers)
+        $('#productDetailModal').on('hidden.bs.modal', function() {
+            $('#productDetailModalBody').html(
+                '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
+            );
         });
     </script>
 
@@ -1489,6 +1802,160 @@
 
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const allToggleIcons = document.querySelectorAll('.toggle-icon');
+            const allMainToggle = document.querySelector('.toggle-all-main');
+            const allMainWrapper = document.querySelector('.all-main-categories-wrapper');
+            const mainCategoryItems = document.querySelectorAll('.main-category-item');
+
+            // ========== MAIN CATEGORIES TOGGLE ==========
+            mainCategoryItems.forEach(function(mainItem) {
+                const mainHeader = mainItem.querySelector('.main-category-header');
+                const mainToggleIcon = mainItem.querySelector('.main-toggle-icon');
+                const mainChildren = mainItem.querySelector('.main-category-children');
+
+                if (mainHeader && mainToggleIcon && mainChildren) {
+                    mainToggleIcon.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const isVisible = mainChildren.classList.contains('show');
+
+                        if (isVisible) {
+                            mainChildren.classList.remove('show');
+                            mainToggleIcon.classList.remove('rotated');
+                        } else {
+                            mainChildren.classList.add('show');
+                            mainToggleIcon.classList.add('rotated');
+                        }
+                    });
+                }
+            });
+
+            // ========== SUB-CATEGORIES TOGGLE (Level 1/2/3) ==========
+            allToggleIcons.forEach(function(toggleIcon) {
+                // استثناء الـ main toggles
+                if (toggleIcon.classList.contains('toggle-all-main') ||
+                    toggleIcon.classList.contains('main-toggle-icon')) {
+                    return;
+                }
+
+                toggleIcon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const categoryHeader = this.closest('.category-header');
+                    const parentLi = categoryHeader.closest('li');
+                    const categoryId = parentLi.getAttribute('data-category-id');
+
+                    // البحث عن الـ Products title
+                    const productsTitle = parentLi.querySelector('.products-title');
+
+                    let subCategoriesUl = parentLi.querySelector(
+                        `.sub-categories[data-parent-id="${categoryId}"]`
+                    );
+                    if (!subCategoriesUl) {
+                        subCategoriesUl = parentLi.querySelector(
+                            `.sub-sub-categories[data-parent-id="${categoryId}"]`
+                        );
+                    }
+
+                    if (subCategoriesUl) {
+                        const isVisible = subCategoriesUl.classList.contains('show');
+
+                        if (isVisible) {
+                            subCategoriesUl.classList.remove('show');
+                            this.style.transform = 'rotate(0deg)';
+                            // إخفاء Products title
+                            if (productsTitle) {
+                                productsTitle.style.display = 'none';
+                            }
+                        } else {
+                            subCategoriesUl.classList.add('show');
+                            this.style.transform = 'rotate(180deg)';
+                            // إظهار Products title
+                            if (productsTitle) {
+                                productsTitle.style.display = 'block';
+                            }
+                        }
+                    }
+                });
+            });
+
+            // ========== "ALL CATEGORIES" COLLAPSE ==========
+            if (allMainToggle && allMainWrapper) {
+                allMainToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const isCollapsed = allMainWrapper.classList.contains('collapsed');
+
+                    if (isCollapsed) {
+                        allMainWrapper.classList.remove('collapsed');
+                        this.style.transform = 'rotate(180deg)';
+                    } else {
+                        allMainWrapper.classList.add('collapsed');
+                        this.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+
+            // ========== AUTO-EXPAND ACTIVE MAIN CATEGORIES ==========
+            mainCategoryItems.forEach(function(mainItem) {
+                if (mainItem.classList.contains('active')) {
+                    const mainChildren = mainItem.querySelector('.main-category-children');
+                    const mainToggleIcon = mainItem.querySelector('.main-toggle-icon');
+
+                    if (mainChildren) {
+                        mainChildren.classList.add('show');
+                    }
+                    if (mainToggleIcon) {
+                        mainToggleIcon.classList.add('rotated');
+                    }
+                }
+            });
+
+            // ========== AUTO-EXPAND ACTIVE SUB CATEGORIES ==========
+            const activeCategories = document.querySelectorAll('.category-sidebar li.active');
+            activeCategories.forEach(function(activeLi) {
+                let parentUl = activeLi.closest('.sub-categories, .sub-sub-categories');
+
+                while (parentUl) {
+                    parentUl.classList.add('show');
+
+                    const parentLi = parentUl.closest('li');
+                    const parentToggle = parentLi?.querySelector(
+                        '.category-header > .toggle-icon:not(.toggle-all-main):not(.main-toggle-icon)');
+
+                    if (parentToggle) {
+                        parentToggle.style.transform = 'rotate(180deg)';
+                    }
+
+                    // إظهار Products title للـ active categories
+                    const productsTitle = parentLi?.querySelector('.products-title');
+                    if (productsTitle) {
+                        productsTitle.style.display = 'block';
+                    }
+
+                    parentUl = parentLi?.closest('.sub-categories, .sub-sub-categories');
+                }
+            });
+
+            // ========== إخفاء Products title في البداية ==========
+            const allProductsTitles = document.querySelectorAll('.products-title');
+            allProductsTitles.forEach(function(title) {
+                const parentLi = title.closest('li');
+                const subCategories = parentLi.querySelector('.sub-categories');
+
+                // إخفاء إذا كانت الـ sub-categories مش ظاهرة
+                if (subCategories && !subCategories.classList.contains('show')) {
+                    title.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
 
 
 @endsection

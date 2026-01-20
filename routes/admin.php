@@ -3,7 +3,11 @@
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
+use App\Http\Controllers\Admin\Setting\FooterController;
 use App\Http\Controllers\Admin\Setting\HomePageController;
+use App\Http\Controllers\Admin\Setting\JoinUsController;
+use App\Http\Controllers\Admin\Setting\OurServiceController;
+use App\Http\Controllers\Admin\Setting\OurServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AreaController;
@@ -625,11 +629,29 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::post('/settings/our-partners', [OurPartnersController::class, 'update'])->name('settings.our-partners.update');
     Route::get('/admin/settings/join-us', [PartnerController::class, 'index'])
         ->name('settings.join-us');
-        Route::get('/admin/home-page-settings', [HomePageController::class, 'index'])
-    ->name('settings.home-page.index');
+    Route::get('/admin/home-page-settings', [HomePageController::class, 'index'])
+        ->name('settings.home-page.index');
+
+
+    Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
+        ->name('settings.home-page.update');
+
+    Route::get('/settings/our-services',  [OurServiceController::class, 'index'])
+        ->name('settings.our-services');
+
+    Route::post('/settings/our-services/update', [OurServiceController::class, 'update'])
+        ->name('settings.our-services.update');
+    Route::get('/settings/join-us', [JoinUsController::class, 'index'])->name('settings.join-us');
+    Route::post('/settings/join-us/update', [JoinUsController::class, 'update'])->name('settings.join-us.update');
+
+
+
+    Route::get('/settings/footer', [FooterController::class, 'index'])->name('settings.footer');
+    Route::post('/settings/footer', [FooterController::class, 'update'])->name('settings.footer.update');
 
 Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
     ->name('settings.home-page.update');
+
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {
         Route::get('/product-queries', 'index')->name('product_query.index');

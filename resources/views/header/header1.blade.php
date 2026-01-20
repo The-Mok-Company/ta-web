@@ -160,16 +160,33 @@
 
     .badge-count {
         position: absolute;
-        top: 2px;
-        right: 2px;
-        background: #3b82f6;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
         color: white;
         font-size: 10px;
         font-weight: 700;
-        padding: 2px 5px;
-        border-radius: 10px;
+        padding: 2px 6px;
+        border-radius: 50%;
+        min-width: 18px;
+        text-align: center;
+        line-height: 14px;
+    }
+
+    .cart-icon-btn .cart-count {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        background: #e74c3c;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 50%;
         min-width: 16px;
         text-align: center;
+        line-height: 12px;
+        z-index: 10;
     }
 
     .mobile-menu-btn {
@@ -300,12 +317,16 @@
         border-bottom: 1px solid #f0f0f0;
     }
 
+    .dropdown-item span {
+        color: black !important;
+    }
+
     .dropdown-item:last-child {
         border-bottom: none;
     }
 
     .dropdown-item:hover {
-        background: #000000;
+        background: #dbdbdb;
     }
 
     .dropdown-footer {
@@ -329,7 +350,7 @@
     .sub-dropdown {
         position: absolute;
         top: 0;
-        left: 100%;
+        left: 95%;
         background: white;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -350,7 +371,7 @@
     }
 
     .category-item-wrapper:hover>.dropdown-item {
-        background: #000000;
+        background: #dbdbdb;
     }
 
     .sub-arrow {
@@ -420,6 +441,11 @@
             display: none;
         }
     }
+
+    .welcome-text {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 1);
+    }
 </style>
 
 <header class="header">
@@ -430,7 +456,8 @@
                 $header_logo = get_setting('header_logo');
             @endphp
             @if ($header_logo != null)
-                <img src="{{ uploaded_asset($header_logo) }}" alt="{{ env('APP_NAME') }}" class="logo-icon">
+                <img src="{{ uploaded_asset($header_logo) }}" alt="{{ env('APP_NAME') }}" class="logo-icon"
+                    style="width: 200px">
             @else
                 <svg class="logo1-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3B82F6" stroke="#3B82F6" stroke-width="2"
@@ -441,7 +468,6 @@
                         stroke-linejoin="round" />
                 </svg>
             @endif
-            <span class="logo-text">TRADES<span>AXIS</span></span>
         </a>
 
         <!-- Navigation -->
@@ -462,7 +488,7 @@
                                 </button>
 
                                 <div class="header-dropdown">
-                                    <div class="dropdown-header">{{ translate('Categories') }}</div>
+                                    <div class="dropdown-header">{{ translate('Main Categories') }}</div>
 
                                     @foreach ($categories->take(10) as $category)
                                         <div class="category-item-wrapper">
@@ -472,6 +498,7 @@
                                                     <img src="{{ uploaded_asset($category->icon) }}" width="20"
                                                         height="20">
                                                 @endif
+
                                                 <span>{{ $category->getTranslation('name') }}</span>
 
                                                 @if ($category->childrenCategories->count() > 0)
@@ -485,11 +512,39 @@
 
                                             @if ($category->childrenCategories->count() > 0)
                                                 <div class="sub-dropdown">
+                                                    <div class="dropdown-header">{{ translate('Sub Categories') }}</div>
+
                                                     @foreach ($category->childrenCategories as $subCategory)
-                                                        <a href="{{ route('products.category', $subCategory->slug) }}"
-                                                            class="dropdown-item">
-                                                            <span>{{ $subCategory->getTranslation('name') }}</span>
-                                                        </a>
+                                                        <div class="category-item-wrapper">
+                                                            <a href="{{ route('products.category', $subCategory->slug) }}"
+                                                                class="dropdown-item">
+                                                                <span>{{ $subCategory->getTranslation('name') }}</span>
+
+                                                                @if ($subCategory->childrenCategories->count() > 0)
+                                                                    <svg class="sub-arrow" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M9 5l7 7-7 7" />
+                                                                    </svg>
+                                                                @endif
+                                                            </a>
+
+                                                            {{-- Level 2 Categories Dropdown --}}
+                                                            @if ($subCategory->childrenCategories->count() > 0)
+                                                                <div class="sub-dropdown level-2">
+                                                                    <div class="dropdown-header">
+                                                                        {{ translate('Products') }}</div>
+
+                                                                    @foreach ($subCategory->childrenCategories as $level2Category)
+                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                            class="dropdown-item">
+                                                                            <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                        </a>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        </div>
                                                     @endforeach
                                                 </div>
                                             @endif
@@ -544,7 +599,8 @@
                         </div>
                     @else
                         @if (!in_array($value, ['Partners', 'Our Partners', 'Join Us']))
-                            <a href="{{ json_decode(get_setting('header_menu_links'), true)[$key] }}" class="nav-link">
+                            <a href="{{ json_decode(get_setting('header_menu_links'), true)[$key] }}"
+                                class="nav-link">
                                 {{ translate($value) }}
                             </a>
                         @endif
@@ -627,17 +683,15 @@
                 </div>
             @endif
 
-            <!-- Cart -->
-            <div class="icon-btn" style="position: relative;">
+               <!-- Cart -->
+            <div class="icon-btn cart-icon-btn">
                 <a href="{{ route('cart') }}" style="color: inherit; display: flex;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </a>
-                @if (Session::has('cart'))
-                    <span class="badge-count">{{ count(Session::get('cart')) }}</span>
-                @endif
+                <span class="cart-count">{{ count(get_user_cart()) }}</span>
             </div>
 
             <!-- User Icon -->
@@ -725,6 +779,16 @@
                     </div>
                 @endauth
             </div>
+            <!-- User Icon -->
+            <div>
+                {{-- Welcome text --}}
+                @auth
+                    <div class="welcome-text">
+                        Welcome, <strong>{{ Auth::user()->name }}</strong>
+                    </div>
+                @endauth
+            </div>
+
 
             <!-- Mobile Menu Button -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
@@ -750,6 +814,7 @@
         </div>
     </div>
 </header>
+
 
 <script>
     function toggleSearch() {
