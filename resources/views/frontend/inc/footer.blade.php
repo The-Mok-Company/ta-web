@@ -6,7 +6,8 @@
 
     #text-dark22 {
         color: white;
-    }
+        padding: 7px;
+      }
 
     .policy-file .policy-title,
     .policy-file svg path {
