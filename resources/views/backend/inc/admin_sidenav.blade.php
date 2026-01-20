@@ -642,17 +642,79 @@
                                     <span class="aiz-side-nav-text">{{ translate('Our Services') }}</span>
                                 </a>
                             </li>
+
+            <span class="aiz-side-nav-text">{{ translate('Settings') }}</span>
+            <span class="aiz-side-nav-arrow"></span>
+        </a>
+
+        <!-- Submenu -->
+        <ul class="aiz-side-nav-list level-2">
+
+                            {{-- About Us --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.about-us') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('About Us') }}</span>
+                                </a>
+                            </li>
+                            {{-- Our Partners --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.our-partners') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Our Partners') }}</span>
+                                </a>
+                            </li>
+                            {{-- Home Page --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.home-page.index') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Home Page') }}</span>
+                                </a>
+                            </li>
+                            {{-- Footer --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.footer') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Footer') }}</span>
+                                </a>
+                            </li>
+                            {{-- Our Services --}}
+                            <li class="aiz-side-nav-item">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.our-services') }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Our Services') }}</span>
+                                </a>
+                            </li>
                             {{-- Join Us --}}
                             <li class="aiz-side-nav-item">
                                 <a class="aiz-side-nav-link" href="{{ route('settings.join-us') }}">
                                     <span class="aiz-side-nav-text">{{ translate('Join Us') }}</span>
                                 </a>
                             </li>
+            {{-- About Us --}}
+            <li class="aiz-side-nav-item">
+                <a class="aiz-side-nav-link" href="{{ route('settings.about-us') }}">
+                    <span class="aiz-side-nav-text">{{ translate('About Us') }}</span>
+                </a>
+            </li>
+            {{-- Our Partners --}}
+            <li class="aiz-side-nav-item">
+                <a class="aiz-side-nav-link" href="{{ route('settings.our-partners') }}">
+                    <span class="aiz-side-nav-text">{{ translate('Our Partners') }}</span>
+                </a>
+            </li>
+            {{-- Our Partners --}}
+            <li class="aiz-side-nav-item">
+                <a class="aiz-side-nav-link" href="{{ route('settings.home-page.index') }}">
+                    <span class="aiz-side-nav-text">{{ translate('Home Page') }}</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+@endcanany
+@canany(['view_notes', 'add_note'])
 
                         </ul>
                     </li>
                 @endcanany
                 @canany(['view_notes', 'add_note'])
+
                     <li class="aiz-side-nav-item">
                         <a href="#" class="aiz-side-nav-link">
                             <div class="aiz-side-nav-icon">

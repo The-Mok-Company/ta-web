@@ -52,6 +52,7 @@ use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SizeChartController;
+use App\Http\Controllers\InquiryController;
 use App\Models\User;
 
 /*
@@ -64,7 +65,14 @@ use App\Models\User;
   | contains the "web" middleware group. Now create something great!
   |
  */
+
 // admin password
+
+
+
+ Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
+        ->name('inquiry.requestOffer');
+
 Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
         ->update([
@@ -231,7 +239,7 @@ Route::controller(CartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart');
     Route::post('/cart/show-cart-modal', 'showCartModal')->name('cart.showCartModal');
     Route::post('/cart/addtocart', 'addToCart')->name('cart.addToCart');
-    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
+    Route::post('/cart/addCategoryToCart', 'addCategoryToCart')->name('cart.addCategoryToCart');    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
 });

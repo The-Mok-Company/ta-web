@@ -1,58 +1,7 @@
+<!-- Last Viewed Products  -->
+
+
 <!-- footer Description -->
-<style>
-    .policy-file a {
-        transition: all 0.3s ease;
-    }
-
-    #text-dark22 {
-        color: white;
-    }
-
-    .policy-file .policy-title,
-    .policy-file svg path {
-        fill: #fff;
-        color: #fff;
-        transition: all 0.3s ease;
-    }
-
-    .policy-file .policy-title:hover {
-        color: rgba(46, 136, 214, 1) !important;
-    }
-
-    .policy-file a:hover svg path {
-        fill: rgba(46, 136, 214, 1) !important;
-    }
-
-    .policy-file a:hover {
-        #text-dark22 {
-            color: rgba(46, 136, 214, 1) !important;
-        }
-
-    }
-
-    .policy-file a:hover .icon-mark {
-        fill: #2e88d6;
-    }
-
-    #logofootre {
-        height: 40px;
-    }
-
-    @media (max-width: 768px) {
-        #logofootre {
-            height: 20px;
-        }
-    }
-
-        #logotopfooter {
-            padding-top: 31px;
-        }
-    @media (max-width: 767px) {
-        #logotopfooter {
-            padding-top: 10px;
-        }
-    }
-</style>
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
         <div class="container py-32px">
@@ -91,22 +40,21 @@
                             transform="translate(14513.998 -18900.002)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Terms & conditions') }}
-                    </h4>
+                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}</h4>
                 </a>
             </div>
 
             <!-- Return Policy -->
             <div class="col-lg-3 col-6 policy-file">
                 <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
-                    href="{{ route('returnpolicy') }}" id="logotopfooter">
+                    href="{{ route('returnpolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.001" height="23.971" viewBox="0 0 32.001 23.971">
                         <path id="Union_7" data-name="Union 7"
                             d="M-14490,18922.967a6.972,6.972,0,0,0,4.949-2.051,6.944,6.944,0,0,0,2.052-4.943,7.008,7.008,0,0,0-7-7v0h-22.1l7.295,7.295-.707.707-7.779-7.779-.708-.707.708-.7,7.774-7.779.712.707-7.261,7.258H-14490v0a8.01,8.01,0,0,1,8,8,8.008,8.008,0,0,1-8,8Z"
                             transform="translate(14514.001 -18900)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Return Policy') }}</h4>
+                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
                 </a>
             </div>
 
@@ -136,7 +84,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Support Policy') }}</h4>
+                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
                 </a>
             </div>
 
@@ -158,7 +106,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Privacy Policy') }}</h4>
+                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
                 </a>
             </div>
         </div>
@@ -179,7 +127,7 @@
             <div class="footer-left">
                 <div class="logo">
                     @if ($branding && isset($branding->value['logo_image']) && $branding->value['logo_image'])
-                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" id="logofootre">
+                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" style="height: 40px;">
                     @else
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3b9df8" />

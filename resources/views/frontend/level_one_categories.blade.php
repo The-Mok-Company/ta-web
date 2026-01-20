@@ -175,7 +175,7 @@
         font-size: 14px;
         cursor: pointer;
         transition: all .3s ease;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
         color: #555;
         font-weight: 500;
         background: transparent;
@@ -187,7 +187,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 14px 18px;
+        padding: 12px 16px;
         color: inherit;
         text-decoration: none;
         width: 100%;
@@ -199,7 +199,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 14px 18px;
+        padding: 12px 16px;
         border-radius: 12px;
         cursor: pointer;
         transition: all .3s ease;
@@ -219,41 +219,9 @@
         opacity: 0.5;
         transition: all .3s ease;
         cursor: pointer;
-        padding: 6px 10px;
+        padding: 4px 8px;
         margin-left: 8px;
         flex-shrink: 0;
-    }
-
-    /* Extra spacing for the expanded "main-level0" list (the one in your screenshot) */
-    .main-category-children {
-        margin-top: 12px;
-        padding: 6px 6px 2px;
-    }
-
-    .main-category-children .parent-category-list.main-level0 {
-        margin-top: 10px;
-        padding-left: 0;
-    }
-
-    .main-category-children .parent-category-list.main-level0 > li {
-        margin-bottom: 14px;
-    }
-
-    .main-category-children .parent-category-list.main-level0 > li:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Roomier rows specifically for main-level0 items */
-    .main-category-children .parent-category-list.main-level0 > li > .category-header,
-    .main-category-children .parent-category-list.main-level0 > li > a.category-link {
-        padding: 16px 18px;
-    }
-
-    /* Give nested lists more indentation + breathing room */
-    .main-category-children .parent-category-list.main-level0 .sub-categories,
-    .main-category-children .parent-category-list.main-level0 .sub-sub-categories {
-        margin-top: 10px;
-        padding-left: 18px;
     }
 
     /* HOVER / ACTIVE STATES */
@@ -296,39 +264,6 @@
     .category-sidebar ul li.active i {
         opacity: 1;
         color: #fff;
-    }
-
-    /* ========================
-       SIDEBAR ITEM SPACING + OUTLINE
-    ======================== */
-    .category-sidebar ul li {
-        margin-bottom: 10px;
-        border-radius: 12px;
-    }
-
-    .category-sidebar ul li:last-child {
-        margin-bottom: 0;
-    }
-
-    .category-sidebar ul li a.category-link,
-    .category-sidebar ul li .category-header,
-    .main-category-item .main-category-header {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        background: #fff;
-    }
-
-    .category-sidebar ul li:hover:not(.active) a.category-link,
-    .category-sidebar ul li:hover:not(.active) .category-header {
-        border-color: #cbd5e1;
-        background: #f8fafc;
-    }
-
-    .category-sidebar ul li.active a.category-link,
-    .category-sidebar ul li.active .category-header,
-    .category-sidebar ul li.active .category-name {
-        border-color: rgba(255, 255, 255, 0.35);
-        background: transparent;
     }
 
     /* SUBMENUS VISIBILITY */
@@ -437,15 +372,10 @@
         border-radius: 16px;
         overflow: hidden;
         cursor: pointer;
-        margin: 0;
+        margin: 10px;
         transition: .4s;
         box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
         background: #fff;
-    }
-
-    /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
-    .category-cards-grid > [class*="col-"] {
-        margin-bottom: 28px;
     }
 
     .category-card img {
@@ -504,21 +434,6 @@
         font-size: 24px;
         color: #fff;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    }
-
-    /* Small child-categories line under title */
-    .category-card .category-subline {
-        margin-top: 10px;
-        font-size: 12px;
-        line-height: 1.35;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.9);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
-        max-width: 320px;
-        white-space: normal;       /* allow wrapping */
-        overflow: visible;
-        text-overflow: clip;
-        word-break: break-word;
     }
 
     .category-card .sub-categories-bottom {
@@ -975,6 +890,8 @@
                     {{-- Sidebar --}}
                     <div class="col-lg-3 mb-4">
                         <div class="category-sidebar">
+                            <h6>CATEGORIES</h6>
+
                             {{-- All Categories + Toggle --}}
                             <ul>
                                 <li class="{{ !request()->segment(2) ? 'active' : '' }} parent-category" data-all-main="1">
@@ -1021,6 +938,7 @@
                                         {{-- Main Category Children --}}
                                         @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
                                             <div class="main-category-children">
+                                                <span id="title-filter">SUB Categories</span>
                                                 <ul class="parent-category-list main-level0">
                                                     @foreach ($main->childrenCategories as $level1Category)
                                                         @php
@@ -1057,6 +975,9 @@
                                                                     </a>
                                                                     <i class="fas fa-chevron-down toggle-icon"></i>
                                                                 </div>
+
+                                                                <span id="title-filter"
+                                                                    class="products-title">Products</span>
 
                                                                 <ul class="sub-categories {{ $hasActiveChild ? 'show' : '' }}"
                                                                     data-parent-id="{{ $level1Category->id }}">
@@ -1137,7 +1058,7 @@
 
                     {{-- Cards Grid - عرض الـ Sub Categories (Level 1) بتاعت الـ Main Category المختار --}}
                     <div class="col-lg-9">
-                        <div class="row gx-3 gy-5 category-cards-grid">
+                        <div class="row g-4">
                             @if ($levelOneCategories && $levelOneCategories->count() > 0)
                                 @foreach ($levelOneCategories as $subCategory)
                                     <div class="col-lg-6 col-md-6 col-sm-12">
@@ -1156,20 +1077,6 @@
 
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
-                                                    @php
-                                                        $cardChildren = $subCategory->childrenCategories ?? ($subCategory->categories ?? collect());
-                                                        $cardChildNames = $cardChildren
-                                                            ->take(4)
-                                                            ->map(fn($c) => method_exists($c, 'getTranslation') ? $c->getTranslation('name') : ($c->name ?? ''))
-                                                            ->filter()
-                                                            ->values()
-                                                            ->all();
-                                                    @endphp
-                                                    @if (!empty($cardChildNames))
-                                                        <div class="category-subline">
-                                                            {{ implode(' / ', $cardChildNames) }}
-                                                        </div>
-                                                    @endif
                                                 </div>
 
                                             </div>
