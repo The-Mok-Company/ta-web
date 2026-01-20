@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\Setting\FooterController;
 use App\Http\Controllers\Admin\Setting\HomePageController;
 use App\Http\Controllers\Admin\Setting\JoinUsController;
 use App\Http\Controllers\Admin\Setting\OurServiceController;
-use App\Http\Controllers\Admin\Setting\OurServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AreaController;
