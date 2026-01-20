@@ -6,7 +6,6 @@
 
     #text-dark22 {
         color: white;
-        padding: 7px;
       }
 
     .policy-file .policy-title,
@@ -107,7 +106,7 @@
                             transform="translate(14514.001 -18900)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Return Policy') }}</h4>
+                    <h4 class="text-dark22 fs-14 fw-700 mt-3" style="padding: 7px;" id="text-dark22">{{ translate('Return Policy') }}</h4>
                 </a>
             </div>
 
