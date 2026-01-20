@@ -272,37 +272,6 @@
         flex-shrink: 0;
     }
 
-    /* ========================
-       SIDEBAR ITEM SPACING + OUTLINE
-    ======================== */
-    .category-sidebar ul li {
-        margin-bottom: 10px;
-    }
-
-    .category-sidebar ul li:last-child {
-        margin-bottom: 0;
-    }
-
-    .category-sidebar a.category-link,
-    .category-sidebar .category-header {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        background: #fff;
-    }
-
-    .category-sidebar ul li:hover:not(.active) a.category-link,
-    .category-sidebar ul li:hover:not(.active) .category-header {
-        border-color: #cbd5e1;
-        background: #f8fafc;
-    }
-
-    .category-sidebar ul li.active a.category-link,
-    .category-sidebar ul li.active .category-header,
-    .category-sidebar ul li.active .category-name {
-        border-color: rgba(255, 255, 255, 0.35);
-        background: transparent;
-    }
-
     .category-sidebar ul li:hover i.fa-chevron-right {
         opacity: 0.8;
     }
@@ -382,65 +351,30 @@
     /* Sub Categories Styling - Level 2 */
     .sub-categories {
         margin: 8px 0 0 0 !important;
-        padding-left: 0 !important;
+        padding-left: 16px !important;
         list-style: none;
         display: none;
     }
 
     .sub-categories.show {
         display: block;
-        padding-top: 10px;
+        padding-top: 6px;
     }
 
     .sub-categories li {
         font-size: 13px;
-        margin-bottom: 10px;
-    }
-
-    /* Indent without using UL padding */
-    .sub-categories > li {
-        margin-left: 16px;
+        margin-bottom: 5px;
     }
 
     .sub-categories li a.category-link {
-        padding: 12px 16px;
+        padding: 10px 14px;
         border-radius: 10px;
-        line-height: 1.25;
     }
 
     .sub-categories li .category-header {
-        padding: 12px 16px;
+        padding: 10px 14px;
         font-size: 13px;
         border-radius: 10px;
-        line-height: 1.25;
-    }
-
-    /* Center nested rows (text centered, icons stay right) */
-    .sub-categories li a.category-link,
-    .sub-categories li .category-header,
-    .sub-sub-categories li a.category-link,
-    .sub-sub-categories li .category-header {
-        justify-content: center;
-        text-align: center;
-        position: relative;
-    }
-
-    .sub-categories li a.category-link i.fa-chevron-right,
-    .sub-sub-categories li a.category-link i.fa-chevron-right {
-        position: absolute;
-        right: 12px;
-    }
-
-    .sub-categories li .toggle-icon,
-    .sub-sub-categories li .toggle-icon {
-        position: absolute;
-        right: 10px;
-    }
-
-    .sub-categories li .category-name,
-    .sub-sub-categories li .category-name {
-        width: 100%;
-        justify-content: center;
     }
 
     .sub-categories li i.fa-chevron-right,
@@ -451,30 +385,24 @@
     /* Sub Sub Categories Styling - Level 3 */
     .sub-sub-categories {
         margin: 8px 0 0 0 !important;
-        padding-left: 0 !important;
+        padding-left: 16px !important;
         list-style: none;
         display: none;
     }
 
     .sub-sub-categories.show {
         display: block;
-        padding-top: 10px;
+        padding-top: 6px;
     }
 
     .sub-sub-categories li {
         font-size: 12px;
-        margin-bottom: 8px;
-    }
-
-    /* Indent without using UL padding */
-    .sub-sub-categories > li {
-        margin-left: 16px;
+        margin-bottom: 4px;
     }
 
     .sub-sub-categories li a.category-link {
-        padding: 10px 14px;
+        padding: 8px 12px;
         border-radius: 8px;
-        line-height: 1.25;
     }
 
     .sub-sub-categories li i {
@@ -505,7 +433,7 @@
 
     /* Spacing between category items */
     .parent-category-list>li {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .parent-category-list>li:last-child {
@@ -529,12 +457,7 @@
 
     /* Ensure consistent vertical spacing between tile rows */
     #level2-categories-grid .category-card {
-        margin-bottom: 0;
-    }
-
-    /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
-    .category-cards-grid > [class*="col-"] {
-        margin-bottom: 28px;
+        margin-bottom: 24px;
     }
 
     .category-card img {
@@ -597,6 +520,38 @@
         color: #fff;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
         letter-spacing: 0;
+    }
+
+    /* Small white "slash" accent under headline (---) */
+    .category-card .category-title-accent {
+        width: 44px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 3px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Subcategory list under headline (Figma-style) */
+    .category-card .category-sublist {
+        margin-top: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 16px;
+        row-gap: 6px;
+        max-width: 320px;
+    }
+
+    .category-card .category-subitem {
+        font-size: 12px;
+        line-height: 1.2;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Dark overlay gradient for better text visibility */
@@ -967,6 +922,8 @@
                     {{-- Sidebar --}}
                     <div class="col-lg-3 mb-4">
                         <div class="category-sidebar">
+                            <h6>CATEGORIES</h6>
+
                             {{-- All Categories Link --}}
                             <ul>
                                 <li class="{{ !request()->segment(2) ? 'active' : '' }}">
@@ -1079,6 +1036,7 @@
 
                             {{-- Products (populated when a subcategory is opened) --}}
                             <div class="sidebar-products d-none" id="sidebar-products-section">
+                                <h6>PRODUCTS</h6>
                                 <ul id="sidebar-products-list"></ul>
                             </div>
                         </div>
@@ -1100,7 +1058,7 @@
                         </div>
 
                         {{-- Categories grid (default) --}}
-                        <div class="row gx-3 gy-5 category-cards-grid" id="level2-categories-grid">
+                        <div class="row g-4" id="level2-categories-grid">
                             @foreach ($levelTwoCategories as $category)
                                 <div class="col-lg-6 col-md-6">
                                     <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;"
@@ -1119,6 +1077,18 @@
                                             {{-- Category Title - Bottom Left --}}
                                             <div class="category-title">
                                                 <h5>{{ $category->getTranslation('name') }}</h5>
+                                                <div class="category-title-accent"></div>
+                                                <div class="category-sublist">
+                                                    @if ($category->childrenCategories && $category->childrenCategories->count() > 0)
+                                                        @foreach ($category->childrenCategories->take(5) as $subCat)
+                                                            <span class="category-subitem">{{ $subCat->getTranslation('name') }}</span>
+                                                        @endforeach
+                                                    @elseif ($category->products && $category->products->count() > 0)
+                                                        @foreach ($category->products->take(5) as $p)
+                                                            <span class="category-subitem">{{ $p->name }}</span>
+                                                        @endforeach
+                                                    @endif
+                                                </div>
                                             </div>
 
                                         </div>

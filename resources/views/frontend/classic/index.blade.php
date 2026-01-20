@@ -3,7 +3,6 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-@section("meta_title",'Home Page')
 
 @section('content')
     <style>
@@ -537,11 +536,11 @@
 
         @media (max-width: 768px) {
             .hero-content h1 {
-                font-size: 2.0rem;
+                font-size: 2.5rem;
             }
 
             .hero-content p {
-                font-size: 0.6rem;
+                font-size: 1rem;
             }
 
             .carousel-control-prev,
@@ -977,7 +976,7 @@
         /* Tablets */
         @media (max-width: 768px) {
             .categories-section-new .section-header {
-                flex-direction: row;
+                flex-direction: column;
                 gap: 15px;
             }
 
@@ -1077,15 +1076,6 @@
             .product-card .product-info h3 {
                 font-size: 0.9rem;
             }
-        }
-    </style>
-    <style>
-        .product-info {
-            cursor: pointer;
-        }
-
-        .product-info:hover .featured-product-category {
-            text-decoration: underline;
         }
     </style>
 
@@ -1211,165 +1201,371 @@
             </div>
         </div>
     </section>
-    <!-- Add this after the triangle-wrapper div -->
-    <section class="categories-section-new">
-        <div class="container">
-            <div class="section-header">
-                <button class="nav-btn" id="categoriesPrevBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                </button>
-                <h2>Our Categories</h2>
-                <button class="nav-btn" id="categoriesNextBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M9 18l6-6-6-6" />
-                    </svg>
-                </button>
-            </div>
+   <!-- Categories Slider Section -->
+<section class="categories-section-new">
+    <div class="container">
+        <div class="section-header">
+            <button class="nav-btn" id="categoriesPrevBtn" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6" />
+                </svg>
+            </button>
 
-            <div class="categories-slider-new">
-                <div class="categories-wrapper-new" id="categoriesWrapperNew">
-                    @foreach ($categories as $category)
-                        @php
-                            $categoryName = $category->getTranslation('name', $lang);
-                            $categoryImage = null;
-                            if ($category->banner) {
-                                $categoryImage = uploaded_asset($category->banner);
-                            } elseif ($category->cover_image) {
-                                $categoryImage = uploaded_asset($category->cover_image);
-                            }
+            <h2>Our Categories</h2>
 
-                            if (!$categoryImage) {
-                                $lowerName = strtolower($categoryName);
-                                if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                                } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
-                                } elseif (str_contains($lowerName, 'frozen')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
-                                } else {
-                                    $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
-                                }
-                            }
-
-                            $categoryUrl = route('products.category', $category->slug);
-                        @endphp
-
-                        <a href="{{ $categoryUrl }}" class="category-card-new">
-                            <div class="cart-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="9" cy="21" r="1" />
-                                    <circle cx="20" cy="21" r="1" />
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                </svg>
-                            </div>
-                            <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
-                                onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
-                            <div class="content">
-                                <h3>{{ $categoryName }}</h3>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
+            <button class="nav-btn" id="categoriesNextBtn" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </button>
         </div>
-    </section>
 
-    <!-- Featured Products Section -->
-    <section class="featured-products-section">
-        <div class="container">
-            <div class="section-header">
-                <div class="header-left">
-                    <h2>Featured Products</h2>
-                    <div class="nav-buttons">
-                        <button class="nav-btn" id="productsPrevBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M15 18l-6-6 6-6" />
-                            </svg>
-                        </button>
-                        <button class="nav-btn" id="productsNextBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M9 18l6-6-6-6" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <a href="#" class="view-all">View All</a>
-            </div>
-
-            <div class="products-slider">
-                <div class="products-wrapper" id="productsWrapper">
+        <div class="categories-slider-new">
+            <div class="categories-wrapper-new" id="categoriesWrapperNew">
+                @foreach ($categories as $category)
                     @php
-                        $featuredProducts = \App\Models\Product::where('published', 1)
-                            ->where('approved', 1)
-                            ->where('featured', 1)
-                            ->take(8)
-                            ->get();
+                        $categoryName = $category->getTranslation('name', $lang);
 
-                        if ($featuredProducts->count() < 4) {
-                            $featuredProducts = \App\Models\Product::where('published', 1)
-                                ->where('approved', 1)
-                                ->orderBy('num_of_sale', 'desc')
-                                ->take(8)
-                                ->get();
+                        $categoryImage = null;
+                        if ($category->banner) {
+                            $categoryImage = uploaded_asset($category->banner);
+                        } elseif ($category->cover_image) {
+                            $categoryImage = uploaded_asset($category->cover_image);
                         }
 
-                        if ($featuredProducts->count() == 0) {
-                            $featuredProducts = \App\Models\Product::where('published', 1)
-                                ->where('approved', 1)
-                                ->orderBy('created_at', 'desc')
-                                ->take(8)
-                                ->get();
+                        if (!$categoryImage) {
+                            $lowerName = strtolower($categoryName);
+                            if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
+                                $categoryImage = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
+                            } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
+                                $categoryImage = 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
+                            } elseif (str_contains($lowerName, 'frozen')) {
+                                $categoryImage = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
+                            } else {
+                                $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
+                            }
                         }
+
+                        $categoryUrl = route('products.category', $category->slug);
                     @endphp
 
-                    @foreach ($featuredProducts as $product)
-                        @php
-                            $productName = $product->getTranslation('name', $lang);
-                            $productImage = uploaded_asset($product->thumbnail_img);
-                            $productUrl = route('product', $product->slug);
+                    <a href="{{ $categoryUrl }}" class="category-card-new">
+                        <!-- left icon -->
+                        <div class="cart-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1" />
+                                <circle cx="20" cy="21" r="1" />
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                            </svg>
+                        </div>
 
-                            $category = \App\Models\Category::find($product->category_id);
-                            $categoryName = $category?->getTranslation('name');
-                            $categoryUrl = $category ? route('products.level2', $category->id) : '#';
-                        @endphp
+                        <!-- ✅ Add Button -->
+                        <button type="button"
+                                class="category-add-btn js-add-category"
+                                data-id="{{ $category->id }}"
+                                data-name="{{ $categoryName }}"
+                                title="{{ translate('Add to Cart') }}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                        </button>
 
-                        <a href="{{ $productUrl }}" class="product-card">
-                            <div class="image-wrapper">
-                                <img src="{{ $productImage }}" alt="{{ $productName }}"
-                                    onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'">
-                                <button class="add-btn" onclick="event.preventDefault();">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    <span class="btn-text">Inquire Now</span>
-                                </button>
-                            </div>
+                        <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
+                             onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
 
-                            <div class="product-info" data-category-url="{{ $categoryUrl }}"
-                                onclick="event.preventDefault(); event.stopPropagation(); window.location.href = this.getAttribute('data-category-url');">
-                                <h3>{{ $productName }}</h3>
-
-                                <p class="featured-product-category">
-                                    {{ $categoryName ?? translate('Products') }}
-                                </p>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
+                        <div class="content">
+                            <h3>{{ $categoryName }}</h3>
+                        </div>
+                    </a>
+                @endforeach
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
+<style>
+    .categories-section-new { padding: 40px 0; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+    .section-header h2 { margin:0; font-weight:700; }
+
+    .nav-btn{
+        width:44px;height:44px;border-radius:50%;
+        border:1px solid #e5e7eb;background:#fff;
+        display:flex;align-items:center;justify-content:center;
+        cursor:pointer;
+    }
+
+    .categories-slider-new{ overflow:hidden; }
+    .categories-wrapper-new{
+        display:flex; gap:18px;
+        transition:transform .35s ease;
+        will-change: transform;
+    }
+
+    .category-card-new{
+        position:relative;
+        min-width:240px;
+        border-radius:16px;
+        overflow:hidden;
+        text-decoration:none;
+        box-shadow:0 2px 10px rgba(0,0,0,.12);
+        transform:translateZ(0);
+    }
+
+    .category-card-new img{
+        width:100%;
+        height:190px;
+        object-fit:cover;
+        display:block;
+    }
+
+    .category-card-new::before{
+        content:'';
+        position:absolute; inset:0;
+        background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.6) 100%);
+        z-index:1;
+    }
+
+    .category-card-new .content{
+        position:absolute;
+        left:14px; right:14px; bottom:14px;
+        z-index:2;
+    }
+
+    .category-card-new .content h3{
+        margin:0;
+        color:#fff;
+        font-size:1.05rem;
+        font-weight:700;
+        text-shadow:0 2px 6px rgba(0,0,0,.4);
+    }
+
+    .cart-icon{
+        position:absolute;
+        top:12px; left:12px;
+        width:40px;height:40px;
+        border-radius:50%;
+        background:#fff;
+        display:flex;align-items:center;justify-content:center;
+        z-index:3;
+        box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    .cart-icon svg{ width:20px;height:20px; color:#111; }
+
+    /* ✅ Add button */
+    .category-add-btn{
+        position:absolute;
+        top:12px; right:12px;
+        width:40px;height:40px;
+        border-radius:50%;
+        border:none;
+        background:#0891B2;
+        color:#fff;
+        display:flex;align-items:center;justify-content:center;
+        z-index:4;
+        cursor:pointer;
+        opacity:0;
+        transform:scale(.95);
+        transition: .25s ease;
+        box-shadow:0 2px 10px rgba(0,0,0,.2);
+    }
+    .category-card-new:hover .category-add-btn{
+        opacity:1;
+        transform:scale(1);
+    }
+    .category-add-btn:hover{ background:#0E7490; transform:scale(1.07); }
+    .category-add-btn svg{ color:#fff; }
+</style>
+
+<script>
+    (function () {
+        const wrapper = document.getElementById('categoriesWrapperNew');
+        const prevBtn = document.getElementById('categoriesPrevBtn');
+        const nextBtn = document.getElementById('categoriesNextBtn');
+
+        if (!wrapper || !prevBtn || !nextBtn) return;
+
+        // احسب خطوة الحركة حسب عرض كارد + الجاب
+        function getStep() {
+            const firstCard = wrapper.querySelector('.category-card-new');
+            if (!firstCard) return 260;
+            const cardWidth = firstCard.getBoundingClientRect().width;
+
+            // gap من CSS (fallback 18)
+            const styles = window.getComputedStyle(wrapper);
+            const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
+
+            return cardWidth + gap;
+        }
+
+        let currentX = 0;
+
+        function getMaxTranslate() {
+            const parent = wrapper.parentElement; // categories-slider-new
+            const parentWidth = parent.getBoundingClientRect().width;
+            const contentWidth = wrapper.scrollWidth;
+            const max = Math.max(0, contentWidth - parentWidth);
+            return max;
+        }
+
+        function apply() {
+            wrapper.style.transform = `translateX(${-currentX}px)`;
+        }
+
+        function clamp() {
+            const max = getMaxTranslate();
+            if (currentX < 0) currentX = 0;
+            if (currentX > max) currentX = max;
+        }
+
+        nextBtn.addEventListener('click', function () {
+            currentX += getStep();
+            clamp();
+            apply();
+        });
+
+        prevBtn.addEventListener('click', function () {
+            currentX -= getStep();
+            clamp();
+            apply();
+        });
+
+        window.addEventListener('resize', function () {
+            clamp();
+            apply();
+        });
+
+        // ✅ منع فتح لينك الكاتيجوري عند الضغط على +
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.js-add-category');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const categoryId = btn.getAttribute('data-id');
+            const categoryName = btn.getAttribute('data-name') || 'Category';
+
+            addCategoryToCart(categoryId, categoryName);
+        });
+
+        // ✅ AJAX Add Category to Cart
+        function addCategoryToCart(categoryId, categoryName) {
+            $.ajax({
+                type: "POST",
+                url: '{{ route("cart.addCategoryToCart") }}',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    category_id: categoryId
+                },
+                success: function (data) {
+                    if (data && data.status == 1) {
+
+                        if (data.cart_count !== undefined) {
+                            $('.cart-count').html(data.cart_count);
+                        }
+
+                        if (data.message === 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
+                        }
+
+                    } else {
+                        AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function () {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
+            });
+        }
+    })();
+</script>
+
+
+   <!-- Featured Products Section -->
+<section class="featured-products-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="header-left">
+                <h2>Featured Products</h2>
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="productsPrevBtn" type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button class="nav-btn" id="productsNextBtn" type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <a href="#" class="view-all">View All</a>
+        </div>
+
+        <div class="products-slider">
+            <div class="products-wrapper" id="productsWrapper">
+                @php
+                    $featuredProducts = \App\Models\Product::where('published', 1)
+                        ->where('approved', 1)
+                        ->where('featured', 1)
+                        ->take(8)
+                        ->get();
+
+                    if ($featuredProducts->count() < 4) {
+                        $featuredProducts = \App\Models\Product::where('published', 1)
+                            ->where('approved', 1)
+                            ->orderBy('num_of_sale', 'desc')
+                            ->take(8)
+                            ->get();
+                    }
+
+                    if ($featuredProducts->count() == 0) {
+                        $featuredProducts = \App\Models\Product::where('published', 1)
+                            ->where('approved', 1)
+                            ->orderBy('created_at', 'desc')
+                            ->take(8)
+                            ->get();
+                    }
+                @endphp
+
+                @foreach ($featuredProducts as $product)
+                    @php
+                        $productName = $product->getTranslation('name', $lang);
+                        $productImage = uploaded_asset($product->thumbnail_img);
+                        $productUrl = route('product', $product->slug);
+                    @endphp
+
+                    <a href="{{ $productUrl }}" class="product-card">
+                        <div class="image-wrapper">
+                            <img src="{{ $productImage }}" alt="{{ $productName }}"
+                                 onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'">
+
+                            <!-- ✅ Add to DB Button -->
+                            <button type="button"
+                                    class="add-btn js-add-featured"
+                                    data-id="{{ $product->id }}"
+                                    data-name="{{ $productName }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span class="btn-text">Inquire Now</span>
+                            </button>
+                        </div>
+
+                        <div class="product-info">
+                            <h3>{{ $productName }}</h3>
+                            <p>{{ $product->category ? $product->category->getTranslation('name', $lang) : 'Products' }}</p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
 
 
     <!-- Gather Quality Section -->
@@ -1526,4 +1722,134 @@
             }
         });
     </script>
+@endsection
+@section('script')
+<script>
+(function () {
+    // =========================
+    // Slider (prev/next)
+    // =========================
+    const wrapper = document.getElementById('productsWrapper');
+    const prevBtn = document.getElementById('productsPrevBtn');
+    const nextBtn = document.getElementById('productsNextBtn');
+
+    if (wrapper && prevBtn && nextBtn) {
+
+        function getStep() {
+            const firstCard = wrapper.querySelector('.product-card');
+            if (!firstCard) return 260;
+
+            const cardWidth = firstCard.getBoundingClientRect().width;
+            const styles = window.getComputedStyle(wrapper);
+            const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
+
+            return cardWidth + gap;
+        }
+
+        let currentX = 0;
+
+        function getMaxTranslate() {
+            const parent = wrapper.parentElement; // .products-slider
+            const parentWidth = parent.getBoundingClientRect().width;
+            const contentWidth = wrapper.scrollWidth;
+            return Math.max(0, contentWidth - parentWidth);
+        }
+
+        function clamp() {
+            const max = getMaxTranslate();
+            if (currentX < 0) currentX = 0;
+            if (currentX > max) currentX = max;
+        }
+
+        function apply() {
+            wrapper.style.transform = `translateX(${-currentX}px)`;
+        }
+
+        nextBtn.addEventListener('click', function () {
+            currentX += getStep();
+            clamp();
+            apply();
+        });
+
+        prevBtn.addEventListener('click', function () {
+            currentX -= getStep();
+            clamp();
+            apply();
+        });
+
+        window.addEventListener('resize', function () {
+            clamp();
+            apply();
+        });
+    }
+
+    // =========================
+    // Helpers: update nav cart
+    // =========================
+    function applyNavCart(navHtml, count) {
+        // لو عندك updateNavCart في الثيم
+        if (typeof updateNavCart === 'function') {
+            updateNavCart(navHtml, count);
+            return;
+        }
+        // fallback
+        if (navHtml) $('.aiz-top-cart').html(navHtml);
+        if (count !== undefined) $('.cart-count').text(count);
+    }
+
+    // =========================
+    // Add to Cart / DB (AJAX)
+    // =========================
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.js-add-featured');
+        if (!btn) return;
+
+        // ✅ يمنع فتح صفحة المنتج
+        e.preventDefault();
+        e.stopPropagation();
+
+        const productId = btn.getAttribute('data-id');
+        const productName = btn.getAttribute('data-name') || 'Product';
+
+        addFeaturedToCart(btn, productId, productName);
+    });
+
+    function addFeaturedToCart(btn, productId, productName) {
+        if (!productId) return;
+
+        // UX: disable while request
+        btn.disabled = true;
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('cart.addToCart') }}", // ✅ نفس الليستنج
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: productId,
+                quantity: 1
+            },
+            success: function (data) {
+
+                // ✅ لو بيرجع nav_cart_view + cart_count زي عندك
+                if (data && data.nav_cart_view !== undefined) {
+                    applyNavCart(data.nav_cart_view, data.cart_count);
+                }
+
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('success', productName + " {{ translate('added to cart successfully') }}");
+                }
+            },
+            error: function () {
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
+            },
+            complete: function () {
+                btn.disabled = false;
+            }
+        });
+    }
+
+})();
+</script>
 @endsection
