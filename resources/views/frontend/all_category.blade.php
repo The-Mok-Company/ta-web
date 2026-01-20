@@ -32,7 +32,6 @@
             z-index: 2;
         }
 
-
         .categories-hero-content {
             position: relative;
             z-index: 2;
@@ -123,7 +122,6 @@
             gap: 12px;
         }
 
-
         .category-name {
             font-size: 1.25rem;
             font-weight: 700;
@@ -155,6 +153,40 @@
         .icon-badge i {
             font-size: 18px;
             color: #000;
+        }
+
+        /* Add to Cart Button (same idea as your other page) */
+        .category-add-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: #0891B2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .category-card:hover .category-add-btn {
+            opacity: 1;
+        }
+
+        .category-add-btn:hover {
+            transform: scale(1.1);
+            background: #0E7490;
+        }
+
+        .category-add-btn i {
+            font-size: 18px;
+            color: #fff;
         }
 
         @media (max-width: 768px) {
@@ -192,7 +224,7 @@
 
         @media (min-width: 1025px) {
             .categories-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -211,8 +243,9 @@
             <div class="categories-grid">
                 @foreach ($categories as $key => $category)
                     <a href="{{ route('products.category', $category->slug) }}" class="category-card">
+
                         <img src="{{ $category->banner ? uploaded_asset($category->banner) : asset('assets/img/eaf877854196422d963fe04e58d086e83a98ac67.png') }}"
-                            class="category-image" alt="{{ $category->name }}">
+                             class="category-image" alt="{{ $category->name }}">
 
                         <div class="icon-badge">
                             <i class="fas fa-shopping-basket"></i>
@@ -221,6 +254,16 @@
                         <div class="category-content">
                             <h3 class="category-name">{{ $category->getTranslation('name') }}</h3>
                         </div>
+
+                        <!-- Add to Cart Button -->
+                        <button type="button"
+                                class="category-add-btn js-add-category"
+                                data-id="{{ $category->id }}"
+                                data-name="{{ $category->getTranslation('name') }}"
+                                title="{{ translate('Add to Cart') }}">
+                            <i class="las la-plus"></i>
+                        </button>
+
                     </a>
                 @endforeach
             </div>
@@ -240,5 +283,47 @@
                 $(this).html('{{ translate('More') }} <i class="las la-angle-down"></i>');
             }
         });
+
+        // prevent opening category page when clicking (+)
+        $(document).on('click', '.js-add-category', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const categoryId = $(this).data('id');
+            const categoryName = $(this).data('name');
+
+            addCategoryToCart(categoryId, categoryName);
+        });
+
+        // Add Category to Cart (same as your other page)
+        function addCategoryToCart(categoryId, categoryName) {
+            $.ajax({
+                type: "POST",
+                url: '{{ route("cart.addCategoryToCart") }}',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status == 1) {
+
+                        if (data.cart_count !== undefined) {
+                            $('.cart-count').html(data.cart_count);
+                        }
+
+                        if (data.message == 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
+                        }
+                    } else {
+                        AIZ.plugins.notify('danger', data.message || "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function(xhr) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
+            });
+        }
     </script>
 @endsection

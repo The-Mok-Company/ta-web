@@ -4,824 +4,360 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
-    /* Fix content going under navbar */
-    .container.py-4 {
-        padding-top: 120px !important;
+    :root { --primary-color: #0891B2; --primary-hover: #0E7490; }
+
+    /* ✅ IMPORTANT: do NOT target all .container.py-4 globally (it breaks other sections) */
+    .cart-section { background: #f8fafc; padding: 60px 0; min-height: calc(100vh - 80px); }
+    .cart-section .container { padding-top: 40px !important; }
+
+    .inquiry-title{ font-size:42px; font-weight:800; letter-spacing:-.5px; color:#1e293b; margin-bottom: 24px; }
+
+    .product-card{ border:0; border-radius:16px; box-shadow:0 4px 14px rgba(8,145,178,.08); margin-bottom:16px; transition:all 0.3s ease; }
+    .product-card:hover{ box-shadow:0 8px 24px rgba(8,145,178,.15); }
+    .product-img{ width:80px; height:80px; object-fit:cover; border-radius:14px; }
+
+    .qty-btn{ width:40px; height:40px; border-radius:50%; border:0; background:#0891B2; color:#fff; font-weight:700; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all 0.2s ease; }
+    .qty-btn:hover{ background:#0E7490; transform:scale(1.05); }
+    .qty-value{ width:60px; border:0; background:transparent; text-align:center; font-weight:700; font-size:18px; color:#1e293b; }
+
+    .note-input{ border-radius:12px; height:44px; border:1px solid #e2e8f0; padding:0 16px; font-size:14px; transition:all 0.2s ease; }
+    .note-input:focus{ border-color:#0891B2; box-shadow:0 0 0 3px rgba(8,145,178,.1); }
+
+    .trash-btn{ width:40px; height:40px; border-radius:12px; border:0; background:#FEE2E2; color:#DC2626; transition:all 0.2s ease; }
+    .trash-btn:hover{ background:#DC2626; color:#fff; }
+
+    .summary-card{ border:0; border-radius:18px; box-shadow:0 4px 14px rgba(8,145,178,.08); position:sticky; top:120px; }
+    .pill{ border-radius:999px; padding:12px 20px; font-weight:700; font-size:14px; }
+    .pill.bg-primary{ background:#0891B2 !important; }
+
+    .avatar{ width:58px; height:58px; border-radius:50%; background:#1e293b; display:flex; align-items:center; justify-content:center; }
+    .avatar i{ color:#fff; font-size:26px; }
+
+    .request-btn{ height:56px; border-radius:14px; font-weight:700; background:#0891B2; border:0; font-size:16px; transition:all 0.3s ease; }
+    .request-btn:hover{ background:#0E7490; transform:translateY(-2px); box-shadow:0 8px 16px rgba(8,145,178,.3); }
+    .request-btn span{ color:#fff !important; }
+
+    .product-title{ font-weight:700; color:#1e293b; font-size:16px; margin-bottom:4px; }
+    .product-category{ color:#0891B2; font-weight:600; font-size:13px; }
+    .product-description{ color:#64748b; font-size:13px; line-height:1.5; }
+
+    .summary-title{ font-weight:700; font-size:18px; color:#1e293b; margin-bottom:20px; }
+    .summary-row{ display:flex; justify-content:space-between; color:#64748b; font-weight:600; font-size:14px; margin-bottom:12px; }
+
+    .user-info-name{ font-weight:700; color:#1e293b; font-size:15px; }
+    .user-info-detail{ color:#64748b; font-size:13px; }
+
+    .edit-link{ color:#0891B2; font-weight:700; font-size:13px; text-decoration:none; }
+    .edit-link:hover{ color:#0E7490; text-decoration:underline; }
+
+    /* ✅ Mobile: stop sticky (prevents broken look) */
+    @media (max-width: 992px){
+        .summary-card{ position:static; top:auto; }
+        .inquiry-title{ font-size:32px; }
     }
 
-    @media (max-width: 768px) {
-        .container.py-4 {
-            padding-top: 100px !important;
-        }
+    /* ============== Section 2: Inquiry Tracking ============== */
+    .tracking-section{
+        background:#ffffff;
+        padding:60px 0;
     }
-
-    /* Main color theme */
-    :root {
-        --primary-color: #0891B2;
-        --primary-hover: #0E7490;
-    }
-
-    .inquiry-title{
-        font-size:42px;
+    .tracking-title{
+        font-size:32px;
         font-weight:800;
-        letter-spacing:-.5px;
         color:#1e293b;
-        margin-bottom: 24px;
+        margin:0 0 24px;
+        letter-spacing:-.3px;
     }
-
-    .product-card{
-        border:0;
-        border-radius:16px;
-        box-shadow:0 4px 14px rgba(8,145,178,.08);
-        margin-bottom:16px;
-        transition:all 0.3s ease;
-    }
-    .product-card:hover{
-        box-shadow:0 8px 24px rgba(8,145,178,.15);
-    }
-
-    .product-img{
-        width:80px;
-        height:80px;
-        object-fit:cover;
-        border-radius:14px;
-    }
-
-    .qty-btn{
-        width:40px;
-        height:40px;
-        border-radius:50%;
-        border:0;
-        background:#0891B2;
-        color:#fff;
-        font-weight:700;
-        font-size:18px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        transition:all 0.2s ease;
-    }
-    .qty-btn:hover{
-        background:#0E7490;
-        transform:scale(1.05);
-    }
-
-    .qty-value{
-        width:60px;
-        border:0;
-        background:transparent;
-        text-align:center;
-        font-weight:700;
-        font-size:18px;
-        color:#1e293b;
-    }
-
-    .note-input{
-        border-radius:12px;
-        height:44px;
-        border:1px solid #e2e8f0;
-        padding:0 16px;
-        font-size:14px;
-        transition:all 0.2s ease;
-    }
-    .note-input:focus{
-        border-color:#0891B2;
-        box-shadow:0 0 0 3px rgba(8,145,178,.1);
-    }
-
-    .trash-btn{
-        width:40px;
-        height:40px;
-        border-radius:12px;
-        border:0;
-        background:#FEE2E2;
-        color:#DC2626;
-        transition:all 0.2s ease;
-    }
-    .trash-btn:hover{
-        background:#DC2626;
-        color:#fff;
-    }
-
-    .summary-card{
-        border:0;
+    .tracking-card{
+        background:#fff;
         border-radius:18px;
         box-shadow:0 4px 14px rgba(8,145,178,.08);
-        position:sticky;
-        top:120px;
-    }
-
-    .pill{
-        border-radius:999px;
-        padding:12px 20px;
-        font-weight:700;
-        font-size:14px;
-    }
-
-    .pill.bg-primary{
-        background:#0891B2 !important;
-    }
-
-    .avatar{
-        width:58px;
-        height:58px;
-        border-radius:50%;
-        background:#1e293b;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-    }
-    .avatar i{
-        color:#fff;
-        font-size:26px;
-    }
-
-    .request-btn{
-        height:56px;
-        border-radius:14px;
-        font-weight:700;
-        background:#0891B2;
-        border:0;
-        font-size:16px;
-        transition:all 0.3s ease;
-    }
-    .request-btn:hover{
-        background:#0E7490;
-        transform:translateY(-2px);
-        box-shadow:0 8px 16px rgba(8,145,178,.3);
-    }
-    .request-btn span{
-        color:#fff !important;
-    }
-
-    .product-title{
-        font-weight:700;
-        color:#1e293b;
-        font-size:16px;
-        margin-bottom:4px;
-    }
-
-    .product-category{
-        color:#0891B2;
-        font-weight:600;
-        font-size:13px;
-    }
-
-    .product-description{
-        color:#64748b;
-        font-size:13px;
-        line-height:1.5;
-    }
-
-    .summary-title{
-        font-weight:700;
-        font-size:18px;
-        color:#1e293b;
-        margin-bottom:20px;
-    }
-
-    .summary-row{
-        display:flex;
-        justify-content:space-between;
-        color:#64748b;
-        font-weight:600;
-        font-size:14px;
-        margin-bottom:12px;
-    }
-
-    .user-info-name{
-        font-weight:700;
-        color:#1e293b;
-        font-size:15px;
-    }
-
-    .user-info-detail{
-        color:#64748b;
-        font-size:13px;
-    }
-
-    .edit-link{
-        color:#0891B2;
-        font-weight:700;
-        font-size:13px;
-        text-decoration:none;
-    }
-    .edit-link:hover{
-        color:#0E7490;
-        text-decoration:underline;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .product-card{
-            margin-bottom:20px;
-        }
-        .qty-btn{
-            width:36px;
-            height:36px;
-            font-size:16px;
-        }
-        .qty-value{
-            width:50px;
-            font-size:16px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .inquiry-title{
-            font-size:32px;
-        }
-        .product-img{
-            width:70px;
-            height:70px;
-        }
-        .product-description{
-            font-size:12px;
-        }
-        .note-input{
-            width:100%;
-            margin-top:8px;
-        }
-    }
-
-    /* =======================
-       Featured Products (Like screenshot)
-       ======================= */
-    .fp-header{
-        display:flex; align-items:center; justify-content:space-between;
-        margin-top: 48px; margin-bottom: 20px;
-    }
-    .fp-title{
-        font-size: 32px; font-weight: 900; letter-spacing: -.4px;
-        color:#1e293b;
-    }
-    .fp-controls{
-        display:flex; align-items:center; gap:10px; margin-left: 12px;
-    }
-    .fp-arrow{
-        width:40px; height:40px; border-radius:50%;
-        display:flex; align-items:center; justify-content:center;
-        border:0; background:#f1f5f9;
-        color:#64748b;
-        transition:all 0.2s ease;
-    }
-    .fp-arrow:hover{
-        background:#0891B2;
-        color:#fff;
-        transform:scale(1.05);
-    }
-
-    .fp-viewall{
-        font-size: 14px; font-weight: 700;
-        color:#0891B2; text-decoration:none;
-        transition:all 0.2s ease;
-    }
-    .fp-viewall:hover{
-        color:#0E7490;
-        text-decoration:underline;
-    }
-
-    .fp-slider{
-        position:relative;
+        border:1px solid #e2e8f0;
+        margin-bottom:16px;
         overflow:hidden;
-        padding: 10px 0 22px;
     }
-    .fp-track{
+    .tracking-card-content{
         display:flex;
-        gap: 22px;
-        transition: transform .6s ease;
-        will-change: transform;
-        user-select: none;
+        gap:18px;
+        padding:18px;
+        align-items:stretch;
     }
-    .fp-item{
-        flex: 0 0 340px;
-        transition: transform .35s ease;
-        transform: scale(.92);
-    }
-    .fp-item:hover{
-        transform: scale(1.06);
-    }
-
-    .fp-card{
-        background:#fff;
-        border-radius: 20px;
-        box-shadow: 0 4px 14px rgba(8,145,178,.1);
-        overflow:hidden;
-        position:relative;
-        transition: all .3s ease;
-    }
-    .fp-item:hover .fp-card{
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(8,145,178,.2);
-    }
-
-    .fp-img{
-        width:100%;
-        height: 220px;
+    .tracking-image{
+        width:110px;
+        height:110px;
         object-fit:cover;
-        display:block;
-        transition: transform .35s ease;
+        border-radius:14px;
+        flex:0 0 auto;
     }
-    .fp-item:hover .fp-img{ transform: scale(1.05); }
-
-    .fp-body{
-        padding: 14px 16px 18px;
+    .tracking-info{
+        flex:1 1 auto;
+        min-width:0;
     }
-    .fp-name{
-        font-weight: 900;
-        margin-bottom: 4px;
-        font-size: 15px;
+    .tracking-inquiry-number{
+        font-weight:800;
+        color:#1e293b;
+        font-size:18px;
+        margin-bottom:6px;
     }
-    .fp-cat{
-        font-size: 12px;
-        color:#9aa0a6;
-        font-weight: 600;
+    .tracking-products-count{
+        font-weight:700;
+        color:var(--primary-color);
+        font-size:13px;
+        margin-bottom:10px;
     }
-
-    /* + button on small cards */
-    .fp-plus{
-        width:38px; height:38px; border-radius:999px;
-        display:flex; align-items:center; justify-content:center;
-        background:#1f2a37;
-        color:#fff;
-        border:0;
-        position:absolute;
-        right: 14px;
-        bottom: 16px;
-        box-shadow: 0 10px 20px rgba(0,0,0,.2);
+    .tracking-description{
+        color:#64748b;
+        font-size:13px;
+        line-height:1.6;
+        margin-bottom:12px;
+        max-width:680px;
     }
-
-    /* Add to Card pill on active card */
-    .fp-add{
-        position:absolute;
-        right: 16px;
-        bottom: 16px;
-        background:#1f2a37;
-        color:#fff;
-        border:0;
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-weight: 800;
-        display:none;
+    .tracking-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px 18px;
+    }
+    .tracking-meta-item{
+        font-size:12px;
+        color:#64748b;
+        white-space:nowrap;
+    }
+    .tracking-meta-label{
+        font-weight:700;
+        color:#334155;
+        margin-right:6px;
+    }
+    .tracking-right{
+        flex:0 0 180px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+        align-items:flex-end;
+        gap:12px;
+    }
+    .tracking-price{
+        text-align:right;
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+    }
+    .tracking-price span:first-child{
+        color:#64748b;
+        font-weight:700;
+        font-size:12px;
+    }
+    .tracking-price span:last-child{
+        color:#1e293b;
+        font-weight:900;
+        font-size:18px;
+    }
+    .tracking-status{
+        font-weight:800;
+        font-size:12px;
+        padding:10px 14px;
+        border-radius:999px;
+        text-transform:capitalize;
+        display:inline-flex;
         align-items:center;
         gap:8px;
-        box-shadow: 0 10px 20px rgba(0,0,0,.2);
-        white-space: nowrap;
     }
-    .fp-item:hover .fp-add{ display:flex; }
-    .fp-item:hover .fp-plus{ display:none; }
-
+    .tracking-status.ongoing{
+        background:rgba(8,145,178,.12);
+        color:var(--primary-color);
+    }
+    .tracking-status.closed{
+        background:rgba(220,38,38,.12);
+        color:#dc2626;
+    }
+    .tracking-load-more{
+        display:flex;
+        justify-content:center;
+        margin-top:26px;
+    }
+    .load-more-btn{
+        border:1px solid #e2e8f0;
+        background:#fff;
+        padding:12px 18px;
+        border-radius:14px;
+        font-weight:800;
+        color:#1e293b;
+        transition:.2s;
+    }
+    .load-more-btn:hover{
+        border-color:rgba(8,145,178,.35);
+        box-shadow:0 6px 18px rgba(8,145,178,.10);
+        transform:translateY(-1px);
+    }
     @media (max-width: 992px){
-        .fp-title{font-size:26px}
-        .fp-item{ flex-basis: 280px; }
-        .fp-img{ height: 190px; }
-    }
-    @media (max-width: 576px){
-        .fp-title{ font-size: 22px; }
-        .fp-item{ flex-basis: 260px; }
-    }
-
-    /* Section Styles */
-    .cart-section {
-        background: #f8fafc;
-        padding: 60px 0;
-        min-height: calc(100vh - 80px);
-    }
-
-    .featured-section {
-        background: #ffffff;
-        padding: 60px 0;
-    }
-
-    .items-section {
-        background: #ffffff;
-        padding: 60px 0;
-    }
-
-    .cart-section .container {
-        padding-top: 40px !important;
-    }
-
-    @media (max-width: 768px) {
-        .cart-section {
-            padding: 40px 0;
+        .tracking-card-content{
+            flex-direction:column;
+            align-items:flex-start;
         }
-        .featured-section {
-            padding: 40px 0;
+        .tracking-right{
+            flex:1 1 auto;
+            width:100%;
+            align-items:flex-start;
         }
-        .items-section {
-            padding: 40px 0;
+        .tracking-price{
+            text-align:left;
         }
     }
 
-    /* Items Section Styles */
-    .items-tabs {
-        border-bottom: 3px solid #e2e8f0;
-        margin-bottom: 32px;
+    /* ============== Section 3: Items & Updates ============== */
+    .items-section{
+        background:#f8fafc;
+        padding:60px 0;
     }
-
-    .items-tab {
-        background: none;
-        border: 0;
-        padding: 16px 32px;
-        font-size: 16px;
-        font-weight: 700;
-        color: #64748b;
-        position: relative;
-        transition: all 0.3s ease;
+    .items-tabs{
+        display:flex;
+        gap:10px;
+        margin-bottom:18px;
     }
-
-    .items-tab.active {
-        color: #0891B2;
+    .items-tab{
+        border:1px solid #e2e8f0;
+        background:#fff;
+        padding:10px 14px;
+        border-radius:14px;
+        font-weight:800;
+        color:#1e293b;
+        transition:.2s;
     }
-
-    .items-tab.active::after {
-        content: '';
-        position: absolute;
-        bottom: -3px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: #0891B2;
+    .items-tab.active{
+        border-color:transparent;
+        background:var(--primary-color);
+        color:#fff;
+        box-shadow:0 8px 16px rgba(8,145,178,.22);
     }
-
-    .items-tab:hover {
-        color: #0891B2;
+    .item-row{
+        background:#fff;
+        border:1px solid #e2e8f0;
+        border-radius:18px;
+        padding:16px;
+        display:flex;
+        gap:16px;
+        align-items:center;
+        margin-bottom:14px;
+        box-shadow:0 4px 14px rgba(8,145,178,.06);
     }
-
-    .item-row {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        padding: 20px 0;
-        border-bottom: 1px solid #e2e8f0;
+    .item-image{
+        width:96px;
+        height:96px;
+        object-fit:cover;
+        border-radius:14px;
+        flex:0 0 auto;
     }
-
-    .item-row:last-child {
-        border-bottom: 0;
+    .item-info{
+        flex:1 1 auto;
+        min-width:0;
     }
-
-    .item-image {
-        width: 80px;
-        height: 80px;
-        border-radius: 12px;
-        object-fit: cover;
+    .item-qty{
+        background:rgba(8,145,178,.12);
+        color:var(--primary-color);
+        font-weight:900;
+        font-size:12px;
+        padding:6px 10px;
+        border-radius:999px;
     }
-
-    .item-info {
-        flex: 1;
+    .item-price-badge{
+        flex:0 0 auto;
+        background:#0f172a;
+        color:#fff;
+        font-weight:900;
+        border-radius:14px;
+        padding:12px 14px;
+        font-size:13px;
+        white-space:nowrap;
     }
-
-    .item-qty {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-right: 8px;
+    .pagination-info{
+        margin-top:18px;
+        color:#64748b;
+        font-weight:800;
+        text-align:center;
     }
-
-    .item-unit {
-        font-size: 14px;
-        color: #64748b;
-        font-weight: 600;
-    }
-
-    .item-price-badge {
-        background: #E0F2FE;
-        color: #0891B2;
-        padding: 10px 20px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    .pagination-info {
-        text-align: center;
-        background: #f1f5f9;
-        padding: 12px;
-        border-radius: 12px;
-        color: #64748b;
-        font-weight: 600;
-        font-size: 14px;
-        margin-top: 24px;
-    }
-
-    @media (max-width: 768px) {
-        .item-row {
-            flex-direction: column;
-            align-items: flex-start;
+    @media (max-width: 992px){
+        .item-row{
+            flex-direction:column;
+            align-items:flex-start;
         }
-        .items-tab {
-            padding: 12px 20px;
-            font-size: 14px;
-        }
-    }
-
-    /* Inquiry Tracking Section Styles */
-    .tracking-section {
-        background: #ffffff;
-        padding: 60px 0;
-    }
-
-    .tracking-title {
-        font-size: 42px;
-        font-weight: 800;
-        letter-spacing: -.5px;
-        color: #1e293b;
-        margin-bottom: 40px;
-    }
-
-    .tracking-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-
-    .tracking-card:hover {
-        box-shadow: 0 8px 24px rgba(8,145,178,.15);
-        border-color: #0891B2;
-    }
-
-    .tracking-card-content {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .tracking-image {
-        width: 70px;
-        height: 70px;
-        border-radius: 12px;
-        object-fit: cover;
-        flex-shrink: 0;
-    }
-
-    .tracking-info {
-        flex: 1;
-    }
-
-    .tracking-inquiry-number {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 4px;
-    }
-
-    .tracking-products-count {
-        font-size: 14px;
-        color: #0891B2;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .tracking-description {
-        font-size: 13px;
-        color: #64748b;
-        line-height: 1.5;
-        margin-bottom: 12px;
-    }
-
-    .tracking-meta {
-        display: flex;
-        gap: 20px;
-        font-size: 12px;
-        color: #94a3b8;
-    }
-
-    .tracking-meta-item {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .tracking-meta-label {
-        color: #64748b;
-        margin-bottom: 2px;
-    }
-
-    .tracking-meta-value {
-        color: #475569;
-        font-weight: 600;
-    }
-
-    .tracking-right {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 12px;
-        flex-shrink: 0;
-    }
-
-    .tracking-price {
-        background: #E0F2FE;
-        color: #0891B2;
-        padding: 10px 24px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 15px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .tracking-status {
-        padding: 8px 20px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 13px;
-        text-transform: capitalize;
-    }
-
-    .tracking-status.ongoing {
-        background: #DC2626;
-        color: #fff;
-    }
-
-    .tracking-status.closed {
-        background: #10B981;
-        color: #fff;
-    }
-
-    .tracking-load-more {
-        text-align: center;
-        margin-top: 24px;
-    }
-
-    .load-more-btn {
-        background: #f1f5f9;
-        border: 0;
-        padding: 14px 32px;
-        border-radius: 12px;
-        font-weight: 700;
-        color: #64748b;
-        transition: all 0.3s ease;
-    }
-
-    .load-more-btn:hover {
-        background: #e2e8f0;
-        color: #475569;
-    }
-
-    @media (max-width: 768px) {
-        .tracking-title {
-            font-size: 32px;
-        }
-        .tracking-card-content {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .tracking-right {
-            align-items: flex-start;
-            width: 100%;
-        }
-        .tracking-meta {
-            flex-direction: column;
-            gap: 8px;
+        .item-price-badge{
+            width:100%;
+            text-align:center;
         }
     }
 </style>
 
-<!-- Section 1: Cart/Inquiry -->
 <section class="cart-section">
     <div class="container py-4">
 
-        <!-- Title -->
         <div class="mb-4">
-            <div class="inquiry-title">{{ translate('My Cart') }}</div>
+            <div class="inquiry-title">{{ translate('Inquiry') }}</div>
         </div>
 
         <div class="row g-4">
 
-        <!-- Left: Products -->
-        <div class="col-lg-8" id="cart-items-container">
-            @if(isset($carts) && count($carts) > 0)
-                @foreach($carts as $key => $cartItem)
-                    @php
-                        $product = \App\Models\Product::find($cartItem['product_id']);
-                    @endphp
-                    @if($product != null)
-                        <div class="card product-card" id="cart-item-{{ $cartItem['id'] }}">
-                            <div class="card-body p-4">
-                                <div class="row align-items-center g-3">
+            <!-- Left: Products -->
+            <div class="col-lg-8" id="cart-items-container">
+                @include('frontend.partials.cart.cart_details', ['carts' => $carts])
+            </div>
 
-                                    <!-- Image -->
-                                    <div class="col-auto">
-                                        <a href="{{ route('product', $product->slug) }}">
-                                            <img class="product-img" src="{{ uploaded_asset($product->thumbnail_img) }}" alt="{{ $product->getTranslation('name') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                        </a>
-                                    </div>
+            <!-- Right: Summary -->
+            <div class="col-lg-4">
+                <div class="card summary-card">
+                    <div class="card-body p-4">
 
-                                    <!-- Info -->
-                                    <div class="col-12 col-md">
-                                        <a href="{{ route('product', $product->slug) }}" class="text-reset">
-                                            <div class="product-title">{{ $product->getTranslation('name') }}</div>
-                                        </a>
-                                        @if($product->category)
-                                            <div class="product-category mb-2">{{ $product->category->getTranslation('name') }}</div>
-                                        @endif
-                                        <div class="product-description" style="max-width: 400px;">
-                                            {{ $product->getTranslation('description') ? Str::limit(strip_tags($product->getTranslation('description')), 150) : translate('No description available') }}
-                                        </div>
-                                    </div>
+                        <div class="summary-title">{{ translate('Cart Summary') }}</div>
 
-                                    <!-- Qty & Note -->
-                                    <div class="col-12 col-md-auto">
-                                        <div class="d-flex flex-column gap-2">
-                                            <!-- Quantity buttons -->
-                                            <div class="d-flex align-items-center gap-2">
-                                                <button type="button" class="qty-btn" onclick="updateCartQuantity({{ $cartItem['id'] }}, -1)">−</button>
-                                                <input type="text" class="qty-value" id="qty-{{ $cartItem['id'] }}" value="{{ $cartItem['quantity'] }}" readonly>
-                                                <button type="button" class="qty-btn" onclick="updateCartQuantity({{ $cartItem['id'] }}, 1)">+</button>
-                                                <span class="ms-2 fw-semibold" style="color:#64748b">{{ $product->unit }}</span>
-                                            </div>
-                                            <!-- Note input -->
-                                            <input type="text" class="form-control note-input" placeholder="{{ translate('Note...') }}" style="width: 220px;">
-                                        </div>
-                                    </div>
-
-                                    <!-- Delete -->
-                                    <div class="col-auto">
-                                        <button type="button" class="trash-btn" onclick="removeCartItem({{ $cartItem['id'] }})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
-            @else
-                <div class="card product-card">
-                    <div class="card-body p-5 text-center">
-                        <i class="bi bi-cart-x" style="font-size: 48px; color: #94a3b8;"></i>
-                        <h4 class="mt-3" style="color: #64748b;">{{ translate('Your cart is empty') }}</h4>
-                        <a href="{{ route('search') }}" class="btn request-btn mt-3" style="width: auto; padding: 12px 32px;">
-                            <span>{{ translate('Continue Shopping') }}</span>
-                        </a>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        <!-- Right: Summary -->
-        <div class="col-lg-4">
-            <div class="card summary-card">
-                <div class="card-body p-4">
-
-                    <div class="summary-title">{{ translate('Cart Summary') }}</div>
-
-                    @php
-                        $totalProducts = isset($carts) ? count($carts) : 0;
-                        $totalItems = 0;
-                        if(isset($carts) && count($carts) > 0) {
-                            foreach($carts as $cart) {
-                                $totalItems += $cart['quantity'];
+                        @php
+                            $totalProducts = isset($carts) ? count($carts) : 0;
+                            $totalItems = 0;
+                            if(isset($carts) && count($carts) > 0) {
+                                foreach($carts as $cart) {
+                                    $totalItems += $cart['quantity'] ?? 1;
+                                }
                             }
-                        }
-                    @endphp
+                        @endphp
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="pill bg-primary text-white">{{ translate('Total Products') }}</div>
-                        <div class="pill bg-primary text-white" id="total-products">{{ str_pad($totalProducts, 2, '0', STR_PAD_LEFT) }}</div>
-                    </div>
-
-                    <div class="summary-row">
-                        <span>{{ translate('Products') }}</span>
-                        <span id="summary-products">{{ $totalProducts }} {{ translate('Products') }}</span>
-                    </div>
-
-                    <div class="summary-row mb-4">
-                        <span>{{ translate('Items') }}</span>
-                        <span id="summary-items">{{ $totalItems }} {{ translate('Items') }}</span>
-                    </div>
-
-                    <hr style="border-color:#e2e8f0;margin:24px 0">
-
-                    @auth
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="user-info-name">{{ Auth::user()->name }}</div>
-                                <div class="user-info-detail">{{ Auth::user()->phone }}</div>
-                                <div class="user-info-detail">{{ Auth::user()->email }}</div>
-                            </div>
-                            <a href="{{ route('profile') }}" class="edit-link">{{ translate('Edit') }}</a>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="pill bg-primary text-white">{{ translate('Total Products') }}</div>
+                            <div class="pill bg-primary text-white" id="total-products">{{ str_pad($totalProducts, 2, '0', STR_PAD_LEFT) }}</div>
                         </div>
-                    @endauth
 
-                    <textarea class="form-control mb-4 note-input" rows="3" placeholder="{{ translate('Note...') }}"></textarea>
+                        <div class="summary-row">
+                            <span>{{ translate('Products') }}</span>
+                            <span id="summary-products">{{ $totalProducts }} {{ translate('Products') }}</span>
+                        </div>
 
-                    <button type="button" class="btn w-100 request-btn" @if($totalProducts == 0) disabled @endif>
-                        <span>{{ translate('Request Offer') }}</span>
-                    </button>
+                        <div class="summary-row mb-4">
+                            <span>{{ translate('Items') }}</span>
+                            <span id="summary-items">{{ $totalItems }} {{ translate('Items') }}</span>
+                        </div>
 
+                        <hr style="border-color:#e2e8f0;margin:24px 0">
+
+                        <textarea class="form-control mb-4 note-input"
+                                  rows="3"
+                                  id="inquiry-note"
+                                  placeholder="{{ translate('Note...') }}"></textarea>
+
+                        <div id="inquiry-sent-msg" class="mb-4" style="display:none;">
+                            <div class="alert alert-success mb-0" style="border-radius:12px; font-weight:700;">
+                                Your request has been sent.
+                            </div>
+                        </div>
+
+                        <button type="button"
+                                id="request-offer-btn"
+                                class="btn w-100 request-btn"
+                                onclick="submitInquiryRequest()"
+                                @if($totalProducts == 0) disabled @endif>
+                            <span>{{ translate('Request Offer') }}</span>
+                        </button>
+
+                    </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 </section>
 
@@ -956,7 +492,7 @@
                 </div>
             </div>
 
-            <!-- Right: Summary (same as before) -->
+            <!-- Right: Summary -->
             <div class="col-lg-4">
                 <div class="card summary-card">
                     <div class="card-body p-4">
@@ -1018,65 +554,6 @@
 
     </div>
 </section>
-
-<!-- Section 3: Featured Products -->
-<section class="featured-section">
-    <div class="container">
-        <div class="fp-header">
-        <div class="d-flex align-items-center">
-            <div class="fp-title">Featured Products</div>
-            <div class="fp-controls">
-                <button class="fp-arrow js-fp-prev" type="button" aria-label="Prev">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="fp-arrow js-fp-next" type="button" aria-label="Next">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-        <a class="fp-viewall" href="#">View All</a>
-    </div>
-
-    <div class="fp-slider">
-        <div class="fp-track js-fp-track">
-            @php
-                $featured = [
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                    ['title'=>'Conor Chicken BBQ','cat'=>'Spices','img'=>asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg')],
-                ];
-            @endphp
-
-            @foreach($featured as $idx => $p)
-                <div class="fp-item js-fp-item">
-                    <div class="fp-card">
-                        <img class="fp-img" src="{{ $p['img'] }}" alt="product">
-
-                        <div class="fp-body">
-                            <div class="fp-name">{{ $p['title'] }}</div>
-                            <div class="fp-cat">{{ $p['cat'] }}</div>
-                        </div>
-
-                        <button class="fp-plus" type="button" aria-label="Add">
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
-
-                        <button class="fp-add" type="button">
-                            <i class="bi bi-plus-lg"></i>
-                            <span>Add to Card</span>
-                        </button>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    </div>
-</section>
-
 @endsection
 
 @section('script')
@@ -1084,10 +561,15 @@
     // Update cart quantity
     function updateCartQuantity(cartId, change) {
         var qtyInput = document.getElementById('qty-' + cartId);
-        var currentQty = parseInt(qtyInput.value);
+
+        // ✅ safe parse
+        var currentQty = parseInt(qtyInput ? qtyInput.value : 1, 10);
+        if (isNaN(currentQty) || currentQty < 1) currentQty = 1;
+
         var newQty = currentQty + change;
 
-        if(newQty < 1) {
+        // لو نزلت عن 1 احذف
+        if (newQty < 1) {
             removeCartItem(cartId);
             return;
         }
@@ -1097,18 +579,31 @@
             url: '{{ route("cart.updateQuantity") }}',
             data: {
                 _token: '{{ csrf_token() }}',
-                id: cartId,
-                quantity: newQty
+                id: String(cartId),
+                quantity: parseInt(newQty, 10)
             },
-            success: function(data) {
-                qtyInput.value = newQty;
-                if(typeof updateNavCart === 'function') {
+            success: function (data) {
+
+                // ✅ لو السيرفر بيرجع cart_view حدث الجزء (الأفضل عشان DOM يبقى متزامن)
+                if (data && data.cart_view !== undefined) {
+                    $('#cart-items-container').html(data.cart_view);
+                } else {
+                    // fallback: حدّث input مباشرة
+                    if (qtyInput) qtyInput.value = newQty;
+                }
+
+                // ✅ update nav cart
+                if (typeof updateNavCart === 'function' && data && data.nav_cart_view !== undefined) {
                     updateNavCart(data.nav_cart_view, data.cart_count);
                 }
+
                 updateCartSummary();
             },
-            error: function() {
-                AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+            error: function (xhr) {
+                console.log(xhr.responseText);
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
             }
         });
     }
@@ -1120,86 +615,143 @@
             url: '{{ route("cart.removeFromCart") }}',
             data: {
                 _token: '{{ csrf_token() }}',
-                id: cartId
+                id: String(cartId)
             },
-            success: function(data) {
-                $('#cart-item-' + cartId).fadeOut(300, function() {
-                    $(this).remove();
-                    if(typeof updateNavCart === 'function') {
-                        updateNavCart(data.nav_cart_view, data.cart_count);
-                    }
-                    updateCartSummary();
+            success: function (data) {
 
-                    // Check if cart is empty
-                    if($('#cart-items-container .product-card').length === 0) {
-                        location.reload();
-                    }
-                });
-                AIZ.plugins.notify('success', "{{ translate('Item removed from cart') }}");
+                // ✅ replace cart details
+                if (data && data.cart_view !== undefined) {
+                    $('#cart-items-container').html(data.cart_view);
+                }
+
+                // ✅ update nav cart
+                if (typeof updateNavCart === 'function' && data && data.nav_cart_view !== undefined) {
+                    updateNavCart(data.nav_cart_view, data.cart_count);
+                }
+
+                updateCartSummary();
+
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('success', "{{ translate('Item removed from cart') }}");
+                }
             },
-            error: function() {
-                AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+            error: function () {
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
             }
         });
     }
 
     // Update cart summary
     function updateCartSummary() {
-        var totalProducts = $('#cart-items-container .product-card').length;
+        var totalProducts = $('#cart-items-container .cart-row').length;
         var totalItems = 0;
 
-        $('#cart-items-container .qty-value').each(function() {
-            totalItems += parseInt($(this).val()) || 0;
+        $('#cart-items-container .qty-value').each(function () {
+            var v = parseInt($(this).val(), 10);
+            totalItems += isNaN(v) ? 0 : v;
+        });
+
+        $('#cart-items-container .cart-row[data-type="category"]').each(function(){
+            var $row = $(this);
+            var cartId = $row.data('cart-id');
+
+            var q = 1;
+            var el = document.getElementById('qty-' + cartId);
+            if (el) {
+                var vv = parseInt(el.value, 10);
+                if (!isNaN(vv) && vv > 0) q = vv;
+            }
+
+            if (!el) totalItems += q;
         });
 
         $('#total-products').text(totalProducts.toString().padStart(2, '0'));
         $('#summary-products').text(totalProducts + ' {{ translate("Products") }}');
         $('#summary-items').text(totalItems + ' {{ translate("Items") }}');
+
+        // disable button if empty
+        $('#request-offer-btn').prop('disabled', totalProducts === 0);
     }
 
-    // Featured Products: arrows only
-    (function(){
-        const track = document.querySelector('.js-fp-track');
-        const items = Array.from(document.querySelectorAll('.js-fp-item'));
-        const prevBtn = document.querySelector('.js-fp-prev');
-        const nextBtn = document.querySelector('.js-fp-next');
+    // Collect items from cart_details and send to InquiryController
+    function submitInquiryRequest() {
+        var $btn = $('#request-offer-btn');
 
-        if(!track || items.length === 0) return;
+        // prevent double click
+        if ($btn.prop('disabled')) return;
 
-        let currentIndex = 0;
+        var items = [];
 
-        function gapPx(){
-            const st = window.getComputedStyle(track);
-            return parseFloat(st.gap || st.columnGap || 22) || 22;
-        }
-        function stepWidth(){
-            return items[0].getBoundingClientRect().width + gapPx();
-        }
+        $('#cart-items-container .cart-row').each(function () {
+            var $row = $(this);
 
-        function render(){
-            track.style.transform = `translateX(${-currentIndex * stepWidth()}px)`;
-        }
+            var cartId = $row.data('cart-id');
+            var type = $row.data('type'); // product / category
+            var productId = $row.data('product-id') || null;
+            var categoryId = $row.data('category-id') || null;
 
-        function next(){
-            if(currentIndex < items.length - 1){
-                currentIndex++;
-                render();
+            // quantity
+            var qtyEl = document.getElementById('qty-' + cartId);
+            var qty = 1;
+            if (qtyEl) {
+                var parsed = parseInt(qtyEl.value, 10);
+                qty = (isNaN(parsed) || parsed < 1) ? 1 : parsed;
             }
-        }
-        function prev(){
-            if(currentIndex > 0){
-                currentIndex--;
-                render();
+
+            items.push({
+                cart_id: String(cartId),
+                type: String(type || ''),
+                product_id: productId ? parseInt(productId, 10) : null,
+                category_id: categoryId ? parseInt(categoryId, 10) : null,
+                quantity: qty
+            });
+        });
+
+        if (!items.length) {
+            if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                AIZ.plugins.notify('warning', "{{ translate('Cart is empty') }}");
             }
+            return;
         }
 
-        // arrows only
-        nextBtn && nextBtn.addEventListener('click', next);
-        prevBtn && prevBtn.addEventListener('click', prev);
+        var note = $('#inquiry-note').val();
 
-        // init
-        render();
-        window.addEventListener('resize', render);
-    })();
+        // UI
+        $btn.prop('disabled', true);
+        $btn.find('span').text("{{ translate('Sending...') }}");
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('inquiry.requestOffer') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                note: note,
+                items: JSON.stringify(items)
+            },
+            success: function(res) {
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('success', "{{ translate('Your request has been sent') }}");
+                }
+
+                // ✅ refresh page to show changes
+                window.location.replace(window.location.href);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                }
+                $btn.prop('disabled', false);
+                $btn.find('span').text("{{ translate('Request Offer') }}");
+            }
+        });
+    }
+
+    // run once on load
+    $(document).ready(function(){
+        updateCartSummary();
+    });
 </script>
 @endsection

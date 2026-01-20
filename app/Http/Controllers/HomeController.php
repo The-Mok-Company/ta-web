@@ -73,6 +73,10 @@ class HomeController extends Controller
     {
         return view('frontend.about.about');
     }
+    public function ourservices()
+    {
+        return view('frontend.ourservices.index');
+    }
     public function ourpartners()
     {
         return view('frontend.ourpartners.index');
@@ -402,8 +406,61 @@ class HomeController extends Controller
                 lastViewedProducts($detailedProduct->id, auth()->user()->id);
             }
 
-            return view('frontend.product_details', compact('detailedProduct', 'product_queries', 'total_query', 'reviews', 'review_status', 'order_id'));
+            // Keep the same category sidebar context (when coming from a category listing).
+            $sidebar_category_id = $request->has('category_id') ? (int) $request->get('category_id') : null;
+            $sidebar_category = null;
+            $sidebar_products = collect();
+
+            if (!empty($sidebar_category_id)) {
+                $sidebar_category = Category::find($sidebar_category_id);
+                if ($sidebar_category) {
+                    $sidebar_products = filter_products($sidebar_category->products())
+                        ->with('thumbnail')
+                        ->orderBy('name', 'asc')
+                        ->limit(50)
+                        ->get();
+                }
+            }
+
+            return view('frontend.product_details', compact(
+                'detailedProduct',
+                'product_queries',
+                'total_query',
+                'reviews',
+                'review_status',
+                'order_id',
+                'sidebar_category_id',
+                'sidebar_category',
+                'sidebar_products'
+            ));
         }
+        abort(404);
+    }
+
+    public function product_modal(Request $request, $slug)
+    {
+        $detailedProduct = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')
+            ->where('auction_product', 0)
+            ->where('slug', $slug)
+            ->where('approved', 1)
+            ->first();
+
+        if ($detailedProduct != null && $detailedProduct->published) {
+            if ((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller') {
+                abort(404);
+            }
+
+            if ($detailedProduct->added_by == 'seller' && $detailedProduct->user->banned == 1) {
+                abort(404);
+            }
+
+            if (!addon_is_activated('wholesale') && $detailedProduct->wholesale_product == 1) {
+                abort(404);
+            }
+
+            return view('frontend.partials.product_details_modal_content', compact('detailedProduct'));
+        }
+
         abort(404);
     }
 

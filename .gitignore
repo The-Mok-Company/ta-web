@@ -5,6 +5,7 @@
 
 /node_modules
 /storage/debugbar
+/storage/logs
 /vendor
 /temp
 /.idea
@@ -15,7 +16,6 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .DS_Store
-.idea
 composer.lock
 *.lock
 resources/lang/en.json
@@ -24,13 +24,6 @@ ecommerce.zip
 install.zip
 /nbproject/private/
 /nbproject
-/public/app-translations
-public/uploads.zip
 .env
 .env.example
-
-# local logs/temp
-/storage/logs
 tmpclaude-*
- 
-

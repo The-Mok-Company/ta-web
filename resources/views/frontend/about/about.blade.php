@@ -26,6 +26,28 @@
         text-align: center;
         margin-bottom: 100px;
         position: relative;
+
+    }
+
+    .imagetwosection {
+        background-image: url("{{ asset('assets/img/about/8aa53b5cb1926d6f320a563c04c919b68484e0b1.png') }}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: left center;
+        position: relative;
+    }
+
+    @media (min-width: 1200px) {
+        .imagetwosection {
+            background-size: auto 100%;
+            background-position: left center;
+        }
+    }
+    @media (max-width: 768px) {
+        .imagetwosection {
+            background-size: contain;
+            background-position: center top;
+        }
     }
 
     .who-hero h1 {
@@ -57,14 +79,7 @@
 
     .trapezoid-border {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(246, 95, 95, 0.08) 0%, rgba(232, 59, 59, 0.05) 100%);
-        clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
-        z-index: 1;
-        border-radius: 16px;
+
     }
 
     .trapezoid-border::before {
@@ -101,6 +116,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -130,14 +146,6 @@
 
     .mission-border {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(95, 128, 246, 0.08) 0%, rgba(59, 102, 232, 0.05) 100%);
-        clip-path: polygon(0% 0%, 100% 0%, 88% 100%, 12% 100%);
-        z-index: 1;
-        border-radius: 16px;
     }
 
     .mission-border::before {
@@ -165,7 +173,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 60px;
+        gap: 200px;
     }
 
     .mission-text {
@@ -219,6 +227,11 @@
         position: relative;
     }
 
+    /* Zigzag Effect - الصور الزوجية (العمود الثاني) نازلة */
+    .vision-image-item:nth-child(even) {
+        transform: translateY(40px);
+    }
+
     .vision-image-item::before {
         content: '';
         position: absolute;
@@ -232,6 +245,11 @@
     .vision-image-item:hover {
         transform: translateY(-8px) scale(1.02);
         box-shadow: 0 20px 40px rgba(95, 115, 246, 0.25);
+    }
+
+    /* تعديل hover للعناصر الزوجية علشان تحافظ على التأثير */
+    .vision-image-item:nth-child(even):hover {
+        transform: translateY(32px) scale(1.02);
     }
 
     .vision-image-item:hover::before {
@@ -403,77 +421,79 @@
 @section('content')
     <div class="who-we-are-page">
         <div class="container">
+            <div class="imagetwosection">
+                {{-- Hero Section --}}
+                <div class="who-hero">
+                    <h1>{{ $hero && isset($hero->value['title']) ? $hero->value['title'] : 'Who We Are' }}</h1>
 
-            {{-- Hero Section --}}
-            <div class="who-hero">
-                <h1>{{ $hero && isset($hero->value['title']) ? $hero->value['title'] : 'Who We Are' }}</h1>
+                    <p class="who-hero-subtitle">
+                        {{ $hero && isset($hero->value['subtitle']) ? $hero->value['subtitle'] : 'Trades Axis was founded as an extension of our sister distribution business, which has been thriving in the regional market since 20XX. Our evolution from the import-export field reflects our ongoing commitment to expand our value chain and deliver excellence in every market we serve.' }}
+                    </p>
 
-                <p class="who-hero-subtitle">
-                    {{ $hero && isset($hero->value['subtitle']) ? $hero->value['subtitle'] : 'Trades Axis was founded as an extension of our sister distribution business, which has been thriving in the regional market since 20XX. Our evolution from the import-export field reflects our ongoing commitment to expand our value chain and deliver excellence in every market we serve.' }}
-                </p>
-
-                {{-- Trapezoid Container with Illustration --}}
-                <div class="trapezoid-container">
-                    <div class="trapezoid-border"></div>
-                    <div class="trapezoid-content">
-                        @if($hero && isset($hero->value['image']) && $hero->value['image'])
-                            <img src="{{ asset($hero->value['image']) }}"
-                                 alt="Who We Are"
-                                 class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
-
-
-                        @else
-                            <img src="{{ asset('assets/img/about/60e4d4135fac5d6e76b09f98b4a872dfa0909dfb.png') }}"
-                                 alt="Who We Are"
-                                 class="hero-illustration"
-                                 onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
-                        @endif
+                    {{-- Trapezoid Container with Illustration --}}
+                    <div class="trapezoid-container">
+                        <div class="trapezoid-border"></div>
+                        <div class="trapezoid-content">
+                            @if ($hero && isset($hero->value['image']) && $hero->value['image'])
+                                <img src="{{ asset($hero->value['image']) }}" alt="Who We Are" class="hero-illustration"
+                                    onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                            @else
+                                <img src="{{ asset('assets/img/about/60e4d4135fac5d6e76b09f98b4a872dfa0909dfb.png') }}"
+                                    alt="Who We Are" class="hero-illustration"
+                                    onerror="this.src='https://via.placeholder.com/600x400?text=Who+We+Are+Illustration'">
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- Mission Section --}}
-            <div class="mission-section">
-                <div class="mission-container">
-                    <div class="mission-border"></div>
-                    <div class="mission-content">
-                        <div class="mission-text">
-                            <h2>{{ $mission && isset($mission->value['title']) ? $mission->value['title'] : 'We are here to complete a certain mission' }}</h2>
-                        </div>
-                        <div class="mission-description">
-                            <p>
-                                {{ $mission && isset($mission->value['description']) ? $mission->value['description'] : 'To connect global markets efficiently and ethically by providing exceptional sourcing and trade solutions that enhance business value and foster sustainable growth.' }}
-                            </p>
+                {{-- Mission Section --}}
+                <div class="mission-section">
+                    <div class="mission-container">
+                        <div class="mission-border"></div>
+                        <div class="mission-content">
+                            <div class="mission-text">
+                                <h2>{{ $mission && isset($mission->value['title']) ? $mission->value['title'] : 'We are here to complete a certain mission' }}
+                                </h2>
+                            </div>
+                            <div class="mission-description">
+                                <p>
+                                    {{ $mission && isset($mission->value['description']) ? $mission->value['description'] : 'To connect global markets efficiently and ethically by providing exceptional sourcing and trade solutions that enhance business value and foster sustainable growth.' }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+
 
             {{-- Vision Section --}}
             <div class="vision-section">
                 <div class="vision-images">
-                    @if($vision && isset($vision->value['images']) && is_array($vision->value['images']) && count($vision->value['images']) > 0)
-                        @foreach($vision->value['images'] as $index => $image)
+                    @if (
+                        $vision &&
+                            isset($vision->value['images']) &&
+                            is_array($vision->value['images']) &&
+                            count($vision->value['images']) > 0)
+                        @foreach ($vision->value['images'] as $index => $image)
                             <div class="vision-image-item">
-                                @if($image)
-                                    <img src="{{ asset($image) }}"
-                                         alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                @if ($image)
+                                    <img src="{{ asset($image) }}" alt="Team Member {{ $index + 1 }}"
+                                        onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
                                 @else
-                                    <img src="{{ static_asset('assets/img/vision/team'.($index+1).'.jpg') }}"
-                                         alt="Team Member {{ $index + 1 }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
+                                    <img src="{{ static_asset('assets/img/vision/team' . ($index + 1) . '.jpg') }}"
+                                        alt="Team Member {{ $index + 1 }}"
+                                        onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $index + 1 }}'">
                                 @endif
                             </div>
                         @endforeach
                     @else
                         {{-- Default 4 images if no data --}}
-                        @for($i = 1; $i <= 4; $i++)
+                        @for ($i = 1; $i <= 4; $i++)
                             <div class="vision-image-item">
-                                <img src="{{ static_asset('assets/img/vision/team'.$i.'.jpg') }}"
-                                     alt="Team Member {{ $i }}"
-                                     onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $i }}'">
+                                <img src="{{ static_asset('assets/img/vision/team' . $i . '.jpg') }}"
+                                    alt="Team Member {{ $i }}"
+                                    onerror="this.src='https://via.placeholder.com/300x300?text=Team+{{ $i }}'">
                             </div>
                         @endfor
                     @endif

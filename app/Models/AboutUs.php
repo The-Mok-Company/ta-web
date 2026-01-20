@@ -13,5 +13,5 @@ class AboutUs extends Model
         protected $casts = [
         'value' => 'array',
     ];
-    
+
 }
