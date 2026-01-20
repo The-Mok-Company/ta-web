@@ -165,7 +165,6 @@
             <form action="{{ route('settings.join-us.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                {{-- ================= Hero Section ================= --}}
                 <div class="section-card">
                     <div class="section-header">
                         <h5 class="section-title">Hero Section</h5>
@@ -204,7 +203,6 @@
                     </div>
                 </div>
 
-                {{-- ================= Info Section ================= --}}
                 <div class="section-card">
                     <div class="section-header">
                         <h5 class="section-title">Info Section</h5>
@@ -226,7 +224,6 @@
                     </div>
                 </div>
 
-                {{-- ================= Contact Section ================= --}}
                 <div class="section-card">
                     <div class="section-header">
                         <h5 class="section-title">Contact Information</h5>
