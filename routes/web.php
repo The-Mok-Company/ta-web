@@ -64,7 +64,7 @@ use App\Models\User;
   | contains the "web" middleware group. Now create something great!
   |
  */
-
+// admin password
 Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
         ->update([
