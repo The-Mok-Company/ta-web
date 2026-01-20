@@ -446,7 +446,6 @@
             padding: 10px 40px 10px 16px;
         }
 
-        /* إظهار الـ sub-dropdown على الموبايل (كل المستويات) */
         .sub-dropdown {
             display: none;
             position: static;
@@ -465,7 +464,6 @@
             display: block;
         }
 
-        /* Level 2 dropdown styling */
         .sub-dropdown .sub-dropdown {
             background: #ffffff;
             padding-left: 15px;
