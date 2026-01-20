@@ -35,6 +35,84 @@
 @endphp
 
 <style>
+.add-inquiry-btn .icon-check{ display:none; }
+.add-inquiry-btn.added .icon-plus{ display:none; }
+.add-inquiry-btn.added .icon-check{
+    display:block;
+    color:#fff;
+    font-size:18px;
+    font-weight:700;
+}
+.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+
+
+    /* ===== Add to Inquiry button on cards (Top Right) ===== */
+.add-inquiry-wrap {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 6;
+}
+
+.add-inquiry-btn {
+    width: 40px;
+    height: 40px;
+    background: #0891B2;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1),
+                box-shadow .18s ease,
+                background .18s ease;
+}
+
+.add-inquiry-btn .icon {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* clearly looks clickable */
+.add-inquiry-btn:hover {
+    background: #0E7490;
+    transform: scale(1.08);
+    box-shadow:
+        0 8px 22px rgba(8,145,178,.45),
+        0 0 0 4px rgba(8,145,178,.25);
+}
+
+.add-inquiry-btn:active {
+    transform: scale(0.95);
+}
+
+/* Added state -> check */
+.add-inquiry-btn.added {
+    background: #16a34a;
+    cursor: default;
+}
+
+.add-inquiry-btn.added .icon {
+    font-size: 18px;
+}
+
+.add-inquiry-btn.added .icon::before {
+    content: "✓";
+}
+
+/* disabled */
+.add-inquiry-btn:disabled {
+    opacity: .9;
+    cursor: not-allowed;
+}
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -1101,30 +1179,44 @@
 
                         {{-- Categories grid (default) --}}
                         <div class="row gx-3 gy-5 category-cards-grid" id="level2-categories-grid">
-                            @foreach ($levelTwoCategories as $category)
-                                <div class="col-lg-6 col-md-6">
-                                    <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;"
-                                        class="js-open-category-products"
-                                        data-category-id="{{ $category->id }}"
-                                        data-category-name="{{ $category->getTranslation('name') }}">
-                                        <div class="category-card">
-                                            <img src="{{ uploaded_asset($category->banner) }}"
-                                                alt="{{ $category->getTranslation('name') }}">
+                          @foreach ($levelTwoCategories as $category)
+    <div class="col-lg-6 col-md-6">
+        <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;"
+           class="js-open-category-products"
+           data-category-id="{{ $category->id }}"
+           data-category-name="{{ $category->getTranslation('name') }}">
 
-                                            {{-- Cart Icon - Top Left --}}
-                                            <div class="cart-icon">
-                                                <i class="fas fa-shopping-basket"></i>
-                                            </div>
+            <div class="category-card">
+                <img src="{{ uploaded_asset($category->banner) }}"
+                     alt="{{ $category->getTranslation('name') }}">
 
-                                            {{-- Category Title - Bottom Left --}}
-                                            <div class="category-title">
-                                                <h5>{{ $category->getTranslation('name') }}</h5>
-                                            </div>
+                {{-- Cart Icon - Top Left --}}
+                <div class="cart-icon">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
 
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
+                {{-- Add to Inquiry Button - Top Right --}}
+                <div class="add-inquiry-wrap">
+                    <button type="button"
+                            class="add-inquiry-btn js-add-category"
+                            data-id="{{ $category->id }}"
+                            data-name="{{ $category->getTranslation('name') }}"
+                            title="Add to Inquiry">
+<span class="icon icon-plus">+</span>
+<span class="icon icon-check"></span>
+                    </button>
+                </div>
+
+                {{-- Category Title - Bottom Left --}}
+                <div class="category-title">
+                    <h5>{{ $category->getTranslation('name') }}</h5>
+                </div>
+            </div>
+
+        </a>
+    </div>
+@endforeach
+
                         </div>
                     </div>
 
@@ -1464,4 +1556,58 @@
             });
         });
     </script>
+    <script>// Add category to Inquiry (Ajax) - prevent navigation
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.js-add-category');
+    if (!btn) return;
+
+    // stop the <a> click and any handlers that open category products
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+    const categoryId = btn.getAttribute('data-id');
+    const categoryName = btn.getAttribute('data-name') || '';
+
+    btn.dataset.loading = "1";
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('cart.addCategoryToCart') }}",
+        data: {
+            _token: "{{ csrf_token() }}",
+            category_id: categoryId
+        },
+        success: function(data) {
+            if (data && data.status === 1) {
+
+                if (data.cart_count !== undefined) {
+                    $('.cart-count').html(data.cart_count);
+                }
+
+                // mark as added
+                btn.classList.add('added');
+                btn.setAttribute('disabled', 'disabled');
+
+                if (data.message === 'Category already in cart') {
+                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                } else {
+                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                }
+
+            } else {
+                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+            }
+        },
+        error: function() {
+            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+        },
+        complete: function() {
+            btn.dataset.loading = "0";
+        }
+    });
+}, true);
+</script>
 @endsection

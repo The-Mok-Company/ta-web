@@ -26,6 +26,84 @@
 @endphp
 
 <style>
+    .add-inquiry-btn .icon-check{ display:none; }
+.add-inquiry-btn.added .icon-plus{ display:none; }
+.add-inquiry-btn.added .icon-check{
+    display:block;
+    color:#fff;
+    font-size:18px;
+    font-weight:700;
+}
+.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+
+    /* ===== Add to Inquiry button on cards ===== */
+.add-inquiry-wrap{
+    position:absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 6; /* أعلى من overlay */
+}
+
+.add-inquiry-btn{
+    width: 40px;
+    height: 40px;
+    background: #0891B2;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1),
+                box-shadow .18s ease,
+                background .18s ease;
+}
+
+.add-inquiry-btn .icon{
+    color:#fff;
+    font-size:22px;
+    font-weight:700;
+    line-height:1;
+    pointer-events:none;
+}
+
+/* يبان بوضوح انه button */
+.add-inquiry-btn:hover{
+    background:#0E7490;
+    transform: scale(1.08);
+    box-shadow:
+        0 8px 22px rgba(8,145,178,.45),
+        0 0 0 4px rgba(8,145,178,.25);
+}
+
+.add-inquiry-btn:active{
+    transform: scale(0.95);
+}
+
+/* Added state */
+.add-inquiry-btn.added{
+    background:#16a34a;
+    cursor: default;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+.add-inquiry-btn.added .icon{
+    font-size:18px;
+}
+
+.add-inquiry-btn.added .icon::before{
+    content:"✓";
+}
+
+/* لو اتعمل disable */
+.add-inquiry-btn:disabled{
+    opacity:.9;
+    cursor: not-allowed;
+}
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -1153,6 +1231,17 @@
                                                 <div class="cart-icon">
                                                     <i class="fas fa-shopping-basket"></i>
                                                 </div>
+<div class="add-inquiry-wrap">
+    <button type="button"
+            class="add-inquiry-btn js-add-category"
+            data-id="{{ $subCategory->id }}"
+            data-name="{{ $subCategory->getTranslation('name') }}"
+            title="Add to Inquiry">
+        <span class="icon icon-plus">+</span>
+<span class="icon icon-check"></span>
+
+    </button>
+</div>
 
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
@@ -1344,5 +1433,62 @@
                 }
             });
         });
+
+
+
+
+
+        // Add category to Inquiry (Ajax) - prevent card navigation
+document.addEventListener('click', function(e){
+    const btn = e.target.closest('.js-add-category');
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();   // يمنع onclick بتاع الكارد
+    e.stopImmediatePropagation();
+
+    if(btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+    const categoryId = btn.getAttribute('data-id');
+    const categoryName = btn.getAttribute('data-name');
+
+    btn.dataset.loading = "1";
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('cart.addCategoryToCart') }}",
+        data: {
+            _token: "{{ csrf_token() }}",
+            category_id: categoryId
+        },
+        success: function (data) {
+            if (data && data.status === 1) {
+
+                if (data.cart_count !== undefined) {
+                    $('.cart-count').html(data.cart_count);
+                }
+
+                btn.classList.add('added');
+                btn.setAttribute('disabled', 'disabled');
+
+                if (data.message === 'Category already in cart') {
+                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                } else {
+                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                }
+
+            } else {
+                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+            }
+        },
+        error: function () {
+            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+        },
+        complete: function () {
+            btn.dataset.loading = "0";
+        }
+    });
+}, true);
+
     </script>
 @endsection

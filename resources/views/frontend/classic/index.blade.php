@@ -767,43 +767,121 @@
             margin: 0;
         }
 
-        /* ✅ Add Button for Categories */
-        .category-add-btn {
-            position: absolute;
-            top: clamp(12px, 2vw, 20px);
-            right: clamp(12px, 2vw, 20px);
-            width: clamp(36px, 5vw, 42px);
-            height: clamp(36px, 5vw, 42px);
-            border-radius: 50%;
-            border: none;
-            background-color: #0891B2;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 4;
-            cursor: pointer;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
+   /* ===========================
+   Category Add Button (+ -> ✓)
+=========================== */
 
-        .category-card-new:hover .category-add-btn {
-            opacity: 1;
-            transform: scale(1);
-        }
+.category-card-new{ position: relative; }
 
-        .category-add-btn:hover {
-            background-color: #0E7490;
-            transform: scale(1.07);
-        }
+.category-card-new .category-add-btn{
+    position: absolute;
+    top: clamp(12px, 2vw, 20px);
+    right: clamp(12px, 2vw, 20px);
 
-        .category-add-btn svg {
-            width: clamp(18px, 2.5vw, 22px);
-            height: clamp(18px, 2.5vw, 22px);
-            color: #fff;
-        }
+    width: clamp(36px, 5vw, 42px);
+    height: clamp(36px, 5vw, 42px);
+    border-radius: 50%;
+
+    background: #0891B2;
+    border: none;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 5;
+    cursor: pointer;
+
+    opacity: 0;
+    transform: scale(.96);
+    transition: opacity .2s ease, transform .2s ease, background .2s ease, box-shadow .2s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,.20);
+    overflow: hidden;
+}
+
+@media (hover:hover) and (pointer:fine){
+    .category-card-new:hover .category-add-btn{
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px){
+    .category-card-new .category-add-btn{
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.category-card-new .category-add-btn:hover{
+    background: #0E7490;
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+
+.category-card-new .category-add-btn:active{
+    transform: scale(.98);
+}
+
+.category-card-new .category-add-btn:focus-visible{
+    box-shadow: 0 0 0 4px rgba(8,145,178,.25), 0 2px 10px rgba(0,0,0,.20);
+}
+
+/* inside */
+.category-card-new .category-add-btn .btn-plus,
+.category-card-new .category-add-btn .btn-check{
+    position: absolute;
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: none;
+}
+
+.category-card-new .category-add-btn .btn-plus{
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.category-card-new .category-add-btn .btn-check{
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(.85);
+}
+
+/* loading */
+.category-card-new .category-add-btn.is-loading{
+    opacity: .9 !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* added */
+.category-card-new .category-add-btn.added{
+    background: #16a34a;
+    opacity: 1 !important;
+    pointer-events: none;
+    animation: inquiryPulse .35s ease-out 1;
+}
+
+@keyframes inquiryPulse{
+    0%{ transform: scale(1); }
+    50%{ transform: scale(1.12); }
+    100%{ transform: scale(1); }
+}
+
+.category-card-new .category-add-btn.added .btn-plus{
+    opacity: 0 !important;
+    transform: scale(.7) !important;
+}
+
+.category-card-new .category-add-btn.added .btn-check{
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
 
         /* Featured Products Section */
         .featured-products-section {
@@ -1312,14 +1390,15 @@
                             </div>
 
                             <!-- ✅ Add Button (Top Right) -->
-                            <button type="button" class="category-add-btn js-add-category"
-                                data-id="{{ $category->id }}" data-name="{{ $categoryName }}"
-                                title="{{ translate('Add to Cart') }}">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M12 5v14M5 12h14" />
-                                </svg>
-                            </button>
+                          <button type="button"
+        class="category-add-btn js-add-category"
+        data-id="{{ $category->id }}"
+        data-name="{{ $categoryName }}"
+        title="{{ translate('Add to Inquiry') }}"
+        aria-label="Add to Inquiry">
+    <span class="btn-plus">+</span>
+    <span class="btn-check">✓</span>
+</button>
 
                             <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
                                 onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
@@ -1582,24 +1661,22 @@
                         _token: '{{ csrf_token() }}',
                         category_id: categoryId
                     },
-                    success: function(data) {
-                        if (data && data.status == 1) {
-                            if (data.cart_count !== undefined) {
-                                $('.cart-count').html(data.cart_count);
-                            }
+                 success: function(data) {
+    if (data && data.status == 1) {
+        if (data.cart_count !== undefined) {
+            $('.cart-count').html(data.cart_count);
+        }
 
-                            if (data.message === 'Category already in cart') {
-                                AIZ.plugins.notify('warning', categoryName +
-                                    " {{ translate('is already in cart') }}");
-                            } else {
-                                AIZ.plugins.notify('success', categoryName +
-                                    " {{ translate('added to cart successfully') }}");
-                            }
-                        } else {
-                            AIZ.plugins.notify('danger', (data && data.message) ? data.message :
-                                "{{ translate('Something went wrong') }}");
-                        }
-                    },
+        if (data.message === 'Category already in cart') {
+            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+        } else {
+            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
+        }
+    } else {
+        AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+    }
+},
+
                     error: function() {
                         AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
                     }
