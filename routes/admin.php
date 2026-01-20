@@ -627,7 +627,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::get('/settings/our-partners', [OurPartnersController::class, 'index'])->name('settings.our-partners');
     Route::post('/settings/our-partners', [OurPartnersController::class, 'update'])->name('settings.our-partners.update');
     Route::get('/admin/settings/join-us', [PartnerController::class, 'index'])
-        ->name('settings.join-us');
+        ->name('settings.join_us');
     Route::get('/admin/home-page-settings', [HomePageController::class, 'index'])
         ->name('settings.home-page.index');
 

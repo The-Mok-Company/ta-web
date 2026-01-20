@@ -674,7 +674,7 @@
 
                             {{-- Join Us --}}
                             <li class="aiz-side-nav-item">
-                                <a class="aiz-side-nav-link" href="{{ route('settings.join-us') }}">
+                                <a class="aiz-side-nav-link" href="{{ route('settings.join_us') }}">
                                     <span class="aiz-side-nav-text">{{ translate('Join Us') }}</span>
                                 </a>
                             </li>
