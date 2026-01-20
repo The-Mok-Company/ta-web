@@ -471,12 +471,10 @@
             padding-left: 15px;
         }
 
-        /* Level 2 في الموبايل */
         .sub-dropdown.level-2 {
             background: #ffffff;
         }
 
-        /* تعديل شكل الـ dropdown items في الموبايل */
         .nav-dropdown.active .dropdown-item {
             color: #fff;
         }
