@@ -652,6 +652,11 @@ class SearchController extends Controller
     public function listingByCategory2(Request $request, $categoryId)
 
     {
+        $currentCategory = Category::find($categoryId);
+        if (!$currentCategory) {
+            abort(404);
+        }
+
         // Load children for "sublist under headline" on tiles.
         // Also load a few products as a fallback when a category has no children.
         $levelTwoCategories = Category::where('parent_id', $categoryId)
@@ -663,7 +668,26 @@ class SearchController extends Controller
                 },
             ])
             ->get();
-        return view('frontend.level_Two_categories', compact('levelTwoCategories'));
+
+        // If a direct category is requested, open its products inline.
+        // Also: if there are no children, default to opening the current category products.
+        $initialOpenCategoryId = $request->filled('open') ? (int) $request->get('open') : null;
+        if ($initialOpenCategoryId === null && $levelTwoCategories->isEmpty()) {
+            $initialOpenCategoryId = (int) $categoryId;
+        }
+
+        $initialOpenCategoryName = null;
+        if ($initialOpenCategoryId !== null) {
+            $openCategory = Category::find($initialOpenCategoryId);
+            $initialOpenCategoryName = $openCategory ? $openCategory->getTranslation('name') : null;
+        }
+
+        return view('frontend.level_Two_categories', compact(
+            'levelTwoCategories',
+            'currentCategory',
+            'initialOpenCategoryId',
+            'initialOpenCategoryName'
+        ));
         // if ($category != null) {
         //     return $this->index($request, $category->id);
         // }
@@ -674,7 +698,12 @@ class SearchController extends Controller
     {
         $category = Category::where('id', $categoryId)->first();
         if ($category != null) {
-            return $this->index($request, $category->id);
+            // Keep the new sidebar layout everywhere.
+            // Open the category's products inline on the new page.
+            return redirect()->route('categories.level2', [
+                'category_slug' => $categoryId,
+                'open' => $categoryId,
+            ]);
         }
         abort(404);
     }

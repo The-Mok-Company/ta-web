@@ -89,24 +89,29 @@
                     </svg>
                 </button>
 
-                <!-- Compare Icon -->
-                <button type="button" class="featured-action-btn featured-compare-btn"
-                    onclick="addToCompare({{ $product->id }})"
+                <!-- Add to Inquiry Icon (same area as wishlist) -->
+                @php
+                    $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
+                    $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
+                    $has_variants = (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0);
+                @endphp
+                <button type="button"
+                    class="featured-action-btn featured-inquiry-btn"
                     data-toggle="tooltip"
-                    data-title="{{ translate('Add to compare') }}"
-                    data-placement="left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M18.037,5.547v.8a.8.8,0,0,1-.8.8H7.221a.4.4,0,0,0-.4.4V9.216a.642.642,0,0,1-1.1.454L2.456,6.4a.643.643,0,0,1,0-.909L5.723,2.227a.642.642,0,0,1,1.1.454V4.342a.4.4,0,0,0,.4.4H17.234a.8.8,0,0,1,.8.8Zm-3.685,4.86a.642.642,0,0,0-1.1.454v1.661a.4.4,0,0,1-.4.4H2.84a.8.8,0,0,0-.8.8v.8a.8.8,0,0,0,.8.8H12.854a.4.4,0,0,1,.4.4V17.4a.642.642,0,0,0,1.1.454l3.267-3.268a.643.643,0,0,0,0-.909Z"
-                            transform="translate(-2.037 -2.038)" fill="currentColor" />
+                    data-title="{{ translate('Add to inquiry') }}"
+                    data-placement="left"
+                    data-action-type="add_to_inquiry"
+                    data-product-id="{{ $product->id }}"
+                    data-has-variants="{{ $has_variants ? 1 : 0 }}"
+                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
+                    <svg class="icon-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5" />
                     </svg>
                 </button>
             </div>
-
-            @php
-                $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
-                $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
-                $has_variants = (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0);
-            @endphp
         @endif
     </a>
 
@@ -124,50 +129,6 @@
                 </a>
             </h3>
 
-            @if ($product->auction_product == 0)
-                <!-- Action Buttons in Header -->
-                <div class="featured-header-buttons">
-                    <!-- Add to Cart Button -->
-                    <button class="featured-header-btn"
-                        onclick="event.preventDefault(); event.stopPropagation();
-                        @if ($has_variants)
-                            showAddToCartModal({{ $product->id }})
-                        @else
-                            @if(Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                addToCartSingleProduct({{ $product->id }})
-                            @else
-                                showLoginModal()
-                            @endif
-                        @endif
-                        ">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="featured-header-btn-text">Inquire Now</span>
-                    </button>
-
-                    <!-- Add to Inquiry Button -->
-                    <button class="featured-header-btn featured-header-inquiry-btn"
-                        onclick="event.preventDefault(); event.stopPropagation();
-                        @if ($has_variants)
-                            showAddToCartModal({{ $product->id }})
-                        @else
-                            @if(Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                addToCartSingleProduct({{ $product->id }})
-                            @else
-                                showLoginModal()
-                            @endif
-                        @endif
-                        ">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-
-                        <span class="featured-header-btn-text">Add to Inquiry</span>
-                    </button>
-                </div>
-            @endif
-
             @if ($product->auction_product == 1)
                 <!-- Auction Buttons in Header -->
                 <div class="featured-header-buttons">
@@ -183,6 +144,7 @@
 
                     <!-- Place Bid Button -->
                     <button class="featured-header-btn"
+                        data-label="Place Bid"
                         onclick="event.preventDefault(); event.stopPropagation(); bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -192,6 +154,7 @@
 
                     <!-- Add to Inquiry Button -->
                     <button class="featured-header-btn featured-header-inquiry-btn"
+                        data-label="Add to Inquiry"
                         onclick="event.preventDefault(); event.stopPropagation(); bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -324,6 +287,8 @@
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     color: #6c757d;
+    position: relative;
+    overflow: hidden;
 }
 
 .featured-action-btn svg {
@@ -335,6 +300,37 @@
     background: #007bff;
     color: #ffffff;
     transform: scale(1.1);
+}
+
+/* Inquiry icon styling + animation */
+.featured-inquiry-btn {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(33, 150, 243, 0.25);
+}
+
+.featured-inquiry-btn:hover {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+}
+
+.featured-inquiry-btn .icon-check { display: none; }
+.featured-inquiry-btn.is-added .icon-default { display: none; }
+.featured-inquiry-btn.is-added .icon-check { display: block; }
+
+.featured-inquiry-btn.is-loading {
+    opacity: .92;
+    pointer-events: none;
+}
+
+.featured-inquiry-btn.is-added::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+    animation: featuredRipple .6s ease-out;
+    pointer-events: none;
 }
 
 /* ===============================================
@@ -362,6 +358,8 @@
     margin: 0;
     line-height: 1.4;
     flex: 1;
+    /* Reserve room for 2 lines so layout doesn't jump / crop */
+    min-height: calc(1.4em * 2);
 }
 
 .featured-product-title a {
@@ -406,12 +404,15 @@
     white-space: nowrap;
     padding: 0;
 
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Smooth hover without animating to width:auto */
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
 
     gap: clamp(4px, 1vw, 8px);
     overflow: hidden;
 
     box-shadow: 0 2px clamp(6px, 1vw, 8px) rgba(0, 0, 0, 0.1);
+    position: relative;
+    line-height: 0;
 }
 
 .featured-header-btn svg {
@@ -419,42 +420,63 @@
     height: clamp(16px, 2.5vw, 20px);
     flex-shrink: 0;
     transition: transform 0.3s ease;
+    display: block;
 }
+
+.featured-header-btn .icon-check { display: none; }
+.featured-header-btn.is-added .icon-default { display: none; }
+.featured-header-btn.is-added .icon-check { display: block; }
 
 .featured-header-btn-text {
-    font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-    font-weight: 500;
+    /* Keep text for accessibility, but don't affect layout */
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
 
-    /* مخفي في البداية */
+/* Tooltip label (smooth, no layout shift) */
+.featured-header-btn::after {
+    content: attr(data-label);
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
     opacity: 0;
-    max-width: 0;
-    margin-left: 0;
+    pointer-events: none;
 
-    transform: translateX(-10px);
-    transition: all 0.3s ease;
-
+    background: #000;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
     white-space: nowrap;
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+    transition: opacity .18s ease, transform .18s ease;
 }
 
-/* عند الـ Hover - توسيع متجاوب */
-.featured-header-btn:hover {
-    width: auto;
-    min-width: auto;
-    padding: 0 clamp(14px, 2vw, 18px) 0 clamp(10px, 1.5vw, 14px);
-
-    box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(0, 0, 0, 0.2);
-
-    transform: translateY(clamp(-1px, -0.3vw, -2px));
-
-    background-color: #000000;
-}
-
-/* إظهار النص عند Hover */
-.featured-header-btn:hover .featured-header-btn-text {
+.featured-header-btn:hover::after,
+.featured-header-btn:focus-visible::after {
     opacity: 1;
-    max-width: clamp(100px, 20vw, 150px);
-    margin-left: clamp(4px, 0.8vw, 6px);
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .featured-header-btn::after { display: none; }
+}
+
+/* Hover: lift only (no width change) */
+.featured-header-btn:hover {
+    box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(0, 0, 0, 0.2);
+    transform: translateY(clamp(-1px, -0.3vw, -2px));
+    background-color: #000000;
 }
 
 /* تكبير الأيقونة عند Hover */
@@ -473,6 +495,41 @@
     box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(33, 150, 243, 0.4);
 }
 
+/* Success animation */
+.featured-header-btn.is-loading {
+    opacity: .9;
+    pointer-events: none;
+    filter: saturate(1.05);
+}
+
+.featured-header-btn.is-added {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    box-shadow: 0 6px 18px rgba(22, 163, 74, .35) !important;
+    animation: featuredBtnPop .35s ease-out;
+}
+
+.featured-header-btn.is-added::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+    animation: featuredRipple .6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes featuredBtnPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+@keyframes featuredRipple {
+    0% { opacity: 0; transform: scale(.7); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.25); }
+}
+
 /* ===============================================
    Category & Price
    =============================================== */
@@ -483,7 +540,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-top: -16px;
+    margin-top: 0;
 }
 
 .featured-product-price {
@@ -662,6 +719,70 @@ document.addEventListener('click', function (e) {
         e.stopPropagation();
     }
 });
+
+// Add-to-inquiry from product listing (supports guest carts).
+// For products with variants, we fall back to the variant modal.
+function featuredInquiryAction(btnEl) {
+    try {
+        const btn = btnEl;
+        const productId = parseInt(btn?.dataset?.productId || '0', 10);
+        const hasVariants = (btn?.dataset?.hasVariants || '0') === '1';
+
+        if (!productId) return;
+
+        if (hasVariants) {
+            if (typeof showAddToCartModal === 'function') {
+                showAddToCartModal(productId);
+            }
+            return;
+        }
+
+        if (btn.classList.contains('is-loading')) return;
+        btn.classList.add('is-loading');
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('cart.addToCart') }}",
+            data: {
+                id: productId,
+                quantity: 1,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(data) {
+                if (data) {
+                    if (data.cart_count !== undefined) {
+                        const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                        $('.cart-count').html(c).attr('data-count', c);
+                    }
+                    if (data.nav_cart_view) {
+                        $('#cart_items').html(data.nav_cart_view);
+                    }
+                    if (typeof flashHeaderCartSuccess === 'function') {
+                        flashHeaderCartSuccess();
+                    }
+
+                    btn.classList.remove('is-loading');
+                    btn.classList.add('is-added');
+                    window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+
+                    try {
+                        if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                            AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                        }
+                    } catch (e) {}
+                }
+            },
+            error: function() {
+                btn.classList.remove('is-loading');
+                try {
+                    if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                    }
+                } catch (e) {}
+            }
+        });
+    } catch (e) {}
+}
 
 // Lazy loading optimization
 if ('IntersectionObserver' in window) {

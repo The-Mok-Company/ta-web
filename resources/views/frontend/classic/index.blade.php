@@ -128,25 +128,60 @@
             opacity: 1;
         }
 
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 60px;
-            height: 60px;
+        /* Hero controls: fixed size + centered (override Bootstrap defaults) */
+        #heroCarousel .carousel-control-prev,
+        #heroCarousel .carousel-control-next {
+            position: absolute;
+            top: 50%;
+            bottom: auto; /* override Bootstrap bottom:0 */
+            transform: translateY(-50%);
+
+            width: 51px;  /* override Bootstrap width:15% */
+            height: 51px;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             background-color: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
-            top: 50%;
-            opacity: 0;
-            transition: all 0.3s ease;
+            opacity: 0.85;
+            transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
             z-index: 3;
             border: none;
         }
 
-        .carousel-control-prev {
-            left: 40px;
+        #heroCarousel .carousel-control-prev { left: 12px; }
+        #heroCarousel .carousel-control-next { right: 12px; }
+
+        /* Smaller screens: smaller buttons + icons */
+        @media (max-width: 576px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 42px;
+                height: 42px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 18px;
+                height: 18px;
+            }
         }
 
-        .carousel-control-next {
-            right: 40px;
+        @media (max-width: 360px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 36px;
+                height: 36px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         .hero-carousel:hover .carousel-control-prev,
@@ -154,8 +189,16 @@
             opacity: 1;
         }
 
-        .carousel-control-prev:hover,
-        .carousel-control-next:hover {
+        /* Touch devices: always show controls (no hover) */
+        @media (hover: none) and (pointer: coarse) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                opacity: 1;
+            }
+        }
+
+        #heroCarousel .carousel-control-prev:hover,
+        #heroCarousel .carousel-control-next:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -210,7 +253,7 @@
         .customers-section .about-link {
             display: inline-flex;
             align-items: center;
-            color: #007bff;
+            color: var(--blue);
             font-size: 1rem;
             font-weight: 500;
             text-decoration: none;
@@ -218,7 +261,7 @@
         }
 
         .customers-section .about-link:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .customers-section .about-link svg {
@@ -288,7 +331,7 @@
             border-radius: 50%;
             border: none;
             background-color: #f8f9fa;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -297,7 +340,7 @@
         }
 
         .categories-section .arrow-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
         }
 
@@ -625,186 +668,6 @@
     </style>
 
     <style>
-        /* Our Categories Section - New Design */
-        .categories-section-new {
-            padding: clamp(40px, 8vw, 80px) 0;
-            background-color: #ffffff;
-            position: relative;
-        }
-
-        .categories-section-new .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(15px, 3vw, 30px);
-            margin-bottom: clamp(30px, 5vw, 50px);
-            flex-wrap: wrap;
-            padding: 0 15px;
-        }
-
-        .categories-section-new .section-header h2 {
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0;
-            text-align: center;
-        }
-
-        .categories-section-new .nav-btn {
-            width: clamp(40px, 5vw, 45px);
-            height: clamp(40px, 5vw, 45px);
-            border-radius: 50%;
-            border: none;
-            background-color: white;
-            color: #007bff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .categories-section-new .nav-btn:hover {
-            background-color: #007bff;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .categories-slider-new {
-            position: relative;
-            overflow: hidden;
-            padding: 0 15px;
-        }
-
-        .categories-wrapper-new {
-            display: flex;
-            gap: clamp(15px, 2vw, 25px);
-            transition: transform 0.5s ease;
-            padding: 10px 0;
-        }
-
-        .category-card-new {
-            flex: 0 0 calc(33.333% - 17px);
-            position: relative;
-            border-radius: clamp(12px, 2vw, 20px);
-            overflow: hidden;
-            height: clamp(200px, 30vw, 280px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: block;
-        }
-
-        .category-card-new:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .category-card-new img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .category-card-new:hover img {
-            transform: scale(1.08);
-        }
-
-        .category-card-new::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
-            z-index: 1;
-        }
-
-        .category-card-new .cart-icon {
-            position: absolute;
-            top: clamp(12px, 2vw, 20px);
-            left: clamp(12px, 2vw, 20px);
-            width: clamp(36px, 5vw, 42px);
-            height: clamp(36px, 5vw, 42px);
-            background-color: rgb(0, 0, 0);
-            border-radius: 50px;
-            display: flex;
-            color: white;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .category-card-new:hover .cart-icon {
-            background-color: white;
-            color: #000;
-            transform: scale(1.1);
-        }
-
-        .category-card-new .cart-icon svg {
-            width: clamp(18px, 2.5vw, 22px);
-            height: clamp(18px, 2.5vw, 22px);
-        }
-
-        .category-card-new .content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: clamp(15px, 3vw, 25px);
-            z-index: 2;
-            color: white;
-        }
-
-        .category-card-new .content h3 {
-            font-size: clamp(1.2rem, 3vw, 1.6rem);
-            font-weight: 700;
-            margin: 0;
-        }
-
-        /* ✅ Add Button for Categories */
-        .category-add-btn {
-            position: absolute;
-            top: clamp(12px, 2vw, 20px);
-            right: clamp(12px, 2vw, 20px);
-            width: clamp(36px, 5vw, 42px);
-            height: clamp(36px, 5vw, 42px);
-            border-radius: 50%;
-            border: none;
-            background-color: #0891B2;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 4;
-            cursor: pointer;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .category-card-new:hover .category-add-btn {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .category-add-btn:hover {
-            background-color: #0E7490;
-            transform: scale(1.07);
-        }
-
-        .category-add-btn svg {
-            width: clamp(18px, 2.5vw, 22px);
-            height: clamp(18px, 2.5vw, 22px);
-            color: #fff;
-        }
-
         /* Featured Products Section */
         .featured-products-section {
             padding: clamp(40px, 6vw, 60px) 0 clamp(50px, 8vw, 80px) 0;
@@ -846,7 +709,7 @@
             border-radius: 50%;
             border: none;
             background-color: white;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -857,13 +720,13 @@
         }
 
         .featured-products-section .nav-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
             transform: scale(1.05);
         }
 
         .featured-products-section .view-all {
-            color: #007bff;
+            color: var(--blue);
             text-decoration: none;
             font-weight: 500;
             font-size: clamp(0.85rem, 2vw, 0.95rem);
@@ -872,7 +735,7 @@
         }
 
         .featured-products-section .view-all:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .products-slider {
@@ -1011,10 +874,6 @@
 
         /* Large Tablets and Small Desktops */
         @media (max-width: 1024px) {
-            .category-card-new {
-                flex: 0 0 calc(50% - 12px);
-            }
-
             .product-card {
                 flex: 0 0 calc(33.333% - 14px);
             }
@@ -1022,16 +881,6 @@
 
         /* Tablets */
         @media (max-width: 768px) {
-            .categories-section-new .section-header {
-                flex-direction: row;
-                gap: 15px;
-            }
-
-            .category-card-new {
-                flex: 0 0 calc(50% - 10px);
-                height: clamp(180px, 35vw, 220px);
-            }
-
             .product-card {
                 flex: 0 0 calc(50% - 10px);
             }
@@ -1052,15 +901,6 @@
 
         /* Mobile Devices */
         @media (max-width: 640px) {
-            .categories-section-new {
-                padding: 30px 0;
-            }
-
-            .category-card-new {
-                flex: 0 0 100%;
-                height: clamp(220px, 50vw, 280px);
-            }
-
             .product-card {
                 flex: 0 0 100%;
             }
@@ -1069,7 +909,6 @@
                 height: clamp(200px, 50vw, 250px);
             }
 
-            .categories-wrapper-new,
             .products-wrapper {
                 gap: 15px;
             }
@@ -1077,8 +916,6 @@
 
         /* Small Mobile Devices */
         @media (max-width: 480px) {
-
-            .categories-section-new .nav-btn,
             .featured-products-section .nav-btn {
                 width: 36px;
                 height: 36px;
@@ -1098,7 +935,6 @@
                 padding: 15px;
             }
 
-            .categories-slider-new,
             .products-slider {
                 padding: 0 10px;
             }
@@ -1110,14 +946,8 @@
 
         /* Extra Small Devices */
         @media (max-width: 360px) {
-
-            .categories-section-new .section-header h2,
             .featured-products-section .section-header h2 {
                 font-size: 1.3rem;
-            }
-
-            .category-card-new .content h3 {
-                font-size: 1.1rem;
             }
 
             .product-card .product-info h3 {
@@ -1201,12 +1031,11 @@
             @endif
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"  style="width: 51px;top: 50%;left: 3px;">
-            <span class="carousel-control-prev-icon" aria-hidden="true"
-               ></span>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" style="width: 51px;top: 50%;right: 3px;">
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </button>
@@ -1248,91 +1077,8 @@
         </div>
     </section>
 
-    <!-- ✅ Categories Section with Add Button -->
-    <section class="categories-section-new">
-        <div class="container">
-            <div class="section-header">
-                <button class="nav-btn" id="categoriesPrevBtn" type="button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                </button>
-
-                <h2>Our Categories</h2>
-
-                <button class="nav-btn" id="categoriesNextBtn" type="button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M9 18l6-6-6-6" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="categories-slider-new">
-                <div class="categories-wrapper-new" id="categoriesWrapperNew">
-                    @foreach ($categories as $category)
-                        @php
-                            $categoryName = $category->getTranslation('name', $lang);
-
-                            $categoryImage = null;
-                            if ($category->banner) {
-                                $categoryImage = uploaded_asset($category->banner);
-                            } elseif ($category->cover_image) {
-                                $categoryImage = uploaded_asset($category->cover_image);
-                            }
-
-                            if (!$categoryImage) {
-                                $lowerName = strtolower($categoryName);
-                                if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                                } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
-                                } elseif (str_contains($lowerName, 'frozen')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
-                                } else {
-                                    $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
-                                }
-                            }
-
-                            $categoryUrl = route('products.category', $category->slug);
-                        @endphp
-
-                        <a href="{{ $categoryUrl }}" class="category-card-new">
-                            <!-- Left cart icon -->
-                            <div class="cart-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="9" cy="21" r="1" />
-                                    <circle cx="20" cy="21" r="1" />
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                </svg>
-                            </div>
-
-                            <!-- ✅ Add Button (Top Right) -->
-                            <button type="button" class="category-add-btn js-add-category"
-                                data-id="{{ $category->id }}" data-name="{{ $categoryName }}"
-                                title="{{ translate('Add to Cart') }}">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M12 5v14M5 12h14" />
-                                </svg>
-                            </button>
-
-                            <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
-                                onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
-
-                            <div class="content">
-                                <h3>{{ $categoryName }}</h3>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Our Categories -->
+    @include('frontend.classic.partials.our_categories_section', ['categories' => $categories, 'lang' => $lang])
 
     <!-- Featured Products Section -->
     <section class="featured-products-section">
@@ -1392,7 +1138,7 @@
 
                             $category = \App\Models\Category::find($product->category_id);
                             $categoryName = $category?->getTranslation('name');
-                            $categoryUrl = $category ? route('products.level2', $category->id) : '#';
+                            $categoryUrl = $category ? (route('categories.level2', $category->id) . '?open=' . $category->id) : '#';
                         @endphp
 
                         <a href="{{ $productUrl }}" class="product-card">
@@ -1504,142 +1250,153 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ==========================================
-            // Categories Slider Navigation
-            // ==========================================
-            const categoriesWrapper = document.getElementById('categoriesWrapperNew');
-            const categoriesPrevBtn = document.getElementById('categoriesPrevBtn');
-            const categoriesNextBtn = document.getElementById('categoriesNextBtn');
-
-            if (categoriesWrapper && categoriesPrevBtn && categoriesNextBtn) {
-                function getStep() {
-                    const firstCard = categoriesWrapper.querySelector('.category-card-new');
-                    if (!firstCard) return 260;
-                    const cardWidth = firstCard.getBoundingClientRect().width;
-                    const styles = window.getComputedStyle(categoriesWrapper);
-                    const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
-                    return cardWidth + gap;
-                }
-
-                let currentX = 0;
-
-                function getMaxTranslate() {
-                    const parent = categoriesWrapper.parentElement;
-                    const parentWidth = parent.getBoundingClientRect().width;
-                    const contentWidth = categoriesWrapper.scrollWidth;
-                    return Math.max(0, contentWidth - parentWidth);
-                }
-
-                function apply() {
-                    categoriesWrapper.style.transform = `translateX(${-currentX}px)`;
-                }
-
-                function clamp() {
-                    const max = getMaxTranslate();
-                    if (currentX < 0) currentX = 0;
-                    if (currentX > max) currentX = max;
-                }
-
-                categoriesNextBtn.addEventListener('click', function() {
-                    currentX += getStep();
-                    clamp();
-                    apply();
-                });
-
-                categoriesPrevBtn.addEventListener('click', function() {
-                    currentX -= getStep();
-                    clamp();
-                    apply();
-                });
-
-                window.addEventListener('resize', function() {
-                    clamp();
-                    apply();
-                });
-            }
+            // Our Categories slider + Add-to-Inquiry logic moved to:
+            // resources/views/frontend/classic/partials/our_categories_section.blade.php
 
             // ==========================================
-            // ✅ Add Category to Cart (AJAX)
-            // ==========================================
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.js-add-category');
-                if (!btn) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const categoryId = btn.getAttribute('data-id');
-                const categoryName = btn.getAttribute('data-name') || 'Category';
-
-                addCategoryToCart(categoryId, categoryName);
-            });
-
-            function addCategoryToCart(categoryId, categoryName) {
-                $.ajax({
-                    type: "POST",
-                    url: '{{ route('cart.addCategoryToCart') }}',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        category_id: categoryId
-                    },
-                    success: function(data) {
-                        if (data && data.status == 1) {
-                            if (data.cart_count !== undefined) {
-                                $('.cart-count').html(data.cart_count);
-                            }
-
-                            if (data.message === 'Category already in cart') {
-                                AIZ.plugins.notify('warning', categoryName +
-                                    " {{ translate('is already in cart') }}");
-                            } else {
-                                AIZ.plugins.notify('success', categoryName +
-                                    " {{ translate('added to cart successfully') }}");
-                            }
-                        } else {
-                            AIZ.plugins.notify('danger', (data && data.message) ? data.message :
-                                "{{ translate('Something went wrong') }}");
-                        }
-                    },
-                    error: function() {
-                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                    }
-                });
-            }
-
-            // ==========================================
-            // Products Slider Navigation
+            // Products Slider Navigation (infinite loop)
             // ==========================================
             const productsWrapper = document.getElementById('productsWrapper');
             const productsPrevBtn = document.getElementById('productsPrevBtn');
             const productsNextBtn = document.getElementById('productsNextBtn');
 
             if (productsWrapper && productsPrevBtn && productsNextBtn) {
-                let productsIndex = 0;
+                const slider = {
+                    wrapper: productsWrapper,
+                    viewport: productsWrapper.parentElement,
+                    prevBtn: productsPrevBtn,
+                    nextBtn: productsNextBtn,
+                    originalCount: 0,
+                    clonesEachSide: 0,
+                    index: 0,
+                    step: 0,
+                    isAnimating: false,
+                    transition: 'transform 0.5s ease',
+                };
 
-                setTimeout(() => {
-                    const firstProduct = productsWrapper.querySelector('.product-card');
-                    if (firstProduct) {
-                        const productWidth = firstProduct.offsetWidth + 20;
+                function getStep() {
+                    const first = slider.wrapper.querySelector('.product-card');
+                    if (!first) return 0;
+                    const cardWidth = first.getBoundingClientRect().width;
+                    const styles = window.getComputedStyle(slider.wrapper);
+                    const gap = parseFloat(styles.columnGap || styles.gap || 0) || 0;
+                    return cardWidth + gap;
+                }
 
-                        productsNextBtn.addEventListener('click', () => {
-                            const maxScroll = productsWrapper.scrollWidth - productsWrapper
-                                .parentElement.offsetWidth;
-                            if (productsIndex < maxScroll) {
-                                productsIndex += productWidth;
-                                if (productsIndex > maxScroll) productsIndex = maxScroll;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                function getItemsPerView(step) {
+                    if (!step) return 1;
+                    const width = slider.viewport.getBoundingClientRect().width;
+                    return Math.max(1, Math.round(width / step));
+                }
+
+                function removeClones() {
+                    slider.wrapper.querySelectorAll('.product-card.is-clone').forEach((n) => n.remove());
+                }
+
+                function buildInfiniteLoop() {
+                    removeClones();
+
+                    const originals = Array.from(slider.wrapper.querySelectorAll('.product-card')).filter(
+                        (n) => !n.classList.contains('is-clone')
+                    );
+
+                    slider.originalCount = originals.length;
+                    slider.step = getStep();
+
+                    const perView = getItemsPerView(slider.step);
+                    slider.clonesEachSide = Math.min(perView, slider.originalCount);
+
+                    // Not enough items to loop cleanly.
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.index = 0;
+                        slider.wrapper.style.transition = '';
+                        slider.wrapper.style.transform = 'translateX(0px)';
+                        return;
+                    }
+
+                    // Prepend clones of last N cards
+                    originals
+                        .slice(-slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.insertBefore(clone, slider.wrapper.firstChild);
                         });
 
-                        productsPrevBtn.addEventListener('click', () => {
-                            if (productsIndex > 0) {
-                                productsIndex -= productWidth;
-                                if (productsIndex < 0) productsIndex = 0;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                    // Append clones of first N cards
+                    originals
+                        .slice(0, slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.appendChild(clone);
+                        });
+
+                    // Start on the first real slide (after prepended clones)
+                    slider.index = slider.clonesEachSide;
+                    slider.wrapper.style.transition = 'none';
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                    requestAnimationFrame(() => {
+                        slider.wrapper.style.transition = slider.transition;
+                    });
+                }
+
+                function goToIndex(nextIndex) {
+                    slider.index = nextIndex;
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                }
+
+                function next() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index + 1);
+                }
+
+                function prev() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index - 1);
+                }
+
+                slider.nextBtn.addEventListener('click', next);
+                slider.prevBtn.addEventListener('click', prev);
+
+                slider.wrapper.addEventListener('transitionend', () => {
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.isAnimating = false;
+                        return;
+                    }
+
+                    // If we moved onto the appended "first" clone, jump back to the real first.
+                    if (slider.index === slider.clonesEachSide + slider.originalCount) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
                         });
                     }
-                }, 100);
+
+                    // If we moved onto the prepended "last" clone, jump back to the real last.
+                    if (slider.index === slider.clonesEachSide - 1) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide + slider.originalCount - 1;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
+                        });
+                    }
+
+                    slider.isAnimating = false;
+                });
+
+                // Init + keep responsive
+                setTimeout(buildInfiniteLoop, 50);
+                let resizeTimer = null;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(buildInfiniteLoop, 120);
+                });
             }
         });
     </script>

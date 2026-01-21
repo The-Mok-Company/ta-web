@@ -17,7 +17,9 @@
         ->orderBy('order_level', 'desc')
         ->get();
 
-    $currentCategoryId = request()->segment(2);
+    // If a specific category is requested via ?open=, use it as the active context
+    // for sidebar highlighting (active trail).
+    $currentCategoryId = request('open') ?? request()->segment(2);
 
     // Active trail + active main category (level 0) for sidebar highlighting
     $activeTrailIds = [];
@@ -35,6 +37,84 @@
 @endphp
 
 <style>
+.add-inquiry-btn .icon-check{ display:none; }
+.add-inquiry-btn.added .icon-plus{ display:none; }
+.add-inquiry-btn.added .icon-check{
+    display:block;
+    color:#fff;
+    font-size:18px;
+    font-weight:700;
+}
+.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+
+
+    /* ===== Add to Inquiry button on cards (Top Right) ===== */
+.add-inquiry-wrap {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 6;
+}
+
+.add-inquiry-btn {
+    width: 40px;
+    height: 40px;
+    background: #0891B2;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1),
+                box-shadow .18s ease,
+                background .18s ease;
+}
+
+.add-inquiry-btn .icon {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* clearly looks clickable */
+.add-inquiry-btn:hover {
+    background: #0E7490;
+    transform: scale(1.08);
+    box-shadow:
+        0 8px 22px rgba(8,145,178,.45),
+        0 0 0 4px rgba(8,145,178,.25);
+}
+
+.add-inquiry-btn:active {
+    transform: scale(0.95);
+}
+
+/* Added state -> check */
+.add-inquiry-btn.added {
+    background: #16a34a;
+    cursor: default;
+}
+
+.add-inquiry-btn.added .icon {
+    font-size: 18px;
+}
+
+.add-inquiry-btn.added .icon::before {
+    content: "✓";
+}
+
+/* disabled */
+.add-inquiry-btn:disabled {
+    opacity: .9;
+    cursor: not-allowed;
+}
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -553,33 +633,6 @@
         transform: scale(1.08);
     }
 
-    /* Cart Icon - Top Left with Dark Circle */
-    .category-card .cart-icon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        cursor: pointer;
-        transition: .3s;
-    }
-
-    .category-card .cart-icon:hover {
-        background: rgba(0, 0, 0, 0.85);
-        transform: scale(1.1);
-    }
-
-    .category-card .cart-icon i {
-        color: #fff;
-        font-size: 14px;
-    }
-
     /* Category Title - Bottom Left */
     .category-card .category-title {
         position: absolute;
@@ -940,13 +993,139 @@
         color: #fff;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
+
+    /* ========================
+       PRODUCT HEADER (match product listing UI)
+    ======================== */
+    .products-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, .08);
+        padding: 24px;
+    }
+
+    .breadcrumb-modern {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 16px 0;
+        padding: 0;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .breadcrumb-modern a {
+        color: #6c757d;
+        text-decoration: none;
+        transition: color .2s;
+    }
+
+    .breadcrumb-modern a:hover {
+        color: #212529;
+    }
+
+    .breadcrumb-modern .active {
+        color: #212529;
+        font-weight: 600;
+    }
+
+    .breadcrumb-separator {
+        color: #adb5bd;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #212529;
+        margin: 0 0 10px 0;
+    }
+
+    .page-description {
+        font-size: 13px;
+        color: #6c757d;
+        line-height: 1.6;
+        margin: 0 0 18px 0;
+    }
+
+    .action-bar {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 18px;
+    }
+
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sort-dropdown {
+        min-width: 220px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 13px;
+        color: #212529;
+        outline: none;
+    }
+
+    .btn-add-inquiry {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 8px;
+        border: none;
+        background: #0891B2;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        white-space: nowrap;
+    }
+
+    .btn-add-inquiry:hover {
+        background: #0E7490;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(8,145,178,.25);
+    }
+
+    .btn-add-inquiry:disabled {
+        opacity: .8;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .inline-back-btn {
+        height: 40px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .products-container { padding: 18px; }
+        .page-title { font-size: 22px; }
+        .toolbar { justify-content: flex-start; }
+        .sort-dropdown { width: 100%; }
+        .btn-add-inquiry { width: 100%; justify-content: center; }
+    }
 </style>
 
 @section('content')
     <div class="category-page">
         {{-- Hero Banner with Category Image --}}
         <div class="category-hero"
-            style="background-image: url('{{ uploaded_asset($levelTwoCategories->first()->banner ?? '') }}');">
+            style="background-image: url('{{ uploaded_asset($currentCategory->banner ?? '') }}');">
             <div class="container">
                 <a href="javascript:history.back()" class="back-arrow">
                     <i class="fas fa-arrow-left"></i>
@@ -954,7 +1133,7 @@
                 <h1>
                     <span class="explore">Explore</span>
 
-                    {{ $levelTwoCategories->first()->name ?? 'Categories' }}
+                    {{ $currentCategory->getTranslation('name') ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -1022,7 +1201,7 @@
                                                                         @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                             {{-- Level 2 has children (Level 3) --}}
                                                                             <div class="category-header">
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                                     class="category-name">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
@@ -1036,7 +1215,7 @@
                                                                                         $isTrail3 = in_array((int) $level3Category->id, $activeTrailIds ?? [], true);
                                                                                     @endphp
                                                                                     <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}">
-                                                                                        <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                        <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
                                                                                             class="category-link">
                                                                                             <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                             <i class="fas fa-chevron-right"></i>
@@ -1046,7 +1225,7 @@
                                                                             </ul>
                                                                         @else
                                                                             {{-- Level 2 without children --}}
-                                                                            <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                            <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                                 class="category-link">
                                                                                 <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 <i class="fas fa-chevron-right"></i>
@@ -1057,7 +1236,7 @@
                                                             </ul>
                                                         @else
                                                             {{-- Level 1 without children --}}
-                                                            <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                            <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
                                                                 class="category-link">
                                                                 <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                 <i class="fas fa-chevron-right"></i>
@@ -1088,43 +1267,76 @@
                     <div class="col-lg-9">
                         {{-- Products view (loaded inline) --}}
                         <div id="inline-products-wrapper" class="d-none">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h4 class="mb-0 fw-700" id="inline-products-title"></h4>
-                                <button type="button" class="btn btn-sm btn-light" id="inline-products-back">
-                                    <i class="las la-arrow-left"></i> {{ translate('Back') }}
-                                </button>
-                            </div>
+                            <div class="products-container">
+                                <ul class="breadcrumb-modern" id="inline-breadcrumb"></ul>
 
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-3" id="products-row"></div>
-                            <div class="pagination-wrapper mt-3" id="pagination"></div>
+                                <h1 class="page-title" id="inline-page-title"></h1>
+
+                                <p class="page-description" id="inline-page-description">
+                                    To connect global markets efficiently and ethically by providing exceptional sourcing and
+                                    trade solutions that enhance business value and foster sustainable growth.
+                                </p>
+
+                                <div class="action-bar">
+                                    <div class="toolbar">
+                                        <select id="inline-sort-by" class="sort-dropdown" name="sort_by">
+                                            <option value="">{{ translate('Sort by') }}</option>
+                                            <option value="newest">{{ translate('Newest') }}</option>
+                                            <option value="oldest">{{ translate('Oldest') }}</option>
+                                            <option value="price-asc">{{ translate('Price low to high') }}</option>
+                                            <option value="price-desc">{{ translate('Price high to low') }}</option>
+                                        </select>
+
+                                        <button type="button" class="btn-add-inquiry" id="inline-add-inquiry-btn">
+                                            <i class="las la-plus"></i> {{ translate('Add to inquiry') }}
+                                        </button>
+
+                                        <button type="button" class="btn btn-sm btn-light inline-back-btn" id="inline-products-back">
+                                            <i class="las la-arrow-left"></i> {{ translate('Back') }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-3" id="products-row"></div>
+                                <div class="pagination-wrapper mt-3" id="pagination"></div>
+                            </div>
                         </div>
 
                         {{-- Categories grid (default) --}}
                         <div class="row gx-3 gy-5 category-cards-grid" id="level2-categories-grid">
-                            @foreach ($levelTwoCategories as $category)
-                                <div class="col-lg-6 col-md-6">
-                                    <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;"
-                                        class="js-open-category-products"
-                                        data-category-id="{{ $category->id }}"
-                                        data-category-name="{{ $category->getTranslation('name') }}">
-                                        <div class="category-card">
-                                            <img src="{{ uploaded_asset($category->banner) }}"
-                                                alt="{{ $category->getTranslation('name') }}">
+                          @foreach ($levelTwoCategories as $category)
+    <div class="col-lg-6 col-md-6">
+        <a href="{{ route('categories.level2', $category->id) }}?open={{ $category->id }}" style="text-decoration: none;"
+           class="js-open-category-products"
+           data-category-id="{{ $category->id }}"
+           data-category-name="{{ $category->getTranslation('name') }}">
 
-                                            {{-- Cart Icon - Top Left --}}
-                                            <div class="cart-icon">
-                                                <i class="fas fa-shopping-basket"></i>
-                                            </div>
+            <div class="category-card">
+                <img src="{{ uploaded_asset($category->banner) }}"
+                     alt="{{ $category->getTranslation('name') }}">
 
-                                            {{-- Category Title - Bottom Left --}}
-                                            <div class="category-title">
-                                                <h5>{{ $category->getTranslation('name') }}</h5>
-                                            </div>
+                {{-- Add to Inquiry Button - Top Right --}}
+                <div class="add-inquiry-wrap">
+                    <button type="button"
+                            class="add-inquiry-btn js-add-category"
+                            data-id="{{ $category->id }}"
+                            data-name="{{ $category->getTranslation('name') }}"
+                            title="Add to Inquiry">
+<span class="icon icon-plus">+</span>
+<span class="icon icon-check"></span>
+                    </button>
+                </div>
 
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
+                {{-- Category Title - Bottom Left --}}
+                <div class="category-title">
+                    <h5>{{ $category->getTranslation('name') }}</h5>
+                </div>
+            </div>
+
+        </a>
+    </div>
+@endforeach
+
                         </div>
                     </div>
 
@@ -1214,6 +1426,116 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let activeCategoryId = null;
+            let activeCategoryName = '';
+
+            function escapeHtml(str) {
+                return $('<div>').text(str || '').html();
+            }
+
+            function getSidebarCategoryName(categoryId) {
+                const $li = $(`.category-sidebar li[data-category-id="${categoryId}"]`).first();
+                if (!$li.length) return '';
+
+                // Prefer the visible "header" label if present
+                const headerName = $li.find('> .category-header a.category-name span').first().text().trim();
+                if (headerName) return headerName;
+
+                // Fallback to leaf link label
+                const linkName = $li.find('> a.category-link span').first().text().trim();
+                if (linkName) return linkName;
+
+                // Last fallback: any span text
+                return ($li.find('span').first().text() || '').trim();
+            }
+
+            function buildInlineBreadcrumb(categoryId, categoryName) {
+                const homeUrl = @json(route('home'));
+                const allUrl = @json(route('categories.all'));
+
+                const parts = [];
+
+                // Always start with Home / All Categories
+                parts.push(`<li><a href="${homeUrl}">{{ translate('Home') }}</a></li>`);
+                parts.push(`<span class="breadcrumb-separator">/</span>`);
+                parts.push(`<li><a href="${allUrl}">{{ translate('All Categories') }}</a></li>`);
+
+                const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`).first();
+
+                // Try to add Main Category (level 0) from the accordion section
+                if ($activeLi.length) {
+                    const $section = $activeLi.closest('.sidebar-section');
+                    const mainName = ($section.find('> .sidebar-section-header span').first().text() || '').trim();
+                    if (mainName) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        parts.push(`<li class="active">${escapeHtml(mainName)}</li>`);
+                    }
+
+                    // Build parent chain using the nested <ul data-parent-id="...">
+                    const chain = [];
+                    let currentId = categoryId;
+                    let $currentLi = $activeLi;
+
+                    // Ensure the active name is present
+                    const resolvedActiveName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
+                    if (resolvedActiveName) {
+                        chain.push(resolvedActiveName);
+                    }
+
+                    while (true) {
+                        const $parentUl = $currentLi.closest('ul.sub-categories, ul.sub-sub-categories');
+                        if (!$parentUl.length) break;
+
+                        const parentId = parseInt($parentUl.attr('data-parent-id'), 10);
+                        if (!parentId) break;
+
+                        // Stop if we can't find the parent li in the sidebar
+                        const $parentLi = $(`.category-sidebar li[data-category-id="${parentId}"]`).first();
+                        if (!$parentLi.length) break;
+
+                        const parentName = (
+                            $parentLi.find('> .category-header a.category-name span').first().text() ||
+                            $parentLi.find('> a.category-link span').first().text() ||
+                            $parentLi.find('span').first().text() ||
+                            ''
+                        ).trim();
+
+                        if (parentName) {
+                            chain.push(parentName);
+                        }
+
+                        currentId = parentId;
+                        $currentLi = $parentLi;
+                    }
+
+                    // Render chain from top (closest to main) to active
+                    const trail = chain.reverse().filter(Boolean);
+                    trail.forEach(function(name) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        parts.push(`<li class="active">${escapeHtml(name)}</li>`);
+                    });
+                } else {
+                    // Fallback: just show the active category name
+                    const resolvedActiveName = (categoryName || '').trim();
+                    if (resolvedActiveName) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        parts.push(`<li class="active">${escapeHtml(resolvedActiveName)}</li>`);
+                    }
+                }
+
+                $('#inline-breadcrumb').html(parts.join(''));
+            }
+
+            function setOpenParamInUrl(openCategoryId) {
+                try {
+                    const url = new URL(window.location.href);
+                    if (openCategoryId) {
+                        url.searchParams.set('open', String(openCategoryId));
+                    } else {
+                        url.searchParams.delete('open');
+                    }
+                    window.history.replaceState({}, '', url.toString());
+                } catch (e) {}
+            }
 
             function renderSidebarProducts(productList, categoryId) {
                 const $section = $('#sidebar-products-section');
@@ -1306,7 +1628,13 @@
             function openCategoryProducts(categoryId, categoryName, page = 1) {
                 if (!categoryId) return;
 
-                $('#inline-products-title').text(categoryName || '');
+                activeCategoryId = categoryId;
+                activeCategoryName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
+
+                $('#inline-page-title').text(activeCategoryName);
+                buildInlineBreadcrumb(categoryId, activeCategoryName);
+                // Persist the opened category so refresh stays on the same products view
+                setOpenParamInUrl(categoryId);
                 $('#products-row').html(
                     '<div class="col-12 text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
                 );
@@ -1325,6 +1653,7 @@
                     type: 'get',
                     data: {
                         'categories[]': categoryId,
+                        sort_by: ($('#inline-sort-by').val() || ''),
                         page: page,
                         include_product_list: 1
                     },
@@ -1368,7 +1697,7 @@
                 openCategoryProducts(categoryId, categoryName, 1);
             });
 
-            // Sidebar click: intercept /products-level2/{id} to keep same page
+            // Sidebar click: intercept product-opening links (those carrying ?open=...) to keep same page
             $(document).on('click', '.category-sidebar a.category-link, .category-sidebar a.category-name', function(e) {
                 // allow open-in-new-tab behaviors
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
@@ -1376,8 +1705,10 @@
                 }
 
                 const href = $(this).attr('href') || '';
-                if (!href.includes('/products-level2/')) {
-                    return true; // let category-level2 links navigate normally
+                // Only intercept links that explicitly ask to open products inline.
+                // Plain /category-level2/{id} (without open=) should navigate normally.
+                if (!href.includes('open=')) {
+                    return true;
                 }
 
                 const $li = $(this).closest('li[data-category-id]');
@@ -1395,8 +1726,7 @@
                 e.preventDefault();
                 const page = $(this).data('page');
                 if (!page || !activeCategoryId) return;
-                const categoryName = $('#inline-products-title').text() || '';
-                openCategoryProducts(activeCategoryId, categoryName, page);
+                openCategoryProducts(activeCategoryId, activeCategoryName, page);
             });
 
             $('#inline-products-back').on('click', function() {
@@ -1406,7 +1736,60 @@
                 $('#pagination').html('');
                 $('#sidebar-products-section').addClass('d-none');
                 $('#sidebar-products-list').html('');
+                // Clear open param so refresh returns to categories grid
+                setOpenParamInUrl(null);
             });
+
+            // Sort change (reload current category products)
+            $(document).on('change', '#inline-sort-by', function() {
+                if (!activeCategoryId) return;
+                openCategoryProducts(activeCategoryId, activeCategoryName, 1);
+            });
+
+            // Header "Add to inquiry" should add the active category
+            $(document).on('click', '#inline-add-inquiry-btn', function(e) {
+                e.preventDefault();
+                if (!activeCategoryId) return;
+
+                const $btn = $(this);
+                if ($btn.data('loading') === 1) return;
+                $btn.data('loading', 1).prop('disabled', true);
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('cart.addCategoryToCart') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        category_id: activeCategoryId
+                    },
+                    success: function(data) {
+                        if (data && data.status === 1) {
+                            if (data.cart_count !== undefined) {
+                                const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (typeof flashHeaderCartSuccess === 'function') {
+                                flashHeaderCartSuccess();
+                            }
+                            try {
+                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                                    AIZ.plugins.notify('success', (activeCategoryName || '') + " {{ translate('added to inquiry') }}");
+                                }
+                            } catch (err) {}
+                        }
+                    },
+                    complete: function() {
+                        $btn.data('loading', 0).prop('disabled', false);
+                    }
+                });
+            });
+
+            // Auto-open products when requested by controller (?open=... or category has no children)
+            const initialOpenCategoryId = @json($initialOpenCategoryId ?? null);
+            const initialOpenCategoryName = @json($initialOpenCategoryName ?? null);
+            if (initialOpenCategoryId) {
+                openCategoryProducts(initialOpenCategoryId, initialOpenCategoryName || '', 1);
+            }
 
             // Open product details in modal (stay on same page)
             $(document).on('click', 'a.js-open-product-details', function(e) {
@@ -1464,4 +1847,62 @@
             });
         });
     </script>
+    <script>// Add category to Inquiry (Ajax) - prevent navigation
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.js-add-category');
+    if (!btn) return;
+
+    // stop the <a> click and any handlers that open category products
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+    const categoryId = btn.getAttribute('data-id');
+    const categoryName = btn.getAttribute('data-name') || '';
+
+    btn.dataset.loading = "1";
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('cart.addCategoryToCart') }}",
+        data: {
+            _token: "{{ csrf_token() }}",
+            category_id: categoryId
+        },
+        success: function(data) {
+            if (data && data.status === 1) {
+
+                if (data.cart_count !== undefined) {
+                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                    $('.cart-count').html(c).attr('data-count', c);
+                }
+                if (typeof flashHeaderCartSuccess === 'function') {
+                    flashHeaderCartSuccess();
+                }
+
+                // mark as added
+                btn.classList.add('added');
+                btn.setAttribute('disabled', 'disabled');
+
+                if (data.message === 'Category already in cart') {
+                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                } else {
+                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                }
+
+            } else {
+                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+            }
+        },
+        error: function() {
+            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+        },
+        complete: function() {
+            btn.dataset.loading = "0";
+        }
+    });
+}, true);
+</script>
 @endsection

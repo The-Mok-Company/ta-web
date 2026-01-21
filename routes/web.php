@@ -315,6 +315,9 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
         Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
     });
 
+    // My Inquiries (submitted inquiry requests)
+    Route::get('/my-inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+
     Route::controller(NotificationController::class)->group(function () {
         Route::get('/all-notifications', 'customerIndex')->name('customer.all-notifications');
         Route::post('/notifications/bulk-delete', 'bulkDeleteCustomer')->name('notifications.bulk_delete');

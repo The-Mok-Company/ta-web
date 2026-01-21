@@ -176,7 +176,8 @@
                     updateNavCart(data.nav_cart_view, data.cart_count);
                 } else {
                     // fallback: update only count
-                    $('.cart-count').text(data.cart_count || 0);
+                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                    $('.cart-count').text(c).attr('data-count', c);
                 }
 
                 // Optional: update cart page summary if exists

@@ -7,6 +7,17 @@
     $bottomHeaderTextColor = get_setting('bottom_header_text_color');
 
     $categories = Category::where('level', 0)->with('childrenCategories')->get();
+
+    // Cart count (works with DB/session cart via helper)
+    // - Guest users: often stored in Session('cart')
+    // - Logged-in users: typically stored via get_user_cart()
+    $header_cart_count = 0;
+    if (Session::has('cart')) {
+        $header_cart_count = is_countable(Session::get('cart')) ? count(Session::get('cart')) : 0;
+    } elseif (function_exists('get_user_cart')) {
+        $header_carts = get_user_cart();
+        $header_cart_count = is_countable($header_carts) ? count($header_carts) : 0;
+    }
 @endphp
 
 <style>
@@ -33,12 +44,14 @@
         width: 90%;
         padding: 0 40px;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         background: #1a1a1a;
         border-radius: 100px;
         height: 56px;
         transition: all 0.3s ease;
+        /* Important: allow dropdowns to render outside header pill */
+        overflow: visible;
     }
 
     .header-container.search-active {
@@ -58,7 +71,22 @@
         text-decoration: none;
         color: white;
         padding-right: 20px;
-        margin-top: 15px;
+        margin-top: 0;
+    }
+
+    /* Header-only resets (avoid impacting whole site) */
+    .header a,
+    .header button,
+    .header input,
+    .header textarea,
+    .header .btn,
+    .header .has-transition {
+        margin-top: 0 !important;
+    }
+
+    /* User menu button vertical alignment (overrides inline top:5px) */
+    .header .user-menu-btn {
+        top: 0 !important;
     }
 
     .logo1-icon {
@@ -95,7 +123,7 @@
     }
 
     .nav-link:hover {
-        color: #3b82f6;
+        color: var(--blue);
     }
 
     .nav-dropdown {
@@ -117,7 +145,7 @@
     }
 
     .dropdown-btn:hover {
-        color: #3b82f6;
+        color: var(--blue);
     }
 
     .dropdown-arrow {
@@ -136,6 +164,7 @@
         align-items: center;
         gap: 8px;
         padding-left: 20px;
+        overflow: visible;
     }
 
     .icon-btn {
@@ -143,13 +172,17 @@
         border: none;
         color: #999;
         cursor: pointer;
-        padding: 10px 8px 8px 8px;
+        /* Ensure true circular hover background */
+        width: 40px;
+        height: 40px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        transition: all 0.2s;
+        border-radius: 999px;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         position: relative;
+        overflow: visible;
     }
 
     .icon-btn:hover {
@@ -157,16 +190,61 @@
         background: #2a2a2a;
     }
 
+    .icon-btn > a {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+        text-decoration: none;
+    }
+
     .icon-btn svg {
         width: 20px;
         height: 20px;
+        display: block;
+    }
+
+    /* Cart "added" success state (green + check) */
+    .header-cart-btn.is-success {
+        background: rgba(34, 197, 94, 0.18) !important;
+        color: #22c55e !important;
+    }
+
+    .header-cart-btn .cart-icon-svg {
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .header-cart-btn .cart-success-check {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        pointer-events: none;
+        color: #22c55e;
+    }
+
+    .header-cart-btn.is-success .cart-icon-svg {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    .header-cart-btn.is-success .cart-success-check {
+        opacity: 1;
+        transform: scale(1);
     }
 
     .badge-count {
         position: absolute;
-        top: 2px;
-        right: 2px;
-        background: #3b82f6;
+        top: 0;
+        right: 0;
+        transform: translate(35%, -35%);
+        background: var(--blue);
         color: white;
         font-size: 10px;
         font-weight: 700;
@@ -174,6 +252,11 @@
         border-radius: 10px;
         min-width: 16px;
         text-align: center;
+        border: 2px solid #1a1a1a; /* matches header bg */
+    }
+
+    .badge-count[data-count="0"] {
+        display: none;
     }
 
     .mobile-menu-btn {
@@ -219,7 +302,7 @@
     }
 
     .search-input:focus {
-        border-color: #3b82f6;
+        border-color: var(--blue);
         background: #333;
     }
 
@@ -362,6 +445,14 @@
         transform: translateY(0);
     }
 
+    /* Allow click-to-open for touch + desktop */
+    .icon-btn.is-open .icon-dropdown,
+    .icon-btn:focus-within .icon-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
     .dropdown-header {
         padding: 12px 16px;
         background: #f8f9fa;
@@ -391,7 +482,7 @@
     }
 
     .dropdown-item:hover {
-        background: #dbdbdb;
+        background: #fff;
         color: black !important;
     }
 
@@ -402,7 +493,7 @@
     }
 
     .dropdown-footer a {
-        color: #3b82f6;
+        color: var(--blue);
         text-decoration: none;
         font-size: 13px;
         font-weight: 500;
@@ -678,7 +769,7 @@
                                                                         {{ translate('Product Group') }}</div>
 
                                                                     @foreach ($subCategory->childrenCategories as $level2Category)
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                        <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                             class="dropdown-item">
                                                                             <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         </a>
@@ -760,32 +851,6 @@
             </button>
 
             @if (Auth::check() && auth()->user()->user_type == 'customer')
-                <!-- Compare -->
-                <div class="icon-btn" style="position: relative;">
-                    <a href="{{ route('compare') }}" style="color: inherit; display: flex;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </a>
-                    @if (Session::has('compare'))
-                        <span class="badge-count">{{ count(Session::get('compare')) }}</span>
-                    @endif
-                </div>
-
-                <!-- Wishlist -->
-                <div class="icon-btn" style="position: relative;">
-                    <a href="{{ route('wishlists.index') }}" style="color: inherit; display: flex;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </a>
-                    @if (Auth::check())
-                        <span class="badge-count">{{ count(Auth::user()->wishlists) }}</span>
-                    @endif
-                </div>
-
                 <!-- Notifications -->
                 <div class="icon-btn" style="position: relative;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -824,20 +889,23 @@
             @endif
 
             <!-- Cart -->
-            <div class="icon-btn" style="position: relative;">
-                <a href="{{ route('cart') }}" style="color: inherit; display: flex;">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="icon-btn header-cart-btn" style="position: relative;">
+                <a href="{{ route('cart') }}" aria-label="{{ translate('Cart') }}">
+                    <svg class="cart-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </a>
-                @if (Session::has('cart'))
-                    <span class="badge-count">{{ count(Session::get('cart')) }}</span>
-                @endif
+                <span class="cart-success-check" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="badge-count cart-count" data-count="{{ $header_cart_count }}">{{ $header_cart_count }}</span>
             </div>
 
             <!-- User Icon -->
-            <div class="icon-btn" style="position: relative; top:5px;">
+            <div class="icon-btn user-menu-btn" style="position: relative; top:5px;" tabindex="0" aria-label="{{ translate('Account') }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -846,47 +914,26 @@
                 @auth
                     <div class="header-dropdown icon-dropdown">
                         <div class="dropdown-header">{{ Auth::user()->name }}</div>
-                        @if (isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    viewBox="0 0 16 16">
-                                    <path
-                                        d="M15.3,5.4,9.561.481A2,2,0,0,0,8.26,0H7.74a2,2,0,0,0-1.3.481L.7,5.4A2,2,0,0,0,0,6.92V14a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V6.92A2,2,0,0,0,15.3,5.4M10,15H6V9A1,1,0,0,1,7,8H9a1,1,0,0,1,1,1Zm5-1a1,1,0,0,1-1,1H11V9A2,2,0,0,0,9,7H7A2,2,0,0,0,5,9v6H2a1,1,0,0,1-1-1V6.92a1,1,0,0,1,.349-.76l5.74-4.92A1,1,0,0,1,7.74,1h.52a1,1,0,0,1,.651.24l5.74,4.92A1,1,0,0,1,15,6.92Z"
-                                        fill="#666" />
-                                </svg>
-                                <span>{{ translate('Dashboard') }}</span>
-                            </a>
-                        @elseif(isCustomer())
-                            <a href="{{ route('dashboard') }}" class="dropdown-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    viewBox="0 0 16 16">
-                                    <path
-                                        d="M15.3,5.4,9.561.481A2,2,0,0,0,8.26,0H7.74a2,2,0,0,0-1.3.481L.7,5.4A2,2,0,0,0,0,6.92V14a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V6.92A2,2,0,0,0,15.3,5.4M10,15H6V9A1,1,0,0,1,7,8H9a1,1,0,0,1,1,1Zm5-1a1,1,0,0,1-1,1H11V9A2,2,0,0,0,9,7H7A2,2,0,0,0,5,9v6H2a1,1,0,0,1-1-1V6.92a1,1,0,0,1,.349-.76l5.74-4.92A1,1,0,0,1,7.74,1h.52a1,1,0,0,1,.651.24l5.74,4.92A1,1,0,0,1,15,6.92Z"
-                                        fill="#666" />
-                                </svg>
-                                <span>{{ translate('Dashboard') }}</span>
-                            </a>
-                            <a href="{{ route('purchase_history.index') }}" class="dropdown-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    viewBox="0 0 16 16">
-                                    <path
-                                        d="M14.5,5.963h-4a1.5,1.5,0,0,0,0,3h4a1.5,1.5,0,0,0,0-3m0,2h-4a.5.5,0,0,1,0-1h4a.5.5,0,0,1,0,1"
-                                        transform="translate(0 -0.963)" fill="#666" />
-                                </svg>
-                                <span>{{ translate('Orders') }}</span>
-                            </a>
-                            @if (get_setting('wallet_system') == 1)
-                                <a href="{{ route('wallet.index') }}" class="dropdown-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 16 16">
-                                        <path
-                                            d="M13.5,4H13V2.5A2.5,2.5,0,0,0,10.5,0h-8A2.5,2.5,0,0,0,0,2.5v11A2.5,2.5,0,0,0,2.5,16h11A2.5,2.5,0,0,0,16,13.5v-7A2.5,2.5,0,0,0,13.5,4"
-                                            fill="#666" />
-                                    </svg>
-                                    <span>{{ translate('Wallet') }}</span>
-                                </a>
-                            @endif
-                        @endif
+
+                        <a href="{{ route('inquiries.index') }}" class="dropdown-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
+                                <circle cx="9" cy="20" r="1" />
+                                <circle cx="17" cy="20" r="1" />
+                            </svg>
+                            <span>{{ translate('My Inquiries') }}</span>
+                        </a>
+
+                        <a href="{{ route('profile') }}" class="dropdown-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            <span>{{ translate('Account Settings') }}</span>
+                        </a>
+
                         <a href="{{ route('logout') }}" class="dropdown-item" style="color: #d43533;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                                 <path d="M8,0a8,8,0,1,0,8,8A8,8,0,0,0,8,0ZM8,1a7,7,0,1,1-7,7A7,7,0,0,1,8,1Z"
@@ -899,6 +946,15 @@
                     </div>
                 @else
                     <div class="header-dropdown icon-dropdown">
+                        <a href="{{ route('cart') }}" class="dropdown-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
+                                <circle cx="9" cy="20" r="1" />
+                                <circle cx="17" cy="20" r="1" />
+                            </svg>
+                            <span>{{ translate('My Inquiries') }}</span>
+                        </a>
                         <a href="{{ route('user.login') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">

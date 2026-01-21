@@ -1,38 +1,49 @@
 <!-- footer Description -->
 <style>
-    .policy-file a {
-        transition: all 0.3s ease;
-    }
-
-    #text-dark22 {
-        color: white;
-      }
-
-    .policy-file .policy-title,
-    .policy-file svg path {
-        fill: #fff;
+    /* Policy tiles (top bar) */
+    .footer-policy-bar .policy-file a {
         color: #fff;
-        transition: all 0.3s ease;
+        /* Use inset shadow instead of borders to avoid border "shifting" / double-thick lines */
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-decoration: none;
     }
 
-    .policy-file .policy-title:hover {
-        color: rgba(46, 136, 214, 1) !important;
+    .footer-policy-bar .policy-file .policy-title {
+        color: #fff;
+        transition: color 0.25s ease;
     }
 
-    .policy-file a:hover svg path {
-        fill: rgba(46, 136, 214, 1) !important;
+    .footer-policy-bar .policy-file svg path {
+        fill: #fff !important;
+        transition: fill 0.25s ease;
     }
 
-    .policy-file a:hover {
-        #text-dark22 {
-            color: rgba(46, 136, 214, 1) !important;
-        }
-
+    .footer-policy-bar .policy-file a:hover {
+        /* On hover: change text/icon to blue accent, keep background unchanged */
+        transform: translateY(-1px);
     }
 
-    .policy-file a:hover .icon-mark {
-        fill: #2e88d6;
+    .footer-policy-bar .policy-file a:hover .policy-title {
+        color: var(--blue) !important;
     }
+
+    .footer-policy-bar .policy-file a:hover svg path {
+        fill: var(--blue) !important;
+    }
+
+    /* Remove default heading spacing that can misalign borders */
+    .footer-policy-bar .policy-file h4 {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Give each tile its own clean white border via inset shadow (no nth-child rules needed). */
 
     #logofootre {
         height: 40px;
@@ -44,13 +55,9 @@
         }
     }
 
-        #logotopfooter {
-            padding-top: 31px;
-        }
-    @media (max-width: 767px) {
-        #logotopfooter {
-            padding-top: 10px;
-        }
+    /* Keep SVG icons consistent without per-item padding hacks */
+    .footer-policy-bar .policy-file svg {
+        display: block;
     }
 </style>
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
@@ -78,12 +85,12 @@
 @endif
 
 <!-- footer top Bar -->
-<section class="bg-light border-top mt-auto">
+<section class="bg-light border-top mt-auto footer-policy-bar">
     <div class="container px-xs-0">
         <div class="row no-gutters border-left border-soft-light">
             <!-- Terms & conditions -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('terms') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="26.004" height="32" viewBox="0 0 26.004 32">
                         <path id="Union_8" data-name="Union 8"
@@ -91,28 +98,28 @@
                             transform="translate(14513.998 -18900.002)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Terms & conditions') }}
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}
                     </h4>
                 </a>
             </div>
 
             <!-- Return Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
-                    href="{{ route('returnpolicy') }}" id="logotopfooter">
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
+                    href="{{ route('returnpolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.001" height="23.971" viewBox="0 0 32.001 23.971">
                         <path id="Union_7" data-name="Union 7"
                             d="M-14490,18922.967a6.972,6.972,0,0,0,4.949-2.051,6.944,6.944,0,0,0,2.052-4.943,7.008,7.008,0,0,0-7-7v0h-22.1l7.295,7.295-.707.707-7.779-7.779-.708-.707.708-.7,7.774-7.779.712.707-7.261,7.258H-14490v0a8.01,8.01,0,0,1,8,8,8.008,8.008,0,0,1-8,8Z"
                             transform="translate(14514.001 -18900)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" style="padding: 7px;" id="text-dark22">{{ translate('Return Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
                 </a>
             </div>
 
             <!-- Support Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('supportpolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.002" height="32.002" viewBox="0 0 32.002 32.002">
                         <g id="Group_24198" data-name="Group 24198" transform="translate(-1113.999 -2398)">
@@ -136,13 +143,13 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Support Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
                 </a>
             </div>
 
             <!-- Privacy Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100 border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('privacypolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <g id="Group_24236" data-name="Group 24236" transform="translate(-1454.002 -2430.002)">
@@ -158,7 +165,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark22 fs-14 fw-700 mt-3" id="text-dark22">{{ translate('Privacy Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
                 </a>
             </div>
         </div>
