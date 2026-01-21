@@ -8770,7 +8770,7 @@ input[type="number"] {
 
 /*aiz styles*/
 .aiz-main-wrapper {
-    min-height: 100vh;
+    min-height: 1vh;
     max-width: 100vw;
     background-color: var(--light);
 }
