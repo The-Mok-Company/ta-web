@@ -400,4 +400,12 @@ public function updateQuantity(Request $request)
 
         return view('frontend.partials.cart.cart_details', compact('carts'))->render();
     }
+    public function tracking(Request $request)
+    {
+        return view('frontend.tracking');
+    }
+    public function inquiry(Request $request)
+    {
+        return view('frontend.inquiry');
+    }
 }

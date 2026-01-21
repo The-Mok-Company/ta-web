@@ -1,5 +1,6 @@
 @php
     use App\Models\Category;
+    use App\Models\Product;
 
     $topHeaderTextColor = get_setting('top_header_text_color');
     $middleHeaderTextColor = get_setting('middle_header_text_color');
@@ -248,6 +249,84 @@
         background: #3a3a3a;
     }
 
+    /* Search Results Dropdown */
+    .search-results {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+    }
+
+    .search-results.active {
+        display: block;
+    }
+
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #333;
+        text-decoration: none;
+        transition: background 0.2s;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background: #f8f9fa;
+    }
+
+    .search-result-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .search-result-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .search-result-name {
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-result-price {
+        color: #3b82f6;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .search-no-results {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+    }
+
+    .search-loading {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+    }
+
     /* Dropdown Menu Styles */
     .header-dropdown {
         position: absolute;
@@ -302,10 +381,6 @@
         transition: background 0.2s;
         border-bottom: 1px solid #f0f0f0;
     }
-
-    /* #ourpartners:hover {
-    fill: black !important;
-    } */
 
     .dropdown-item span {
         color: black !important;
@@ -543,7 +618,6 @@
             @if (get_setting('header_menu_labels') != null)
                 @foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
                     @if ($value == 'All Categories')
-                        {{-- عرض الـ Categories مع الـ dropdown --}}
                         @if (isset($categories) && $categories->count() > 0)
                             <div class="nav-dropdown">
                                 <button class="dropdown-btn">
@@ -598,7 +672,6 @@
                                                                 @endif
                                                             </a>
 
-                                                            {{-- Level 2 Categories Dropdown --}}
                                                             @if ($subCategory->childrenCategories->count() > 0)
                                                                 <div class="sub-dropdown level-2">
                                                                     <div class="dropdown-header">
@@ -627,13 +700,11 @@
                                 </div>
                             </div>
                         @else
-                            {{-- Link عادي لو مفيش categories --}}
                             <a href="{{ route('categories.all') }}" class="nav-link">
                                 {{ translate('All categories') }}
                             </a>
                         @endif
                     @elseif ($value == 'Partners' || $value == 'Our Partners')
-                        {{-- عرض الـ Partners مع الـ dropdown --}}
                         <div class="nav-dropdown">
                             <button class="dropdown-btn">
                                 {{ translate('Partners') }}
@@ -678,7 +749,7 @@
             @endif
         </nav>
 
-        <!-- Actions (Search, Compare, Wishlist, Notifications, Cart, User) -->
+        <!-- Actions -->
         <div class="header-actions">
             <!-- Search Icon -->
             <button class="icon-btn" onclick="toggleSearch()">
@@ -851,8 +922,6 @@
                 @endauth
             </div>
 
-
-
             <!-- Mobile Menu Button -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -864,134 +933,235 @@
 
         <!-- Search Container -->
         <div class="search-container" id="searchContainer">
-            <form action="{{ route('search') }}" method="GET" class="search-input-wrapper">
-                <input type="text" name="keyword" class="search-input"
-                    placeholder="{{ translate('I\'m Looking for...') }}" autocomplete="off">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="{{ translate('I\'m Looking for...') }}" autocomplete="off" name="query">
                 <button type="button" class="search-close-btn" onclick="toggleSearch()">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-            </form>
+
+                <!-- Search Results Dropdown -->
+                <div class="search-results" id="searchResults"></div>
+            </div>
         </div>
     </div>
 </header>
 
 <script>
-    function toggleSearch() {
-        const container = document.getElementById('headerContainer');
-        const searchContainer = document.getElementById('searchContainer');
-        const searchInput = searchContainer.querySelector('.search-input');
+ let searchTimeout;
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+let initialProductsLoaded = false;
 
-        container.classList.toggle('search-active');
-        searchContainer.classList.toggle('active');
+// Load initial products when search opens
+function loadInitialProducts() {
+    if (initialProductsLoaded) return;
 
-        if (searchContainer.classList.contains('active')) {
-            setTimeout(() => {
-                searchInput.focus();
-            }, 300);
-        }
-    }
+    searchResults.innerHTML = '<div class="search-loading">جاري التحميل...</div>';
+    searchResults.classList.add('active');
 
-    function toggleMobileMenu() {
-        const nav = document.getElementById('mainNav');
-        nav.classList.toggle('active');
-    }
-
-    // Close menus when clicking outside
-    document.addEventListener('click', function(event) {
-        const nav = document.getElementById('mainNav');
-        const menuBtn = document.querySelector('.mobile-menu-btn');
-        const searchContainer = document.getElementById('searchContainer');
-        const headerContainer = document.getElementById('headerContainer');
-
-        if (nav && menuBtn && !nav.contains(event.target) && !menuBtn.contains(event.target)) {
-            nav.classList.remove('active');
-        }
-
-        if (searchContainer.classList.contains('active') &&
-            !searchContainer.contains(event.target) &&
-            !event.target.closest('.icon-btn')) {
-            headerContainer.classList.remove('search-active');
-            searchContainer.classList.remove('active');
-        }
-    });
-
-    // Submit search on Enter
-    document.querySelector('.search-input')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            this.closest('form').submit();
-        }
-    });
-
-    // كود الـ dropdown للموبايل
-    document.addEventListener('DOMContentLoaded', function() {
-        // للـ dropdown الرئيسي
-        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-
-        dropdownBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                if (window.innerWidth <= 968) {
-                    e.preventDefault();
-                    const parent = this.closest('.nav-dropdown');
-
-                    // إغلاق باقي الـ dropdowns
-                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                        if (dropdown !== parent) {
-                            dropdown.classList.remove('active');
-                        }
-                    });
-
-                    parent.classList.toggle('active');
-                    this.classList.toggle('active');
-                }
-            });
+    fetch(`{{ route('search.ajax') }}`)
+        .then(response => response.json())
+        .then(data => {
+            initialProductsLoaded = true;
+            console.log(data);
+            displayProducts(data.products);
+        })
+        .catch(error => {
+            console.error('Error loading products:', error);
+            searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في التحميل</div>';
         });
+}
 
-        // للـ sub-categories (كل المستويات المتداخلة)
-        document.addEventListener('click', function(e) {
+// Display products function
+function displayProducts(products) {
+    if (products && products.length > 0) {
+        let html = '';
+        products.forEach(product => {
+            const imageUrl = product.thumbnail_img ?
+                `{{ asset('') }}${product.thumbnail_img}` :
+                '{{ asset('public/assets/img/placeholder.jpg') }}';
+
+            html += `
+                <a href="${product.url}" class="search-result-item">
+                    <img src="${imageUrl}" alt="${product.name}" class="search-result-img" onerror="this.src='{{ asset('public/assets/img/placeholder.jpg') }}'">
+                    <div class="search-result-info">
+                        <p class="search-result-name">${product.name}</p>
+                     </div>
+                </a>
+            `;
+        });
+        searchResults.innerHTML = html;
+    } else {
+        searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
+    }
+}
+
+// Dynamic Search Function - Search starts from first character
+searchInput?.addEventListener('input', function(e) {
+    const query = e.target.value.trim();
+
+    clearTimeout(searchTimeout);
+
+    // If empty, show initial products
+    if (query.length === 0) {
+        loadInitialProducts();
+        return;
+    }
+
+    // Search from first character
+    if (query.length >= 1) {
+        searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
+        searchResults.classList.add('active');
+
+        searchTimeout = setTimeout(() => {
+            fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayProducts(data.products);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في البحث</div>';
+                });
+        }, 300);
+    }
+});
+
+// Show initial products when search input is focused
+searchInput?.addEventListener('focus', function() {
+    if (this.value.trim().length === 0) {
+        loadInitialProducts();
+    }
+});
+
+// Close search results when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.search-input-wrapper')) {
+        searchResults.classList.remove('active');
+    }
+});
+
+// Navigate to full search on Enter
+searchInput?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const query = this.value.trim();
+        if (query) {
+            window.location.href = `{{ route('search.ajax') }}?keyword=${encodeURIComponent(query)}`;
+        }
+    }
+});
+
+function toggleSearch() {
+    const container = document.getElementById('headerContainer');
+    const searchContainer = document.getElementById('searchContainer');
+    const searchInput = searchContainer.querySelector('.search-input');
+
+    container.classList.toggle('search-active');
+    searchContainer.classList.toggle('active');
+
+    if (searchContainer.classList.contains('active')) {
+        setTimeout(() => {
+            searchInput.focus();
+            // Load initial products when search opens
+            if (searchInput.value.trim().length === 0) {
+                loadInitialProducts();
+            }
+        }, 300);
+    } else {
+        searchResults.classList.remove('active');
+        searchInput.value = '';
+        initialProductsLoaded = false; // Reset for next time
+    }
+}
+
+function toggleMobileMenu() {
+    const nav = document.getElementById('mainNav');
+    nav.classList.toggle('active');
+}
+
+// Close menus when clicking outside
+document.addEventListener('click', function(event) {
+    const nav = document.getElementById('mainNav');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const searchContainer = document.getElementById('searchContainer');
+    const headerContainer = document.getElementById('headerContainer');
+
+    if (nav && menuBtn && !nav.contains(event.target) && !menuBtn.contains(event.target)) {
+        nav.classList.remove('active');
+    }
+
+    if (searchContainer.classList.contains('active') &&
+        !searchContainer.contains(event.target) &&
+        !event.target.closest('.icon-btn')) {
+        headerContainer.classList.remove('search-active');
+        searchContainer.classList.remove('active');
+        initialProductsLoaded = false;
+    }
+});
+
+// Mobile dropdown handling
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+    dropdownBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
             if (window.innerWidth <= 968) {
-                // تحقق إذا الضغطة على dropdown-item جوه category-item-wrapper
-                const clickedItem = e.target.closest('.category-item-wrapper > .dropdown-item');
+                e.preventDefault();
+                const parent = this.closest('.nav-dropdown');
 
-                if (clickedItem) {
-                    const wrapper = clickedItem.parentElement;
-                    const hasSubDropdown = wrapper.querySelector(':scope > .sub-dropdown');
-
-                    if (hasSubDropdown) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // إغلاق الـ wrappers الأخرى في نفس المستوى فقط
-                        const parentContainer = wrapper.parentElement;
-                        const siblings = parentContainer.querySelectorAll(
-                            ':scope > .category-item-wrapper');
-
-                        siblings.forEach(sibling => {
-                            if (sibling !== wrapper) {
-                                sibling.classList.remove('active');
-                            }
-                        });
-
-                        // فتح/إغلاق الـ wrapper الحالي
-                        wrapper.classList.toggle('active');
-                    }
-                }
-
-                // إغلاق كل الـ dropdowns لما تضغط بره
-                if (!e.target.closest('.nav-dropdown') && !e.target.closest('.category-item-wrapper')) {
-                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                    if (dropdown !== parent) {
                         dropdown.classList.remove('active');
-                    });
-                    document.querySelectorAll('.category-item-wrapper').forEach(wrapper => {
-                        wrapper.classList.remove('active');
-                    });
-                    document.querySelectorAll('.dropdown-btn').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                }
+                    }
+                });
+
+                parent.classList.toggle('active');
+                this.classList.toggle('active');
             }
         });
     });
+
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 968) {
+            const clickedItem = e.target.closest('.category-item-wrapper > .dropdown-item');
+
+            if (clickedItem) {
+                const wrapper = clickedItem.parentElement;
+                const hasSubDropdown = wrapper.querySelector(':scope > .sub-dropdown');
+
+                if (hasSubDropdown) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const parentContainer = wrapper.parentElement;
+                    const siblings = parentContainer.querySelectorAll(':scope > .category-item-wrapper');
+
+                    siblings.forEach(sibling => {
+                        if (sibling !== wrapper) {
+                            sibling.classList.remove('active');
+                        }
+                    });
+
+                    wrapper.classList.toggle('active');
+                }
+            }
+
+            if (!e.target.closest('.nav-dropdown') && !e.target.closest('.category-item-wrapper')) {
+                document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+                document.querySelectorAll('.category-item-wrapper').forEach(wrapper => {
+                    wrapper.classList.remove('active');
+                });
+                document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            }
+        }
+    });
+});
 </script>
