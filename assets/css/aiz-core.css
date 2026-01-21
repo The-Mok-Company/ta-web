@@ -8641,7 +8641,7 @@ textarea,
 .has-transition {
     -webkit-transition: all 0.5s ease;
     transition: all 0.5s ease;
-    margin-top: 10px;
+    /* margin-top: 10px; */
 }
 
 a {

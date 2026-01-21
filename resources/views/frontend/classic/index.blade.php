@@ -852,7 +852,7 @@
             }
 
             .featured-products-section .nav-buttons {
-                /* margin-top: 10px; */
+                margin-top: 10px;
             }
         }
 
