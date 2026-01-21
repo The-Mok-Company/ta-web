@@ -128,25 +128,60 @@
             opacity: 1;
         }
 
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 60px;
-            height: 60px;
+        /* Hero controls: fixed size + centered (override Bootstrap defaults) */
+        #heroCarousel .carousel-control-prev,
+        #heroCarousel .carousel-control-next {
+            position: absolute;
+            top: 50%;
+            bottom: auto; /* override Bootstrap bottom:0 */
+            transform: translateY(-50%);
+
+            width: 51px;  /* override Bootstrap width:15% */
+            height: 51px;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             background-color: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
-            top: 50%;
-            opacity: 0;
-            transition: all 0.3s ease;
+            opacity: 0.85;
+            transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
             z-index: 3;
             border: none;
         }
 
-        .carousel-control-prev {
-            left: 40px;
+        #heroCarousel .carousel-control-prev { left: 12px; }
+        #heroCarousel .carousel-control-next { right: 12px; }
+
+        /* Smaller screens: smaller buttons + icons */
+        @media (max-width: 576px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 42px;
+                height: 42px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 18px;
+                height: 18px;
+            }
         }
 
-        .carousel-control-next {
-            right: 40px;
+        @media (max-width: 360px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 36px;
+                height: 36px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         .hero-carousel:hover .carousel-control-prev,
@@ -154,8 +189,16 @@
             opacity: 1;
         }
 
-        .carousel-control-prev:hover,
-        .carousel-control-next:hover {
+        /* Touch devices: always show controls (no hover) */
+        @media (hover: none) and (pointer: coarse) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                opacity: 1;
+            }
+        }
+
+        #heroCarousel .carousel-control-prev:hover,
+        #heroCarousel .carousel-control-next:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -988,12 +1031,11 @@
             @endif
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"  style="width: 51px;top: 50%;left: 3px;">
-            <span class="carousel-control-prev-icon" aria-hidden="true"
-               ></span>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" style="width: 51px;top: 50%;left: 3px;">
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </button>
