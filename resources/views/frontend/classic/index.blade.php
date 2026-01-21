@@ -828,29 +828,26 @@
     box-shadow: 0 0 0 4px rgba(8,145,178,.25), 0 2px 10px rgba(0,0,0,.20);
 }
 
-/* inside */
 .category-card-new .category-add-btn .btn-plus,
-.category-card-new .category-add-btn .btn-check{
+.category-card-new .category-add-btn .btn-tick{
     position: absolute;
     transition: opacity .18s ease, transform .18s ease;
     pointer-events: none;
 }
 
-.category-card-new .category-add-btn .btn-plus{
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1;
-    opacity: 1;
-    transform: scale(1);
-}
-
-.category-card-new .category-add-btn .btn-check{
+.category-card-new .category-add-btn .btn-tick{
     font-size: 18px;
     font-weight: 900;
     line-height: 1;
     opacity: 0;
     transform: scale(.85);
 }
+
+.category-card-new .category-add-btn.added .btn-tick{
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
 
 /* loading */
 .category-card-new .category-add-btn.is-loading{
@@ -1397,7 +1394,7 @@
         title="{{ translate('Add to Inquiry') }}"
         aria-label="Add to Inquiry">
     <span class="btn-plus">+</span>
-    <span class="btn-check">✓</span>
+<span class="btn-tick">✓</span>
 </button>
 
                             <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
@@ -1661,21 +1658,32 @@
                         _token: '{{ csrf_token() }}',
                         category_id: categoryId
                     },
-                 success: function(data) {
+success: function (data) {
     if (data && data.status == 1) {
+
+        // update cart count
         if (data.cart_count !== undefined) {
             $('.cart-count').html(data.cart_count);
         }
 
+        // ✅ IMPORTANT: switch button to "added" state ( + -> ✓ )
+        const btn = document.querySelector('.js-add-category[data-id="' + categoryId + '"]');
+        if (btn) {
+            btn.classList.add('added');
+        }
+
+        // notifications
         if (data.message === 'Category already in cart') {
             AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
         } else {
             AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
         }
+
     } else {
         AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
     }
 },
+
 
                     error: function() {
                         AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");

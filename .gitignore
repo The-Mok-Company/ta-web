@@ -27,3 +27,22 @@ install.zip
 .env
 .env.example
 tmpclaude-*
+/uploads/
+
+/public/uploads/
+
+/public/uploads/all/
+
+/storage/app/public/
+/logs/
+
+/download/
+
+*.zip
+
+
+assets/
+
+        public/assets/img/
+
+        storage/app/public/
