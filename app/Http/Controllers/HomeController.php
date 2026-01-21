@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use ZipArchive;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Session;
 
 class HomeController extends Controller
@@ -57,9 +58,9 @@ class HomeController extends Controller
         $hot_categories = Cache::rememberForever('hot_categories', function () {
             return Category::with('bannerImage')->where('hot_category', '1')->get();
         });
-         $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
+        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
 
-        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories', 'hot_categories', 'lang' , 'categories'));
+        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories', 'hot_categories', 'lang', 'categories'));
     }
 
     public function load_todays_deal_section()
@@ -87,6 +88,65 @@ class HomeController extends Controller
     public function join_us()
     {
         return view('frontend.join_us.index');
+    }
+
+    public function ajaxSearch(Request $request)
+    {
+        $query = $request->get('query');
+        Log::info('Search query: ' . $query);
+        return response()->json(['products' => Product::where('name', 'like', '%' . $query . '%')->get()]);
+
+        $products = Product::where('published', 1)
+            ->where('approved', 1)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like',  '%'.$query . '%')
+                    ->orWhereHas('product_translations', function ($qt) use ($query) {
+                        $qt->where('name', 'like', '%' . $query . '%');
+                    });
+            })
+            ->orWhere(function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                    ->orWhereHas('product_translations', function ($qt) use ($query) {
+                        $qt->where('name', 'like', '%' . $query . '%');
+                    });
+            })
+            ->with(['thumbnail', 'product_translations'])
+            ->limit(10)
+            ->get()
+            ->unique('id')
+            ->map(function ($product) {
+                return [
+                    'name' => $product->getTranslation('name'),
+                    'price' => format_price(home_discounted_base_price($product)),
+                    'thumbnail_img' => $product->thumbnail ? $product->thumbnail->file_name : null,
+                    'url' => route('product', $product->slug)
+                ];
+            })
+            ->values();
+
+        return response()->json(['products' => $products]);
+    }
+
+    public function initialSearch()
+    {
+        $products = Product::where('published', 1)
+            ->where('approved', 1)
+            ->orderBy('featured', 'desc')
+            ->orderBy('num_of_sale', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->with(['thumbnail', 'product_translations'])
+            ->limit(8)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'name' => $product->getTranslation('name'),
+                    'price' => format_price(home_discounted_base_price($product)),
+                    'thumbnail_img' => $product->thumbnail ? $product->thumbnail->file_name : null,
+                    'url' => route('product', $product->slug)
+                ];
+            });
+
+        return response()->json(['products' => $products]);
     }
     public function contact_us()
     {

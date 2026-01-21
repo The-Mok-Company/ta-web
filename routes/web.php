@@ -70,8 +70,13 @@ use App\Models\User;
 
 
 
- Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
-        ->name('inquiry.requestOffer');
+Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
+    ->name('inquiry.requestOffer');
+
+
+// في routes/web.php
+Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
+Route::get('/search/initial', [HomeController::class, 'initialSearch'])->name('search.initial');
 
 Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
@@ -227,7 +232,7 @@ Route::controller(SearchController::class)->group(function () {
     Route::get('/search', 'index')->name('search');
     Route::get('/search?keyword={search}', 'index')->name('suggestion.search');
     Route::get('/search2', 'index2')->name('suggestion.search2');
-    Route::post('/ajax-search', 'ajax_search')->name('search.ajax');
+    // Route::post('/ajax-search', 'ajax_search')->name('search.ajax');
     Route::get('/category/{category_slug}', 'listingByCategory')->name('products.category');
     Route::get('/category-level2/{category_slug}', 'listingByCategory2')->name('categories.level2');
     Route::get('/products-level2/{id}', 'levelTwoProducts')->name('products.level2');
@@ -239,9 +244,12 @@ Route::controller(CartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart');
     Route::post('/cart/show-cart-modal', 'showCartModal')->name('cart.showCartModal');
     Route::post('/cart/addtocart', 'addToCart')->name('cart.addToCart');
-    Route::post('/cart/addCategoryToCart', 'addCategoryToCart')->name('cart.addCategoryToCart');    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
+    Route::post('/cart/addCategoryToCart', 'addCategoryToCart')->name('cart.addCategoryToCart');
+    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
+    Route::get('/cart/tracking', 'tracking')->name('cart.tracking');
+    Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry');
 });
 
 //Paypal START
@@ -445,6 +453,8 @@ Route::get('/join_us', [HomeController::class, 'join_us'])->name('join_us');
 Route::post('/partner',  [PartnerController::class, 'store'])
     ->name('partner.store');
 Route::get('/contact_us', [HomeController::class, 'contact_us'])->name('contact_us');
+
+
 
 
 Route::get('/instamojo/payment/pay-success', [InstamojoController::class, 'success'])->name('instamojo.success');

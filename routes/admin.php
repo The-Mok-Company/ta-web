@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
+use App\Http\Controllers\Admin\Setting\ContactUsController;
 use App\Http\Controllers\Admin\Setting\FooterController;
 use App\Http\Controllers\Admin\Setting\HomePageController;
 use App\Http\Controllers\Admin\Setting\JoinUsController;
@@ -650,6 +651,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
 Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
     ->name('settings.home-page.update');
+
+
+        // Contact Us Settings
+    Route::get('/settings/contact-us', [ContactUsController::class, 'index'])
+        ->name('settings.contact-us');
+
+    Route::post('/settings/contact-us/update', [ContactUsController::class, 'update'])
+        ->name('settings.contact-us.update');
 
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {
