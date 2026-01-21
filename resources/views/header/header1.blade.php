@@ -681,7 +681,7 @@
                                                                         {{ translate('Product Group') }}</div>
 
                                                                     @foreach ($subCategory->childrenCategories as $level2Category)
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                        <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                             class="dropdown-item">
                                                                             <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         </a>

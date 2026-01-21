@@ -599,6 +599,17 @@
         word-break: break-word;
     }
 
+    /* Make the subline clickable (each segment as a link) */
+    .category-card .category-subline a.category-subline-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .category-card .category-subline a.category-subline-link:hover {
+        text-decoration: underline;
+        color: #fff;
+    }
+
     .category-card .sub-categories-bottom {
         position: absolute;
         bottom: 20px;
@@ -1129,7 +1140,7 @@
 
                                                             @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
                                                                 <div class="category-header">
-                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                         class="category-name">
                                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     </a>
@@ -1164,7 +1175,7 @@
 
                                                                             @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                                 <div class="category-header">
-                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                         class="category-name">
                                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
@@ -1176,7 +1187,7 @@
                                                                                     @foreach ($level2Category->childrenCategories as $level3Category)
                                                                                         <li
                                                                                             class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}"
                                                                                                 class="category-link">
                                                                                                 <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                                 <i
@@ -1186,7 +1197,7 @@
                                                                                     @endforeach
                                                                                 </ul>
                                                                             @else
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
@@ -1195,7 +1206,7 @@
                                                                     @endforeach
                                                                 </ul>
                                                             @else
-                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                     class="category-link">
                                                                     <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     <i class="fas fa-chevron-right"></i>
@@ -1247,16 +1258,19 @@
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
                                                     @php
                                                         $cardChildren = $subCategory->childrenCategories ?? ($subCategory->categories ?? collect());
-                                                        $cardChildNames = $cardChildren
-                                                            ->take(4)
-                                                            ->map(fn($c) => method_exists($c, 'getTranslation') ? $c->getTranslation('name') : ($c->name ?? ''))
-                                                            ->filter()
-                                                            ->values()
-                                                            ->all();
+                                                        $cardChildren = $cardChildren instanceof \Illuminate\Support\Collection
+                                                            ? $cardChildren->take(4)
+                                                            : collect($cardChildren)->take(4);
                                                     @endphp
-                                                    @if (!empty($cardChildNames))
+                                                    @if ($cardChildren->count() > 0)
                                                         <div class="category-subline">
-                                                            {{ implode(' / ', $cardChildNames) }}
+                                                            @foreach ($cardChildren as $child)
+                                                                <a class="category-subline-link"
+                                                                    href="{{ route('categories.level2', $child->id) }}"
+                                                                    onclick="event.stopPropagation();">
+                                                                    {{ method_exists($child, 'getTranslation') ? $child->getTranslation('name') : ($child->name ?? '') }}
+                                                                </a>@if(!$loop->last)<span class="category-subline-sep"> / </span>@endif
+                                                            @endforeach
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1288,6 +1302,21 @@
             const allMainToggle = document.querySelector('.toggle-all-main');
             const allMainWrapper = document.querySelector('.all-main-categories-wrapper');
             const mainCategoryItems = document.querySelectorAll('.main-category-item');
+
+            // Make the whole category header clickable (not just the text),
+            // but keep the toggle icon only for expanding/collapsing.
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.category-sidebar .category-header');
+                if (!header) return;
+
+                // If user clicked the toggle icon, let the toggle handler run.
+                if (e.target.closest('.toggle-icon')) return;
+
+                const link = header.querySelector('a.category-name');
+                if (link && link.getAttribute('href')) {
+                    window.location.href = link.getAttribute('href');
+                }
+            });
 
             // Toggle للـ Main Categories
             mainCategoryItems.forEach(function(mainItem) {

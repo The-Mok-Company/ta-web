@@ -88,13 +88,30 @@
                         </g>
                     </svg>
                 </button>
-            </div>
 
-            @php
-                $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
-                $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
-                $has_variants = (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0);
-            @endphp
+                <!-- Add to Inquiry Icon (same area as wishlist) -->
+                @php
+                    $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
+                    $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
+                    $has_variants = (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0);
+                @endphp
+                <button type="button"
+                    class="featured-action-btn featured-inquiry-btn"
+                    data-toggle="tooltip"
+                    data-title="{{ translate('Add to inquiry') }}"
+                    data-placement="left"
+                    data-action-type="add_to_inquiry"
+                    data-product-id="{{ $product->id }}"
+                    data-has-variants="{{ $has_variants ? 1 : 0 }}"
+                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
+                    <svg class="icon-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                </button>
+            </div>
         @endif
     </a>
 
@@ -111,52 +128,6 @@
                     {{ $product->getTranslation('name') }}
                 </a>
             </h3>
-
-            @if ($product->auction_product == 0)
-                <!-- Action Buttons in Header -->
-                <div class="featured-header-buttons">
-                    <!-- Add to Cart Button -->
-                    <button class="featured-header-btn"
-                        data-label="Inquire Now"
-                        onclick="event.preventDefault(); event.stopPropagation();
-                        @if ($has_variants)
-                            showAddToCartModal({{ $product->id }})
-                        @else
-                            @if(Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                addToCartSingleProduct({{ $product->id }})
-                            @else
-                                showLoginModal()
-                            @endif
-                        @endif
-                        ">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="featured-header-btn-text">Inquire Now</span>
-                    </button>
-
-                    <!-- Add to Inquiry Button -->
-                    <button class="featured-header-btn featured-header-inquiry-btn"
-                        data-label="Add to Inquiry"
-                        onclick="event.preventDefault(); event.stopPropagation();
-                        @if ($has_variants)
-                            showAddToCartModal({{ $product->id }})
-                        @else
-                            @if(Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                addToCartSingleProduct({{ $product->id }})
-                            @else
-                                showLoginModal()
-                            @endif
-                        @endif
-                        ">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-
-                        <span class="featured-header-btn-text">Add to Inquiry</span>
-                    </button>
-                </div>
-            @endif
 
             @if ($product->auction_product == 1)
                 <!-- Auction Buttons in Header -->
@@ -316,6 +287,8 @@
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     color: #6c757d;
+    position: relative;
+    overflow: hidden;
 }
 
 .featured-action-btn svg {
@@ -327,6 +300,37 @@
     background: #007bff;
     color: #ffffff;
     transform: scale(1.1);
+}
+
+/* Inquiry icon styling + animation */
+.featured-inquiry-btn {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(33, 150, 243, 0.25);
+}
+
+.featured-inquiry-btn:hover {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+}
+
+.featured-inquiry-btn .icon-check { display: none; }
+.featured-inquiry-btn.is-added .icon-default { display: none; }
+.featured-inquiry-btn.is-added .icon-check { display: block; }
+
+.featured-inquiry-btn.is-loading {
+    opacity: .92;
+    pointer-events: none;
+}
+
+.featured-inquiry-btn.is-added::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+    animation: featuredRipple .6s ease-out;
+    pointer-events: none;
 }
 
 /* ===============================================
@@ -419,6 +423,10 @@
     display: block;
 }
 
+.featured-header-btn .icon-check { display: none; }
+.featured-header-btn.is-added .icon-default { display: none; }
+.featured-header-btn.is-added .icon-check { display: block; }
+
 .featured-header-btn-text {
     /* Keep text for accessibility, but don't affect layout */
     position: absolute !important;
@@ -485,6 +493,41 @@
 .featured-header-inquiry-btn:hover {
     background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
     box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(33, 150, 243, 0.4);
+}
+
+/* Success animation */
+.featured-header-btn.is-loading {
+    opacity: .9;
+    pointer-events: none;
+    filter: saturate(1.05);
+}
+
+.featured-header-btn.is-added {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    box-shadow: 0 6px 18px rgba(22, 163, 74, .35) !important;
+    animation: featuredBtnPop .35s ease-out;
+}
+
+.featured-header-btn.is-added::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+    animation: featuredRipple .6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes featuredBtnPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+@keyframes featuredRipple {
+    0% { opacity: 0; transform: scale(.7); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.25); }
 }
 
 /* ===============================================
@@ -676,6 +719,70 @@ document.addEventListener('click', function (e) {
         e.stopPropagation();
     }
 });
+
+// Add-to-inquiry from product listing (supports guest carts).
+// For products with variants, we fall back to the variant modal.
+function featuredInquiryAction(btnEl) {
+    try {
+        const btn = btnEl;
+        const productId = parseInt(btn?.dataset?.productId || '0', 10);
+        const hasVariants = (btn?.dataset?.hasVariants || '0') === '1';
+
+        if (!productId) return;
+
+        if (hasVariants) {
+            if (typeof showAddToCartModal === 'function') {
+                showAddToCartModal(productId);
+            }
+            return;
+        }
+
+        if (btn.classList.contains('is-loading')) return;
+        btn.classList.add('is-loading');
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('cart.addToCart') }}",
+            data: {
+                id: productId,
+                quantity: 1,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(data) {
+                if (data) {
+                    if (data.cart_count !== undefined) {
+                        const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                        $('.cart-count').html(c).attr('data-count', c);
+                    }
+                    if (data.nav_cart_view) {
+                        $('#cart_items').html(data.nav_cart_view);
+                    }
+                    if (typeof flashHeaderCartSuccess === 'function') {
+                        flashHeaderCartSuccess();
+                    }
+
+                    btn.classList.remove('is-loading');
+                    btn.classList.add('is-added');
+                    window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+
+                    try {
+                        if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                            AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                        }
+                    } catch (e) {}
+                }
+            },
+            error: function() {
+                btn.classList.remove('is-loading');
+                try {
+                    if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                    }
+                } catch (e) {}
+            }
+        });
+    } catch (e) {}
+}
 
 // Lazy loading optimization
 if ('IntersectionObserver' in window) {
