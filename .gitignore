@@ -40,9 +40,4 @@ tmpclaude-*
 
 *.zip
 
-
-assets/
-
-        public/assets/img/
-
-        storage/app/public/
+storage/app/public/
