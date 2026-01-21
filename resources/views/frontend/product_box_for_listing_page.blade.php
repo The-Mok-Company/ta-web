@@ -88,18 +88,6 @@
                         </g>
                     </svg>
                 </button>
-
-                <!-- Compare Icon -->
-                <button type="button" class="featured-action-btn featured-compare-btn"
-                    onclick="addToCompare({{ $product->id }})"
-                    data-toggle="tooltip"
-                    data-title="{{ translate('Add to compare') }}"
-                    data-placement="left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M18.037,5.547v.8a.8.8,0,0,1-.8.8H7.221a.4.4,0,0,0-.4.4V9.216a.642.642,0,0,1-1.1.454L2.456,6.4a.643.643,0,0,1,0-.909L5.723,2.227a.642.642,0,0,1,1.1.454V4.342a.4.4,0,0,0,.4.4H17.234a.8.8,0,0,1,.8.8Zm-3.685,4.86a.642.642,0,0,0-1.1.454v1.661a.4.4,0,0,1-.4.4H2.84a.8.8,0,0,0-.8.8v.8a.8.8,0,0,0,.8.8H12.854a.4.4,0,0,1,.4.4V17.4a.642.642,0,0,0,1.1.454l3.267-3.268a.643.643,0,0,0,0-.909Z"
-                            transform="translate(-2.037 -2.038)" fill="currentColor" />
-                    </svg>
-                </button>
             </div>
 
             @php
@@ -129,6 +117,7 @@
                 <div class="featured-header-buttons">
                     <!-- Add to Cart Button -->
                     <button class="featured-header-btn"
+                        data-label="Inquire Now"
                         onclick="event.preventDefault(); event.stopPropagation();
                         @if ($has_variants)
                             showAddToCartModal({{ $product->id }})
@@ -148,6 +137,7 @@
 
                     <!-- Add to Inquiry Button -->
                     <button class="featured-header-btn featured-header-inquiry-btn"
+                        data-label="Add to Inquiry"
                         onclick="event.preventDefault(); event.stopPropagation();
                         @if ($has_variants)
                             showAddToCartModal({{ $product->id }})
@@ -183,6 +173,7 @@
 
                     <!-- Place Bid Button -->
                     <button class="featured-header-btn"
+                        data-label="Place Bid"
                         onclick="event.preventDefault(); event.stopPropagation(); bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -192,6 +183,7 @@
 
                     <!-- Add to Inquiry Button -->
                     <button class="featured-header-btn featured-header-inquiry-btn"
+                        data-label="Add to Inquiry"
                         onclick="event.preventDefault(); event.stopPropagation(); bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -362,6 +354,8 @@
     margin: 0;
     line-height: 1.4;
     flex: 1;
+    /* Reserve room for 2 lines so layout doesn't jump / crop */
+    min-height: calc(1.4em * 2);
 }
 
 .featured-product-title a {
@@ -406,12 +400,15 @@
     white-space: nowrap;
     padding: 0;
 
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Smooth hover without animating to width:auto */
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
 
     gap: clamp(4px, 1vw, 8px);
     overflow: hidden;
 
     box-shadow: 0 2px clamp(6px, 1vw, 8px) rgba(0, 0, 0, 0.1);
+    position: relative;
+    line-height: 0;
 }
 
 .featured-header-btn svg {
@@ -419,42 +416,59 @@
     height: clamp(16px, 2.5vw, 20px);
     flex-shrink: 0;
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .featured-header-btn-text {
-    font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-    font-weight: 500;
+    /* Keep text for accessibility, but don't affect layout */
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
 
-    /* مخفي في البداية */
+/* Tooltip label (smooth, no layout shift) */
+.featured-header-btn::after {
+    content: attr(data-label);
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
     opacity: 0;
-    max-width: 0;
-    margin-left: 0;
+    pointer-events: none;
 
-    transform: translateX(-10px);
-    transition: all 0.3s ease;
-
+    background: #000;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
     white-space: nowrap;
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+    transition: opacity .18s ease, transform .18s ease;
 }
 
-/* عند الـ Hover - توسيع متجاوب */
-.featured-header-btn:hover {
-    width: auto;
-    min-width: auto;
-    padding: 0 clamp(14px, 2vw, 18px) 0 clamp(10px, 1.5vw, 14px);
-
-    box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(0, 0, 0, 0.2);
-
-    transform: translateY(clamp(-1px, -0.3vw, -2px));
-
-    background-color: #000000;
-}
-
-/* إظهار النص عند Hover */
-.featured-header-btn:hover .featured-header-btn-text {
+.featured-header-btn:hover::after,
+.featured-header-btn:focus-visible::after {
     opacity: 1;
-    max-width: clamp(100px, 20vw, 150px);
-    margin-left: clamp(4px, 0.8vw, 6px);
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .featured-header-btn::after { display: none; }
+}
+
+/* Hover: lift only (no width change) */
+.featured-header-btn:hover {
+    box-shadow: 0 clamp(3px, 0.5vw, 4px) clamp(12px, 2vw, 16px) rgba(0, 0, 0, 0.2);
+    transform: translateY(clamp(-1px, -0.3vw, -2px));
+    background-color: #000000;
 }
 
 /* تكبير الأيقونة عند Hover */
@@ -483,7 +497,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-top: -16px;
+    margin-top: 0;
 }
 
 .featured-product-price {

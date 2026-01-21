@@ -625,261 +625,6 @@
     </style>
 
     <style>
-        /* Our Categories Section - New Design */
-        .categories-section-new {
-            padding: clamp(40px, 8vw, 80px) 0;
-            background-color: #ffffff;
-            position: relative;
-        }
-
-        .categories-section-new .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(15px, 3vw, 30px);
-            margin-bottom: clamp(30px, 5vw, 50px);
-            flex-wrap: wrap;
-            padding: 0 15px;
-        }
-
-        .categories-section-new .section-header h2 {
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0;
-            text-align: center;
-        }
-
-        .categories-section-new .nav-btn {
-            width: clamp(40px, 5vw, 45px);
-            height: clamp(40px, 5vw, 45px);
-            border-radius: 50%;
-            border: none;
-            background-color: white;
-            color: #007bff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .categories-section-new .nav-btn:hover {
-            background-color: #007bff;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .categories-slider-new {
-            position: relative;
-            overflow: hidden;
-            padding: 0 15px;
-        }
-
-        .categories-wrapper-new {
-            display: flex;
-            gap: clamp(15px, 2vw, 25px);
-            transition: transform 0.5s ease;
-            padding: 10px 0;
-        }
-
-        .category-card-new {
-            flex: 0 0 calc(33.333% - 17px);
-            position: relative;
-            border-radius: clamp(12px, 2vw, 20px);
-            overflow: hidden;
-            height: clamp(200px, 30vw, 280px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: block;
-        }
-
-        .category-card-new:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .category-card-new img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .category-card-new:hover img {
-            transform: scale(1.08);
-        }
-
-        .category-card-new::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
-            z-index: 1;
-        }
-
-        .category-card-new .cart-icon {
-            position: absolute;
-            top: clamp(12px, 2vw, 20px);
-            left: clamp(12px, 2vw, 20px);
-            width: clamp(36px, 5vw, 42px);
-            height: clamp(36px, 5vw, 42px);
-            background-color: rgb(0, 0, 0);
-            border-radius: 50px;
-            display: flex;
-            color: white;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .category-card-new:hover .cart-icon {
-            background-color: white;
-            color: #000;
-            transform: scale(1.1);
-        }
-
-        .category-card-new .cart-icon svg {
-            width: clamp(18px, 2.5vw, 22px);
-            height: clamp(18px, 2.5vw, 22px);
-        }
-
-        .category-card-new .content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: clamp(15px, 3vw, 25px);
-            z-index: 2;
-            color: white;
-        }
-
-        .category-card-new .content h3 {
-            font-size: clamp(1.2rem, 3vw, 1.6rem);
-            font-weight: 700;
-            margin: 0;
-        }
-
-   /* ===========================
-   Category Add Button (+ -> ✓)
-=========================== */
-
-.category-card-new{ position: relative; }
-
-.category-card-new .category-add-btn{
-    position: absolute;
-    top: clamp(12px, 2vw, 20px);
-    right: clamp(12px, 2vw, 20px);
-
-    width: clamp(36px, 5vw, 42px);
-    height: clamp(36px, 5vw, 42px);
-    border-radius: 50%;
-
-    background: #0891B2;
-    border: none;
-    color: #fff;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 5;
-    cursor: pointer;
-
-    opacity: 0;
-    transform: scale(.96);
-    transition: opacity .2s ease, transform .2s ease, background .2s ease, box-shadow .2s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,.20);
-    overflow: hidden;
-}
-
-@media (hover:hover) and (pointer:fine){
-    .category-card-new:hover .category-add-btn{
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@media (max-width: 768px){
-    .category-card-new .category-add-btn{
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.category-card-new .category-add-btn:hover{
-    background: #0E7490;
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px rgba(0,0,0,.25);
-}
-
-.category-card-new .category-add-btn:active{
-    transform: scale(.98);
-}
-
-.category-card-new .category-add-btn:focus-visible{
-    box-shadow: 0 0 0 4px rgba(8,145,178,.25), 0 2px 10px rgba(0,0,0,.20);
-}
-
-.category-card-new .category-add-btn .btn-plus,
-.category-card-new .category-add-btn .btn-tick{
-    position: absolute;
-    transition: opacity .18s ease, transform .18s ease;
-    pointer-events: none;
-}
-
-.category-card-new .category-add-btn .btn-tick{
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1;
-    opacity: 0;
-    transform: scale(.85);
-}
-
-.category-card-new .category-add-btn.added .btn-tick{
-    opacity: 1 !important;
-    transform: scale(1) !important;
-}
-
-
-/* loading */
-.category-card-new .category-add-btn.is-loading{
-    opacity: .9 !important;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-/* added */
-.category-card-new .category-add-btn.added{
-    background: #16a34a;
-    opacity: 1 !important;
-    pointer-events: none;
-    animation: inquiryPulse .35s ease-out 1;
-}
-
-@keyframes inquiryPulse{
-    0%{ transform: scale(1); }
-    50%{ transform: scale(1.12); }
-    100%{ transform: scale(1); }
-}
-
-.category-card-new .category-add-btn.added .btn-plus{
-    opacity: 0 !important;
-    transform: scale(.7) !important;
-}
-
-.category-card-new .category-add-btn.added .btn-check{
-    opacity: 1 !important;
-    transform: scale(1) !important;
-}
-
         /* Featured Products Section */
         .featured-products-section {
             padding: clamp(40px, 6vw, 60px) 0 clamp(50px, 8vw, 80px) 0;
@@ -1086,10 +831,6 @@
 
         /* Large Tablets and Small Desktops */
         @media (max-width: 1024px) {
-            .category-card-new {
-                flex: 0 0 calc(50% - 12px);
-            }
-
             .product-card {
                 flex: 0 0 calc(33.333% - 14px);
             }
@@ -1097,16 +838,6 @@
 
         /* Tablets */
         @media (max-width: 768px) {
-            .categories-section-new .section-header {
-                flex-direction: row;
-                gap: 15px;
-            }
-
-            .category-card-new {
-                flex: 0 0 calc(50% - 10px);
-                height: clamp(180px, 35vw, 220px);
-            }
-
             .product-card {
                 flex: 0 0 calc(50% - 10px);
             }
@@ -1127,15 +858,6 @@
 
         /* Mobile Devices */
         @media (max-width: 640px) {
-            .categories-section-new {
-                padding: 30px 0;
-            }
-
-            .category-card-new {
-                flex: 0 0 100%;
-                height: clamp(220px, 50vw, 280px);
-            }
-
             .product-card {
                 flex: 0 0 100%;
             }
@@ -1144,7 +866,6 @@
                 height: clamp(200px, 50vw, 250px);
             }
 
-            .categories-wrapper-new,
             .products-wrapper {
                 gap: 15px;
             }
@@ -1152,8 +873,6 @@
 
         /* Small Mobile Devices */
         @media (max-width: 480px) {
-
-            .categories-section-new .nav-btn,
             .featured-products-section .nav-btn {
                 width: 36px;
                 height: 36px;
@@ -1173,7 +892,6 @@
                 padding: 15px;
             }
 
-            .categories-slider-new,
             .products-slider {
                 padding: 0 10px;
             }
@@ -1185,14 +903,8 @@
 
         /* Extra Small Devices */
         @media (max-width: 360px) {
-
-            .categories-section-new .section-header h2,
             .featured-products-section .section-header h2 {
                 font-size: 1.3rem;
-            }
-
-            .category-card-new .content h3 {
-                font-size: 1.1rem;
             }
 
             .product-card .product-info h3 {
@@ -1323,92 +1035,8 @@
         </div>
     </section>
 
-    <!-- ✅ Categories Section with Add Button -->
-    <section class="categories-section-new">
-        <div class="container">
-            <div class="section-header">
-                <button class="nav-btn" id="categoriesPrevBtn" type="button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                </button>
-
-                <h2>Our Categories</h2>
-
-                <button class="nav-btn" id="categoriesNextBtn" type="button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M9 18l6-6-6-6" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="categories-slider-new">
-                <div class="categories-wrapper-new" id="categoriesWrapperNew">
-                    @foreach ($categories as $category)
-                        @php
-                            $categoryName = $category->getTranslation('name', $lang);
-
-                            $categoryImage = null;
-                            if ($category->banner) {
-                                $categoryImage = uploaded_asset($category->banner);
-                            } elseif ($category->cover_image) {
-                                $categoryImage = uploaded_asset($category->cover_image);
-                            }
-
-                            if (!$categoryImage) {
-                                $lowerName = strtolower($categoryName);
-                                if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                                } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
-                                } elseif (str_contains($lowerName, 'frozen')) {
-                                    $categoryImage =
-                                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
-                                } else {
-                                    $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
-                                }
-                            }
-
-                            $categoryUrl = route('products.category', $category->slug);
-                        @endphp
-
-                        <a href="{{ $categoryUrl }}" class="category-card-new">
-                            <!-- Left cart icon -->
-                            <div class="cart-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="9" cy="21" r="1" />
-                                    <circle cx="20" cy="21" r="1" />
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                </svg>
-                            </div>
-
-                            <!-- ✅ Add Button (Top Right) -->
-                          <button type="button"
-        class="category-add-btn js-add-category"
-        data-id="{{ $category->id }}"
-        data-name="{{ $categoryName }}"
-        title="{{ translate('Add to Inquiry') }}"
-        aria-label="Add to Inquiry">
-    <span class="btn-plus">+</span>
-<span class="btn-tick">✓</span>
-</button>
-
-                            <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
-                                onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
-
-                            <div class="content">
-                                <h3>{{ $categoryName }}</h3>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Our Categories -->
+    @include('frontend.classic.partials.our_categories_section', ['categories' => $categories, 'lang' => $lang])
 
     <!-- Featured Products Section -->
     <section class="featured-products-section">
@@ -1580,151 +1208,153 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ==========================================
-            // Categories Slider Navigation
-            // ==========================================
-            const categoriesWrapper = document.getElementById('categoriesWrapperNew');
-            const categoriesPrevBtn = document.getElementById('categoriesPrevBtn');
-            const categoriesNextBtn = document.getElementById('categoriesNextBtn');
-
-            if (categoriesWrapper && categoriesPrevBtn && categoriesNextBtn) {
-                function getStep() {
-                    const firstCard = categoriesWrapper.querySelector('.category-card-new');
-                    if (!firstCard) return 260;
-                    const cardWidth = firstCard.getBoundingClientRect().width;
-                    const styles = window.getComputedStyle(categoriesWrapper);
-                    const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
-                    return cardWidth + gap;
-                }
-
-                let currentX = 0;
-
-                function getMaxTranslate() {
-                    const parent = categoriesWrapper.parentElement;
-                    const parentWidth = parent.getBoundingClientRect().width;
-                    const contentWidth = categoriesWrapper.scrollWidth;
-                    return Math.max(0, contentWidth - parentWidth);
-                }
-
-                function apply() {
-                    categoriesWrapper.style.transform = `translateX(${-currentX}px)`;
-                }
-
-                function clamp() {
-                    const max = getMaxTranslate();
-                    if (currentX < 0) currentX = 0;
-                    if (currentX > max) currentX = max;
-                }
-
-                categoriesNextBtn.addEventListener('click', function() {
-                    currentX += getStep();
-                    clamp();
-                    apply();
-                });
-
-                categoriesPrevBtn.addEventListener('click', function() {
-                    currentX -= getStep();
-                    clamp();
-                    apply();
-                });
-
-                window.addEventListener('resize', function() {
-                    clamp();
-                    apply();
-                });
-            }
+            // Our Categories slider + Add-to-Inquiry logic moved to:
+            // resources/views/frontend/classic/partials/our_categories_section.blade.php
 
             // ==========================================
-            // ✅ Add Category to Cart (AJAX)
-            // ==========================================
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.js-add-category');
-                if (!btn) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const categoryId = btn.getAttribute('data-id');
-                const categoryName = btn.getAttribute('data-name') || 'Category';
-
-                addCategoryToCart(categoryId, categoryName);
-            });
-
-            function addCategoryToCart(categoryId, categoryName) {
-                $.ajax({
-                    type: "POST",
-                    url: '{{ route('cart.addCategoryToCart') }}',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        category_id: categoryId
-                    },
-success: function (data) {
-    if (data && data.status == 1) {
-
-        // update cart count
-        if (data.cart_count !== undefined) {
-            $('.cart-count').html(data.cart_count);
-        }
-
-        // ✅ IMPORTANT: switch button to "added" state ( + -> ✓ )
-        const btn = document.querySelector('.js-add-category[data-id="' + categoryId + '"]');
-        if (btn) {
-            btn.classList.add('added');
-        }
-
-        // notifications
-        if (data.message === 'Category already in cart') {
-            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-        } else {
-            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
-        }
-
-    } else {
-        AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
-    }
-},
-
-
-                    error: function() {
-                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                    }
-                });
-            }
-
-            // ==========================================
-            // Products Slider Navigation
+            // Products Slider Navigation (infinite loop)
             // ==========================================
             const productsWrapper = document.getElementById('productsWrapper');
             const productsPrevBtn = document.getElementById('productsPrevBtn');
             const productsNextBtn = document.getElementById('productsNextBtn');
 
             if (productsWrapper && productsPrevBtn && productsNextBtn) {
-                let productsIndex = 0;
+                const slider = {
+                    wrapper: productsWrapper,
+                    viewport: productsWrapper.parentElement,
+                    prevBtn: productsPrevBtn,
+                    nextBtn: productsNextBtn,
+                    originalCount: 0,
+                    clonesEachSide: 0,
+                    index: 0,
+                    step: 0,
+                    isAnimating: false,
+                    transition: 'transform 0.5s ease',
+                };
 
-                setTimeout(() => {
-                    const firstProduct = productsWrapper.querySelector('.product-card');
-                    if (firstProduct) {
-                        const productWidth = firstProduct.offsetWidth + 20;
+                function getStep() {
+                    const first = slider.wrapper.querySelector('.product-card');
+                    if (!first) return 0;
+                    const cardWidth = first.getBoundingClientRect().width;
+                    const styles = window.getComputedStyle(slider.wrapper);
+                    const gap = parseFloat(styles.columnGap || styles.gap || 0) || 0;
+                    return cardWidth + gap;
+                }
 
-                        productsNextBtn.addEventListener('click', () => {
-                            const maxScroll = productsWrapper.scrollWidth - productsWrapper
-                                .parentElement.offsetWidth;
-                            if (productsIndex < maxScroll) {
-                                productsIndex += productWidth;
-                                if (productsIndex > maxScroll) productsIndex = maxScroll;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                function getItemsPerView(step) {
+                    if (!step) return 1;
+                    const width = slider.viewport.getBoundingClientRect().width;
+                    return Math.max(1, Math.round(width / step));
+                }
+
+                function removeClones() {
+                    slider.wrapper.querySelectorAll('.product-card.is-clone').forEach((n) => n.remove());
+                }
+
+                function buildInfiniteLoop() {
+                    removeClones();
+
+                    const originals = Array.from(slider.wrapper.querySelectorAll('.product-card')).filter(
+                        (n) => !n.classList.contains('is-clone')
+                    );
+
+                    slider.originalCount = originals.length;
+                    slider.step = getStep();
+
+                    const perView = getItemsPerView(slider.step);
+                    slider.clonesEachSide = Math.min(perView, slider.originalCount);
+
+                    // Not enough items to loop cleanly.
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.index = 0;
+                        slider.wrapper.style.transition = '';
+                        slider.wrapper.style.transform = 'translateX(0px)';
+                        return;
+                    }
+
+                    // Prepend clones of last N cards
+                    originals
+                        .slice(-slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.insertBefore(clone, slider.wrapper.firstChild);
                         });
 
-                        productsPrevBtn.addEventListener('click', () => {
-                            if (productsIndex > 0) {
-                                productsIndex -= productWidth;
-                                if (productsIndex < 0) productsIndex = 0;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                    // Append clones of first N cards
+                    originals
+                        .slice(0, slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.appendChild(clone);
+                        });
+
+                    // Start on the first real slide (after prepended clones)
+                    slider.index = slider.clonesEachSide;
+                    slider.wrapper.style.transition = 'none';
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                    requestAnimationFrame(() => {
+                        slider.wrapper.style.transition = slider.transition;
+                    });
+                }
+
+                function goToIndex(nextIndex) {
+                    slider.index = nextIndex;
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                }
+
+                function next() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index + 1);
+                }
+
+                function prev() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index - 1);
+                }
+
+                slider.nextBtn.addEventListener('click', next);
+                slider.prevBtn.addEventListener('click', prev);
+
+                slider.wrapper.addEventListener('transitionend', () => {
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.isAnimating = false;
+                        return;
+                    }
+
+                    // If we moved onto the appended "first" clone, jump back to the real first.
+                    if (slider.index === slider.clonesEachSide + slider.originalCount) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
                         });
                     }
-                }, 100);
+
+                    // If we moved onto the prepended "last" clone, jump back to the real last.
+                    if (slider.index === slider.clonesEachSide - 1) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide + slider.originalCount - 1;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
+                        });
+                    }
+
+                    slider.isAnimating = false;
+                });
+
+                // Init + keep responsive
+                setTimeout(buildInfiniteLoop, 50);
+                let resizeTimer = null;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(buildInfiniteLoop, 120);
+                });
             }
         });
     </script>

@@ -2,6 +2,12 @@
 <style>
     .policy-file a {
         transition: all 0.3s ease;
+        /* Center icon + title inside each policy box */
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
     }
 
     #text-dark22 {
@@ -32,6 +38,12 @@
 
     .policy-file a:hover .icon-mark {
         fill: #2e88d6;
+    }
+
+    /* Remove default heading spacing that pushes content off-center */
+    .policy-file h4 {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     #logofootre {

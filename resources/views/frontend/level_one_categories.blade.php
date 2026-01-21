@@ -1465,7 +1465,11 @@ document.addEventListener('click', function(e){
             if (data && data.status === 1) {
 
                 if (data.cart_count !== undefined) {
-                    $('.cart-count').html(data.cart_count);
+                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                    $('.cart-count').html(c).attr('data-count', c);
+                }
+                if (typeof flashHeaderCartSuccess === 'function') {
+                    flashHeaderCartSuccess();
                 }
 
                 btn.classList.add('added');
