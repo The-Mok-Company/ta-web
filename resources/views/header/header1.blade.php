@@ -43,7 +43,7 @@
         width: 90%;
         padding: 0 40px;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         background: #1a1a1a;
         border-radius: 100px;
@@ -70,7 +70,22 @@
         text-decoration: none;
         color: white;
         padding-right: 20px;
-        margin-top: 15px;
+        margin-top: 0;
+    }
+
+    /* Header-only resets (avoid impacting whole site) */
+    .header a,
+    .header button,
+    .header input,
+    .header textarea,
+    .header .btn,
+    .header .has-transition {
+        margin-top: 0 !important;
+    }
+
+    /* User menu button vertical alignment (overrides inline top:5px) */
+    .header .user-menu-btn {
+        top: 0 !important;
     }
 
     .logo1-icon {

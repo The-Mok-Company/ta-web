@@ -179,6 +179,7 @@
         .home-category-banner::after {
             content: "{{ translate('View All') }}";
         }
+
     </style>
 
 @if (get_setting('google_analytics') == 1)
