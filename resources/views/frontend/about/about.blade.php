@@ -11,9 +11,6 @@
 @endphp
 
 <style>
-    /* ========================
-       WHO WE ARE PAGE STYLE
-    ======================== */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     .who-we-are-page {
@@ -24,18 +21,10 @@
         margin-top: 60px;
     }
 
-    /* Hero Section */
-    .who-hero {
-        text-align: center;
-        margin-bottom: 100px;
-        position: relative;
-    }
+    .who-hero { text-align: center; margin-bottom: 100px; position: relative; }
 
     @media (min-width: 1500px) {
-        .container,
-        .container-xxl {
-            max-width: 1520px !important;
-        }
+        .container, .container-xxl { max-width: 1520px !important; }
     }
 
     .imagetwosection {
@@ -47,17 +36,11 @@
     }
 
     @media (min-width: 1200px) {
-        .imagetwosection {
-            background-size: auto 100%;
-            background-position: left center;
-        }
+        .imagetwosection { background-size: auto 100%; background-position: left center; }
     }
 
     @media (max-width: 768px) {
-        .imagetwosection {
-            background-size: contain;
-            background-position: center top;
-        }
+        .imagetwosection { background-size: contain; background-position: center top; }
     }
 
     .who-hero h1 {
@@ -79,7 +62,6 @@
         font-weight: 400;
     }
 
-    /* Trapezoid Container - Enhanced with Floating Effect */
     .trapezoid-container {
         position: relative;
         max-width: 1000px;
@@ -98,8 +80,7 @@
     }
 
     @keyframes floatingImage {
-        0%,
-        100% { transform: translateY(0px) rotateX(2deg); }
+        0%, 100% { transform: translateY(0px) rotateX(2deg); }
         50% { transform: translateY(-20px) rotateX(-2deg); }
     }
 
@@ -119,7 +100,6 @@
         filter: drop-shadow(0 35px 70px rgba(95, 110, 246, 0.4)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
     }
 
-    /* Decorative Elements for Floating Effect */
     .trapezoid-content::before {
         content: '';
         position: absolute;
@@ -132,8 +112,7 @@
     }
 
     @keyframes pulseGlow {
-        0%,
-        100% { transform: scale(0.95); opacity: 0.5; }
+        0%, 100% { transform: scale(0.95); opacity: 0.5; }
         50% { transform: scale(1.05); opacity: 0.8; }
     }
 
@@ -152,12 +131,10 @@
     }
 
     @keyframes shadowPulse {
-        0%,
-        100% { transform: translateX(-50%) scale(0.9); opacity: 0.4; }
+        0%, 100% { transform: translateX(-50%) scale(0.9); opacity: 0.4; }
         50% { transform: translateX(-50%) scale(1.1); opacity: 0.6; }
     }
 
-    /* Mission Section */
     .mission-section { margin-bottom: 100px; }
 
     .mission-container {
@@ -218,7 +195,6 @@
         font-weight: 400;
     }
 
-    /* Vision Section */
     .vision-section {
         max-width: 1100px;
         margin: 0 auto 100px;
@@ -284,7 +260,9 @@
         font-weight: 400;
     }
 
-    /* Our Categories Section - New Design */
+    /* ===========================
+       Categories
+    =========================== */
     .categories-section-new {
         padding: clamp(40px, 8vw, 80px) 0;
         background-color: #ffffff;
@@ -344,6 +322,7 @@
         padding: 10px 0;
     }
 
+    /* ✅ IMPORTANT: card is DIV not A */
     .category-card-new {
         flex: 0 0 calc(33.333% - 17px);
         position: relative;
@@ -352,8 +331,8 @@
         height: clamp(200px, 30vw, 280px);
         cursor: pointer;
         transition: all 0.3s ease;
-        text-decoration: none;
         display: block;
+        background: #000;
     }
 
     .category-card-new:hover {
@@ -361,28 +340,41 @@
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
 
+    /* ✅ overlay link covers whole card */
+    .category-link-area{
+        position:absolute;
+        inset:0;
+        z-index:1;
+    }
+
+    .category-card-new::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
+        z-index: 0;
+    }
+
     .category-card-new img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.5s ease;
+        position: relative;
+        z-index: 0;
     }
 
     .category-card-new:hover img { transform: scale(1.08); }
 
-    .category-card-new::before {
-        content: '';
+    /* UI elements above link */
+    .category-card-new .cart-icon,
+    .category-card-new .content,
+    .category-card-new .add-inquiry-btn{
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
-        z-index: 1;
+        z-index: 2;
     }
 
     .category-card-new .cart-icon {
-        position: absolute;
         top: clamp(12px, 2vw, 20px);
         left: clamp(12px, 2vw, 20px);
         width: clamp(36px, 5vw, 42px);
@@ -393,8 +385,8 @@
         color: white;
         align-items: center;
         justify-content: center;
-        z-index: 2;
         transition: all 0.3s ease;
+        pointer-events: none; /* icon not clickable */
     }
 
     .category-card-new:hover .cart-icon {
@@ -403,15 +395,16 @@
         transform: scale(1.1);
     }
 
-    .category-card-new .cart-icon svg { width: clamp(18px, 2.5vw, 22px); height: clamp(18px, 2.5vw, 22px); }
+    .category-card-new .cart-icon svg {
+        width: clamp(18px, 2.5vw, 22px);
+        height: clamp(18px, 2.5vw, 22px);
+    }
 
     .category-card-new .content {
-        position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
         padding: clamp(15px, 3vw, 25px);
-        z-index: 2;
         color: white;
     }
 
@@ -421,11 +414,8 @@
         margin: 0;
     }
 
-    /* ===========================
-       ✅ Add to Inquiry Button (SAME AS OLD PAGE)
-    =========================== */
+    /* ✅ Add to Inquiry Button */
     .category-card-new .add-inquiry-btn{
-        position:absolute;
         top: clamp(12px, 2vw, 18px);
         right: clamp(12px, 2vw, 18px);
         width:40px;
@@ -435,42 +425,42 @@
         display:flex;
         align-items:center;
         justify-content:center;
-        z-index:3;
         box-shadow:0 2px 8px rgba(0,0,0,.2);
         transition:all .25s ease;
         border:none;
         cursor:pointer;
 
         opacity:0;
-        pointer-events:none;
-    }
-    .category-card-new:hover .add-inquiry-btn{
-        opacity:1;
         pointer-events:auto;
     }
+
+    .category-card-new:hover .add-inquiry-btn{ opacity:1; }
+
     .category-card-new .add-inquiry-btn:hover{
         transform:scale(1.1);
         background:#0E7490;
     }
+
     .category-card-new .add-inquiry-btn .icon{
         font-size:22px;
         font-weight:800;
         color:#fff;
         line-height:1;
     }
+
     .category-card-new .add-inquiry-btn.is-loading{
         opacity:.85 !important;
         cursor:not-allowed;
         transform:none;
     }
+
     .category-card-new .add-inquiry-btn.added{
         background:#16a34a;
         opacity:1 !important;
         pointer-events:none;
     }
-    .category-card-new .add-inquiry-btn.added .icon{
-        font-size:0; /* hide + */
-    }
+
+    .category-card-new .add-inquiry-btn.added .icon{ font-size:0; }
     .category-card-new .add-inquiry-btn.added .icon::before{
         content:"✓";
         font-size:18px;
@@ -478,9 +468,8 @@
         color:#fff;
     }
 
-    /* Mobile: show button always (optional) */
     @media (max-width:768px){
-        .category-card-new .add-inquiry-btn{ opacity:1; pointer-events:auto; }
+        .category-card-new .add-inquiry-btn{ opacity:1; }
     }
 
     /* Responsive */
@@ -504,11 +493,8 @@
         .trapezoid-container { padding: 50px 20px; }
         .hero-illustration { max-width: 100%; }
         .mission-container { padding: 40px 30px; }
-        .mission-border,
-        .mission-border::before,
-        .mission-border::after { clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 8% 100%); }
-        .mission-text h2,
-        .vision-content h2 { font-size: 32px; }
+        .mission-border, .mission-border::before, .mission-border::after { clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 8% 100%); }
+        .mission-text h2, .vision-content h2 { font-size: 32px; }
         .vision-images { gap: 18px; }
         .vision-section { gap: 40px; }
         .category-card-new { flex: 0 0 100%; }
@@ -519,10 +505,8 @@
         .who-hero-subtitle { font-size: 15px; margin-bottom: 50px; }
         .trapezoid-container { padding: 40px 15px; }
         .mission-container { padding: 35px 20px; }
-        .mission-text h2,
-        .vision-content h2 { font-size: 26px; }
-        .mission-description p,
-        .vision-content p { font-size: 15px; }
+        .mission-text h2, .vision-content h2 { font-size: 26px; }
+        .mission-description p, .vision-content p { font-size: 15px; }
         .vision-section { padding: 0 20px; }
         .vision-images { gap: 12px; }
         .vision-image-item { border-radius: 18px; }
@@ -613,13 +597,15 @@
     <section class="categories-section-new">
         <div class="container">
             <div class="section-header">
-                <button class="nav-btn" id="categoriesPrevBtn">
+                <button class="nav-btn" id="categoriesPrevBtn" type="button">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 18l-6-6 6-6" />
                     </svg>
                 </button>
+
                 <h2>Our Categories</h2>
-                <button class="nav-btn" id="categoriesNextBtn">
+
+                <button class="nav-btn" id="categoriesNextBtn" type="button">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18l6-6-6-6" />
                     </svg>
@@ -631,8 +617,8 @@
                     @foreach ($categories as $category)
                         @php
                             $categoryName = $category->getTranslation('name', $lang);
-                            $categoryImage = null;
 
+                            $categoryImage = null;
                             if ($category->banner) {
                                 $categoryImage = uploaded_asset($category->banner);
                             } elseif ($category->cover_image) {
@@ -655,7 +641,10 @@
                             $categoryUrl = route('products.category', $category->slug);
                         @endphp
 
-                        <a href="{{ $categoryUrl }}" class="category-card-new">
+                        {{-- ✅ card is DIV; link is overlay --}}
+                        <div class="category-card-new">
+                            <a href="{{ $categoryUrl }}" class="category-link-area" aria-label="Open category"></a>
+
                             <div class="cart-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="9" cy="21" r="1" />
@@ -679,7 +668,7 @@
                             <div class="content">
                                 <h3>{{ $categoryName }}</h3>
                             </div>
-                        </a>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -687,118 +676,143 @@
     </section>
 </div>
 
-{{-- JavaScript for Categories Slider --}}
+{{-- JS: slider + add to inquiry --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // =========================
+    // Slider
+    // =========================
     const wrapper = document.getElementById('categoriesWrapperNew');
     const prevBtn = document.getElementById('categoriesPrevBtn');
     const nextBtn = document.getElementById('categoriesNextBtn');
 
-    if (!wrapper || !prevBtn || !nextBtn) return;
+    if (wrapper && prevBtn && nextBtn) {
+        let currentIndex = 0;
 
-    let currentIndex = 0;
-    const cards = wrapper.querySelectorAll('.category-card-new');
-    const totalCards = cards.length;
+        function getVisibleCards() {
+            if (window.innerWidth <= 768) return 1;
+            if (window.innerWidth <= 992) return 2;
+            return 3;
+        }
 
-    function getVisibleCards() {
-        if (window.innerWidth <= 768) return 1;
-        if (window.innerWidth <= 992) return 2;
-        return 3;
+        function updateSlider() {
+            const cards = wrapper.querySelectorAll('.category-card-new');
+            const totalCards = cards.length;
+            if (!cards.length) return;
+
+            const visibleCards = getVisibleCards();
+            const maxIndex = Math.max(0, totalCards - visibleCards);
+            currentIndex = Math.min(currentIndex, maxIndex);
+
+            const cardWidth = cards[0].offsetWidth;
+            const gap = parseInt(getComputedStyle(wrapper).gap) || 25;
+            const offset = currentIndex * (cardWidth + gap);
+
+            wrapper.style.transform = `translateX(-${offset}px)`;
+
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex >= maxIndex;
+
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+        }
+
+        prevBtn.addEventListener('click', function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateSlider();
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            const visibleCards = getVisibleCards();
+            const cards = wrapper.querySelectorAll('.category-card-new');
+            const totalCards = cards.length;
+            const maxIndex = totalCards - visibleCards;
+
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+                updateSlider();
+            }
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateSlider, 250);
+        });
+
+        updateSlider();
     }
 
-    function updateSlider() {
-        const visibleCards = getVisibleCards();
-        const maxIndex = Math.max(0, totalCards - visibleCards);
-        currentIndex = Math.min(currentIndex, maxIndex);
+    // =========================
+    // Add to Inquiry (AJAX)
+    // =========================
+    document.addEventListener('click', async function(e){
+        const btn = e.target.closest('.js-add-category');
+        if(!btn) return;
 
-        const cardWidth = cards[0].offsetWidth;
-        const gap = parseInt(getComputedStyle(wrapper).gap) || 25;
-        const offset = currentIndex * (cardWidth + gap);
+        e.preventDefault(); // prevent any default button actions
 
-        wrapper.style.transform = `translateX(-${offset}px)`;
+        if (btn.classList.contains('added') || btn.classList.contains('is-loading')) return;
 
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex >= maxIndex;
+        const categoryId = btn.getAttribute('data-id');
+        const categoryName = btn.getAttribute('data-name') || 'Category';
 
-        prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
-        nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
-    }
+        btn.classList.add('is-loading');
 
-    prevBtn.addEventListener('click', function() {
-        if (currentIndex > 0) {
-            currentIndex--;
-            updateSlider();
-        }
-    });
+        try {
+            const res = await fetch("{{ route('cart.addCategoryToCart') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ category_id: categoryId })
+            });
 
-    nextBtn.addEventListener('click', function() {
-        const visibleCards = getVisibleCards();
-        const maxIndex = totalCards - visibleCards;
-        if (currentIndex < maxIndex) {
-            currentIndex++;
-            updateSlider();
-        }
-    });
+            const data = await res.json();
 
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-            updateSlider();
-        }, 250);
-    });
-
-    updateSlider();
-});
-</script>
-
-{{-- ✅ Add to Inquiry AJAX (prevents opening the link) --}}
-<script>
-$(document).on('click', '.js-add-category', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const $btn = $(this);
-    if ($btn.hasClass('added') || $btn.hasClass('is-loading')) return;
-
-    const categoryId = $btn.data('id');
-    const categoryName = $btn.data('name') || 'Category';
-
-    $btn.addClass('is-loading');
-
-    $.ajax({
-        type: "POST",
-        url: "{{ route('cart.addCategoryToCart') }}",
-        data: {
-            _token: "{{ csrf_token() }}",
-            category_id: categoryId
-        },
-        success: function (data) {
             if (data && data.status === 1) {
 
                 if (data.cart_count !== undefined) {
-                    $('.cart-count').html(data.cart_count);
+                    const el = document.querySelector('.cart-count');
+                    if (el) el.innerHTML = data.cart_count;
                 }
 
-                if (data.message === 'Category already in cart') {
-                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-                } else {
-                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                if (typeof AIZ !== 'undefined' && AIZ.plugins && AIZ.plugins.notify) {
+                    if (data.message === 'Category already in cart') {
+                        AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                    } else {
+                        AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                    }
                 }
 
-                $btn.addClass('added').prop('disabled', true);
+                btn.classList.add('added');
+                btn.disabled = true;
 
             } else {
-                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+                const msg = (data && data.message) ? data.message : "{{ translate('Something went wrong') }}";
+                if (typeof AIZ !== 'undefined' && AIZ.plugins && AIZ.plugins.notify) {
+                    AIZ.plugins.notify('danger', msg);
+                } else {
+                    alert(msg);
+                }
             }
-        },
-        error: function () {
-            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-        },
-        complete: function () {
-            $btn.removeClass('is-loading');
+
+        } catch (err) {
+            if (typeof AIZ !== 'undefined' && AIZ.plugins && AIZ.plugins.notify) {
+                AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+            } else {
+                alert("Something went wrong");
+            }
+        } finally {
+            btn.classList.remove('is-loading');
         }
     });
+
 });
 </script>
 @endsection
