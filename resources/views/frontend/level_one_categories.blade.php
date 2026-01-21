@@ -558,7 +558,7 @@
 
     .category-card .category-title {
         position: absolute;
-        bottom: 30px;
+        bottom: 20px;
         left: 20px;
         z-index: 2;
         text-align: left;

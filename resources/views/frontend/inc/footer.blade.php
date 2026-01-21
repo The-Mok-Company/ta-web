@@ -25,7 +25,8 @@
     }
 
     .footer-policy-bar .policy-file a:hover {
-        /* On hover: change text/icon to blue accent, keep background unchanged */
+        /* On hover: change text/icon to blue accent, white background */
+        background: #fff;
         transform: translateY(-1px);
     }
 

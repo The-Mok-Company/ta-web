@@ -30,6 +30,11 @@
 @endsection
 
 @section('content')
+<style>
+    body, .aiz-main-wrapper, section {
+        background: #fff !important;
+    }
+</style>
 <section class="pt-4 mb-4">
     <div class="container text-center">
         <div class="row">
