@@ -94,6 +94,13 @@
         object-fit: cover;
     }
 
+    /* Big screens - min-height for category images */
+    @media (min-width: 769px) {
+        .category-image {
+            min-height: 380px;
+        }
+    }
+
     .category-content {
         position: absolute;
         bottom: 20px;
