@@ -122,7 +122,7 @@
     }
 
     .nav-link:hover {
-        color: #3b82f6;
+        color: var(--blue);
     }
 
     .nav-dropdown {
@@ -144,7 +144,7 @@
     }
 
     .dropdown-btn:hover {
-        color: #3b82f6;
+        color: var(--blue);
     }
 
     .dropdown-arrow {
@@ -243,7 +243,7 @@
         top: 0;
         right: 0;
         transform: translate(35%, -35%);
-        background: #3b82f6;
+        background: var(--blue);
         color: white;
         font-size: 10px;
         font-weight: 700;
@@ -301,7 +301,7 @@
     }
 
     .search-input:focus {
-        border-color: #3b82f6;
+        border-color: var(--blue);
         background: #333;
     }
 
@@ -407,7 +407,7 @@
     }
 
     .dropdown-item:hover {
-        background: #dbdbdb;
+        background: #fff;
         color: black !important;
     }
 
@@ -418,7 +418,7 @@
     }
 
     .dropdown-footer a {
-        color: #3b82f6;
+        color: var(--blue);
         text-decoration: none;
         font-size: 13px;
         font-weight: 500;
@@ -780,32 +780,6 @@
             </button>
 
             @if (Auth::check() && auth()->user()->user_type == 'customer')
-                <!-- Compare -->
-                <div class="icon-btn" style="position: relative;">
-                    <a href="{{ route('compare') }}" style="color: inherit; display: flex;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </a>
-                    @if (Session::has('compare'))
-                        <span class="badge-count">{{ count(Session::get('compare')) }}</span>
-                    @endif
-                </div>
-
-                <!-- Wishlist -->
-                <div class="icon-btn" style="position: relative;">
-                    <a href="{{ route('wishlists.index') }}" style="color: inherit; display: flex;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </a>
-                    @if (Auth::check())
-                        <span class="badge-count">{{ count(Auth::user()->wishlists) }}</span>
-                    @endif
-                </div>
-
                 <!-- Notifications -->
                 <div class="icon-btn" style="position: relative;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -879,16 +853,6 @@
                             </svg>
                             <span>{{ translate('My Inquiries') }}</span>
                         </a>
-
-                        @if (Auth::user()->user_type == 'customer')
-                            <a href="{{ route('wishlists.index') }}" class="dropdown-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 21s-7-4.35-9.33-8.33A5.5 5.5 0 0 1 12 5.67a5.5 5.5 0 0 1 9.33 6.99C19 16.65 12 21 12 21z" />
-                                </svg>
-                                <span>{{ translate('My Wishlist') }}</span>
-                            </a>
-                        @endif
 
                         <a href="{{ route('profile') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"

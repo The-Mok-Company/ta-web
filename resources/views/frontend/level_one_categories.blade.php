@@ -543,19 +543,7 @@
     }
 
     .category-card .cart-icon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        cursor: pointer;
-        transition: .3s;
+        display: none;
     }
 
     .category-card .cart-icon:hover {
@@ -570,7 +558,7 @@
 
     .category-card .category-title {
         position: absolute;
-        bottom: 60px;
+        bottom: 30px;
         left: 20px;
         z-index: 2;
         text-align: left;

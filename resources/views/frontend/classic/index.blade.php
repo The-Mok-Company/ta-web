@@ -253,7 +253,7 @@
         .customers-section .about-link {
             display: inline-flex;
             align-items: center;
-            color: #007bff;
+            color: var(--blue);
             font-size: 1rem;
             font-weight: 500;
             text-decoration: none;
@@ -261,7 +261,7 @@
         }
 
         .customers-section .about-link:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .customers-section .about-link svg {
@@ -331,7 +331,7 @@
             border-radius: 50%;
             border: none;
             background-color: #f8f9fa;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -340,7 +340,7 @@
         }
 
         .categories-section .arrow-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
         }
 
@@ -709,7 +709,7 @@
             border-radius: 50%;
             border: none;
             background-color: white;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -720,13 +720,13 @@
         }
 
         .featured-products-section .nav-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
             transform: scale(1.05);
         }
 
         .featured-products-section .view-all {
-            color: #007bff;
+            color: var(--blue);
             text-decoration: none;
             font-weight: 500;
             font-size: clamp(0.85rem, 2vw, 0.95rem);
@@ -735,7 +735,7 @@
         }
 
         .featured-products-section .view-all:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .products-slider {
@@ -1138,7 +1138,7 @@
 
                             $category = \App\Models\Category::find($product->category_id);
                             $categoryName = $category?->getTranslation('name');
-                            $categoryUrl = $category ? route('products.level2', $category->id) : '#';
+                            $categoryUrl = $category ? (route('categories.level2', $category->id) . '?open=' . $category->id) : '#';
                         @endphp
 
                         <a href="{{ $productUrl }}" class="product-card">

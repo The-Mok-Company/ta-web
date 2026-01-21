@@ -15,28 +15,26 @@
     }
 
     .footer-policy-bar .policy-file .policy-title {
-        color: inherit;
+        color: #fff;
         transition: color 0.25s ease;
     }
 
     .footer-policy-bar .policy-file svg path {
-        fill: currentColor !important;
+        fill: #fff !important;
         transition: fill 0.25s ease;
     }
 
     .footer-policy-bar .policy-file a:hover {
-        /* On hover: text/icon should be black */
-        color: #000;
-        background-color: rgba(255, 255, 255, 0.9);
+        /* On hover: change text/icon to blue accent, keep background unchanged */
         transform: translateY(-1px);
     }
 
     .footer-policy-bar .policy-file a:hover .policy-title {
-        color: inherit !important;
+        color: var(--blue) !important;
     }
 
     .footer-policy-bar .policy-file a:hover svg path {
-        fill: currentColor !important;
+        fill: var(--blue) !important;
     }
 
     /* Remove default heading spacing that can misalign borders */
