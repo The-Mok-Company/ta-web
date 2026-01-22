@@ -1,4 +1,68 @@
 @php
+    /** @var \App\Models\Product $product */
+
+    // Keep category context (for category sidebar / inline modal flows)
+    $productUrl = route('product', $product->slug);
+    if ($product->auction_product == 1) {
+        $productUrl = route('auction-product', $product->slug);
+    }
+    if (isset($category_id) && !empty($category_id)) {
+        $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . http_build_query(['category_id' => $category_id]);
+    }
+
+    $productModalUrl = route('product.modal', $product->slug);
+    if (isset($category_id) && !empty($category_id)) {
+        $productModalUrl .= '?' . http_build_query(['category_id' => $category_id]);
+    }
+@endphp
+
+@include('frontend.components.product_card', [
+    'product' => $product,
+    'productUrl' => $productUrl,
+    'productModalUrl' => $productModalUrl,
+    'productImage' => get_image($product->thumbnail),
+    'productName' => $product->getTranslation('name'),
+    'useModal' => true,
+    'useCategoryRedirect' => false,
+    'showBadges' => true,
+])
+
+@php
+    // Safety: this view previously contained legacy markup below.
+    // Stop here to avoid rendering duplicated cards.
+    return;
+@endphp
+
+@php
+    /** @var \App\Models\Product $product */
+
+    // Keep category context (for category sidebar / inline modal flows)
+    $productUrl = route('product', $product->slug);
+    if ($product->auction_product == 1) {
+        $productUrl = route('auction-product', $product->slug);
+    }
+    if (isset($category_id) && !empty($category_id)) {
+        $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . http_build_query(['category_id' => $category_id]);
+    }
+
+    $productModalUrl = route('product.modal', $product->slug);
+    if (isset($category_id) && !empty($category_id)) {
+        $productModalUrl .= '?' . http_build_query(['category_id' => $category_id]);
+    }
+@endphp
+
+@include('frontend.components.product_card', [
+    'product' => $product,
+    'productUrl' => $productUrl,
+    'productModalUrl' => $productModalUrl,
+    'productImage' => get_image($product->thumbnail),
+    'productName' => $product->getTranslation('name'),
+    'useModal' => true,
+    'useCategoryRedirect' => false,
+    'showBadges' => true,
+])
+
+@php
     $cart_added = [];
     $current_quantity = 1;
 @endphp
@@ -184,11 +248,13 @@
     border-radius: clamp(12px, 2vw, 15px);
     overflow: hidden;
     cursor: pointer;
-    padding: clamp(12px, 2vw, 16px);
+    padding: clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px) clamp(8px, 1.5vw, 12px);
     transition: all 0.3s ease;
     text-decoration: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
     height: 100%;
 }
 
@@ -203,10 +269,11 @@
 .featured-image-wrapper {
     position: relative;
     width: 100%;
-    height: clamp(150px, 25vw, 200px);
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     display: block;
     border-radius: clamp(8px, 1.5vw, 12px);
+    background: #f5f5f5;
 }
 
 .featured-product-image {
@@ -214,6 +281,8 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
+    border-radius: inherit;
+    display: block;
 }
 
 .featured-product-card:hover .featured-product-image {
@@ -337,7 +406,7 @@
    Product Info
    =============================================== */
 .featured-product-info {
-    padding: clamp(12px, 2.5vw, 20px) 0 0 0;
+    padding: clamp(10px, 2vw, 14px) 0 0 0;
 }
 
 /* ===============================================
@@ -536,7 +605,7 @@
 .featured-product-category {
     font-size: clamp(0.75rem, 1.3vw, 0.85rem);
     color: #6c757d;
-    margin: 0 0 clamp(8px, 1.5vw, 12px) 0;
+    margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -580,9 +649,7 @@
         transform: translateX(0);
     }
 
-    .featured-image-wrapper {
-        height: clamp(140px, 30vw, 180px);
-    }
+    .featured-image-wrapper { aspect-ratio: 1 / 1; }
 }
 
 /* Small Mobile */
@@ -591,9 +658,7 @@
         padding: 10px;
     }
 
-    .featured-image-wrapper {
-        height: clamp(180px, 40vw, 220px);
-    }
+    .featured-image-wrapper { aspect-ratio: 1 / 1; }
 
     .featured-header-buttons {
         gap: 5px;

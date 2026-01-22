@@ -318,30 +318,36 @@
         flex-shrink: 0;
     }
 
-    .category-sidebar ul li:hover:not(.active) {
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) {
         background: #f8f9fa;
     }
 
-    .category-sidebar ul li:hover:not(.active) a.category-link,
-    .category-sidebar ul li:hover:not(.active) .category-header {
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) a.category-link,
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) .category-header {
         color: #333;
     }
 
     .category-sidebar ul li.active {
+        /* Remove background from li, apply to link/header instead */
+    }
+
+    /* IMPORTANT: only style the clicked item's own link (not its children) */
+    .category-sidebar ul li.active > a.category-link {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
+        border-color: transparent;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar ul li.active a.category-link {
+    /* IMPORTANT: only style the clicked item's own header (not nested ones) */
+    .category-sidebar ul li.active > .category-header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
+        border-color: transparent;
+        box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar ul li.active .category-header {
-        color: #fff;
-    }
-
-    .category-sidebar ul li.active .category-name {
+    .category-sidebar ul li.active > .category-header .category-name {
         color: #fff;
     }
 
@@ -370,17 +376,15 @@
         background: #fff;
     }
 
-    .category-sidebar ul li:hover:not(.active) a.category-link,
-    .category-sidebar ul li:hover:not(.active) .category-header {
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) a.category-link,
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) .category-header {
         border-color: #cbd5e1;
         background: #f8fafc;
     }
 
-    .category-sidebar ul li.active a.category-link,
-    .category-sidebar ul li.active .category-header,
-    .category-sidebar ul li.active .category-name {
-        border-color: rgba(255, 255, 255, 0.35);
-        background: transparent;
+    .category-sidebar ul li.active > a.category-link,
+    .category-sidebar ul li.active > .category-header {
+        border-color: transparent;
     }
 
     .category-sidebar ul li:hover i.fa-chevron-right {
@@ -392,71 +396,106 @@
     }
 
     /* ========================
-       MAIN CATEGORY SECTIONS (CLEARER STRUCTURE)
+       MAIN CATEGORY (LEVEL 0) WRAPPER (LIKE level_one_categories)
     ======================== */
-    .sidebar-section {
-        margin: 10px 0 14px;
+    .all-main-categories-wrapper {
+        padding-left: 0;
+        margin-top: 5px;
     }
 
-    .sidebar-section-header {
-        width: 100%;
+    .all-main-categories-wrapper.collapsed {
+        display: none;
+    }
+
+    .main-category-item {
+        margin-bottom: 15px;
+    }
+
+    .main-category-item .main-category-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: #f8f9fa;
-        border: 1px solid #eef0f3;
-        border-radius: 14px;
-        padding: 12px 14px;
+        padding: 12px 16px;
+        border-radius: 12px;
         cursor: pointer;
-        transition: all .2s ease;
-        color: #111827;
-        font-weight: 700;
-        font-size: 13px;
-        text-align: left;
+        transition: all .3s ease;
+        background: transparent;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+        border: 1px solid #e5e7eb;
     }
 
-    .sidebar-section-header:hover {
-        background: #f3f4f6;
+    .main-category-item .main-category-header:hover {
+        background: #f8f9fa;
+        color: #333;
     }
 
-    .sidebar-section.is-main-active .sidebar-section-header {
+    .main-category-item.active .main-category-header {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-        border-color: transparent;
         color: #fff;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+        border-color: transparent;
     }
 
-    .sidebar-section-toggle {
+    .main-category-item.active .main-category-header:hover {
+        filter: brightness(1.05);
+    }
+
+    .main-category-item .main-category-name {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .main-category-item .main-toggle-icon {
         font-size: 10px;
-        opacity: 0.8;
-        transition: transform .2s ease;
-        margin-left: 10px;
+        opacity: 0.6;
+        transition: all .3s ease;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin-left: 8px;
         flex-shrink: 0;
     }
 
-    .sidebar-section.is-open .sidebar-section-toggle {
+    .main-category-item.active .main-toggle-icon {
+        opacity: 1;
+        color: #fff;
+    }
+
+    .main-category-item .main-toggle-icon.rotated {
         transform: rotate(180deg);
     }
 
-    .sidebar-section-body {
+    .main-category-children {
         display: none;
-        padding-top: 10px;
+        padding-left: 0;
+        margin-top: 10px;
     }
 
-    .sidebar-section.is-open .sidebar-section-body {
+    .main-category-children.show {
         display: block;
+        margin-left: 16px;
     }
 
-    /* Subtle marker for the active trail (parents) */
-    .category-sidebar li.is-active-trail:not(.active) {
-        background: #f8f9fa;
-        border: 1px solid #eef0f3;
-    }
-
-    .category-sidebar li.is-active-trail:not(.active) a,
-    .category-sidebar li.is-active-trail:not(.active) .category-header {
-        color: #111827;
+    /* Active trail styling (parents of active category) - only style the category-header with same blue as section header */
+    .category-sidebar li.is-active-trail:not(.active) > .category-header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        border-color: transparent;
+        color: #fff;
         font-weight: 600;
+        box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+    }
+
+    .category-sidebar li.is-active-trail:not(.active) > .category-header a,
+    .category-sidebar li.is-active-trail:not(.active) > .category-header .category-name {
+        color: #fff;
+        font-weight: 600;
+    }
+
+    /* Don't style category-link for active trail - only the header */
+    .category-sidebar li.is-active-trail:not(.active) > a.category-link {
+        /* Keep default styling - no special background */
     }
 
     /* Sub Categories Styling - Level 2 */
@@ -919,6 +958,11 @@
     /* ========================
        INLINE PRODUCTS (UI IMPROVEMENTS)
     ======================== */
+    /* Ensure vertical spacing between wrapped product rows */
+    #products-row {
+        row-gap: 18px; /* works with flex-wrap rows */
+    }
+
     #products-row .col.border-right.border-bottom {
         border: none !important;
     }
@@ -1146,119 +1190,105 @@
                     {{-- Sidebar --}}
                     <div class="col-lg-3 mb-4">
                         <div class="category-sidebar">
-                            {{-- All Categories Link --}}
+                            {{-- All Categories + Toggle (same design as level_one_categories) --}}
                             <ul>
-                                <li class="{{ !request()->segment(2) ? 'active' : '' }}">
-                                    <a href="{{ route('categories.all') }}" class="category-link">
-                                        <span>All Categories</span>
-                                    </a>
+                                <li class="{{ !request()->segment(2) ? 'active' : '' }} parent-category" data-all-main="1">
+                                    <div class="category-header">
+                                        <a href="{{ route('categories.all') }}" class="category-name">
+                                            <span>All Categories</span>
+                                        </a>
+                                        <i class="fas fa-chevron-down toggle-icon toggle-all-main"></i>
+                                    </div>
                                 </li>
                             </ul>
 
-                            {{-- Loop through Main Categories (Level 0) --}}
-                            @foreach ($mainCategories as $mainCategory)
-                                @php
-                                    $isMainActive = !empty($activeMainCategoryId) && (int) $mainCategory->id === (int) $activeMainCategoryId;
-                                @endphp
+                            {{-- Main categories wrapper --}}
+                            <div class="all-main-categories-wrapper">
+                                @foreach ($mainCategories as $mainCategory)
+                                    @php
+                                        $isMainActive = !empty($activeMainCategoryId) && (int) $mainCategory->id === (int) $activeMainCategoryId;
+                                    @endphp
 
-                                <div class="sidebar-section {{ $isMainActive ? 'is-main-active is-open' : '' }}"
-                                    data-main-category-id="{{ $mainCategory->id }}">
-                                    <button type="button" class="sidebar-section-header">
-                                        <span>{{ $mainCategory->getTranslation('name') }}</span>
-                                        <i class="fas fa-chevron-down sidebar-section-toggle"></i>
-                                    </button>
-
-                                    <div class="sidebar-section-body">
-                                        <ul class="parent-category-list">
+                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}" data-main-id="{{ $mainCategory->id }}">
+                                        <div class="main-category-header">
+                                            <a href="{{ route('categories.level2', $mainCategory->id) }}" class="main-category-name">
+                                                {{ $mainCategory->getTranslation('name') }}
+                                            </a>
                                             @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
-                                                {{-- Main Category with Sub-categories (Level 1) --}}
-                                                @foreach ($mainCategory->childrenCategories as $level1Category)
-                                                    @php
-                                                        $isTrail = in_array((int) $level1Category->id, $activeTrailIds ?? [], true);
-                                                    @endphp
-                                                    <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }} {{ $isTrail ? 'is-active-trail' : '' }}"
-                                                        data-category-id="{{ $level1Category->id }}">
+                                                <i class="fas fa-chevron-down main-toggle-icon"></i>
+                                            @endif
+                                        </div>
 
-                                                        @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
-                                                            {{-- Level 1 has children (Level 2) --}}
-                                                            <div class="category-header">
-                                                                <a href="{{ route('categories.level2', $level1Category->id) }}"
-                                                                    class="category-name">
-                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                                </a>
-                                                                <i class="fas fa-chevron-down toggle-icon"></i>
-                                                            </div>
+                                        @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
+                                            <div class="main-category-children {{ $isMainActive ? 'show' : '' }}">
+                                                <ul class="parent-category-list main-level0">
+                                                    @foreach ($mainCategory->childrenCategories as $level1Category)
+                                                        @php
+                                                            $isTrail = in_array((int) $level1Category->id, $activeTrailIds ?? [], true);
+                                                        @endphp
 
-                                                            {{-- Sub Categories (Level 2) --}}
-                                                            <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
-                                                                @foreach ($level1Category->childrenCategories as $level2Category)
-                                                                    @php
-                                                                        $isTrail2 = in_array((int) $level2Category->id, $activeTrailIds ?? [], true);
-                                                                    @endphp
-                                                                    <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }} {{ $isTrail2 ? 'is-active-trail' : '' }}"
-                                                                        data-category-id="{{ $level2Category->id }}">
+                                                        <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }} {{ $isTrail ? 'is-active-trail' : '' }}"
+                                                            data-category-id="{{ $level1Category->id }}">
+                                                            @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
+                                                                <div class="category-header">
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}" class="category-name">
+                                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    </a>
+                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                </div>
 
-                                                                        @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
-                                                                            {{-- Level 2 has children (Level 3) --}}
-                                                                            <div class="category-header">
+                                                                <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
+                                                                    @foreach ($level1Category->childrenCategories as $level2Category)
+                                                                        @php
+                                                                            $isTrail2 = in_array((int) $level2Category->id, $activeTrailIds ?? [], true);
+                                                                        @endphp
+                                                                        <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }} {{ $isTrail2 ? 'is-active-trail' : '' }}"
+                                                                            data-category-id="{{ $level2Category->id }}">
+                                                                            @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
+                                                                                <div class="category-header">
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
+                                                                                        class="category-name">
+                                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                                    </a>
+                                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                                </div>
+
+                                                                                <ul class="sub-sub-categories" data-parent-id="{{ $level2Category->id }}">
+                                                                                    @foreach ($level2Category->childrenCategories as $level3Category)
+                                                                                        @php
+                                                                                            $isTrail3 = in_array((int) $level3Category->id, $activeTrailIds ?? [], true);
+                                                                                        @endphp
+                                                                                        <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}"
+                                                                                            data-category-id="{{ $level3Category->id }}">
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
+                                                                                                class="category-link">
+                                                                                                <span>{{ $level3Category->getTranslation('name') }}</span>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @else
                                                                                 <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
-                                                                                    class="category-name">
+                                                                                    class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
-                                                                                <i class="fas fa-chevron-down toggle-icon"></i>
-                                                                            </div>
-
-                                                                            {{-- Sub Sub Categories (Level 3) --}}
-                                                                            <ul class="sub-sub-categories" data-parent-id="{{ $level2Category->id }}">
-                                                                                @foreach ($level2Category->childrenCategories as $level3Category)
-                                                                                    @php
-                                                                                        $isTrail3 = in_array((int) $level3Category->id, $activeTrailIds ?? [], true);
-                                                                                    @endphp
-                                                                                    <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}">
-                                                                                        <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
-                                                                                            class="category-link">
-                                                                                            <span>{{ $level3Category->getTranslation('name') }}</span>
-                                                                                            <i class="fas fa-chevron-right"></i>
-                                                                                        </a>
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        @else
-                                                                            {{-- Level 2 without children --}}
-                                                                            <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
-                                                                                class="category-link">
-                                                                                <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                                <i class="fas fa-chevron-right"></i>
-                                                                            </a>
-                                                                        @endif
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @else
-                                                            {{-- Level 1 without children --}}
-                                                            <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
-                                                                class="category-link">
-                                                                <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                                <i class="fas fa-chevron-right"></i>
-                                                            </a>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            @else
-                                                <li class="{{ $currentCategoryId == $mainCategory->id ? 'active' : '' }}">
-                                                    <a href="#" class="category-link">
-                                                        <span class="product-count">There are no sub categories available.</span>
-                                                    </a>
-                                                </li>
-                                            @endif
-                                        </ul>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
+                                                                    class="category-link">
+                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                </a>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Products (populated when a subcategory is opened) --}}
-                            <div class="sidebar-products d-none" id="sidebar-products-section">
-                                <ul id="sidebar-products-list"></ul>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -1461,16 +1491,33 @@
 
                 const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`).first();
 
+                // Helper function to get href from sidebar link
+                function getSidebarLinkHref($li) {
+                    // Try category-header link first (for categories with children)
+                    const $headerLink = $li.find('> .category-header a.category-name').first();
+                    if ($headerLink.length && $headerLink.attr('href')) {
+                        return $headerLink.attr('href');
+                    }
+                    // Try category-link (for leaf categories)
+                    const $categoryLink = $li.find('> a.category-link').first();
+                    if ($categoryLink.length && $categoryLink.attr('href')) {
+                        return $categoryLink.attr('href');
+                    }
+                    return null;
+                }
+
                 // Try to add Main Category (level 0) from the accordion section
                 if ($activeLi.length) {
-                    const $section = $activeLi.closest('.sidebar-section');
-                    const mainName = ($section.find('> .sidebar-section-header span').first().text() || '').trim();
-                    if (mainName) {
+                    const $mainItem = $activeLi.closest('.main-category-item');
+                    const mainName = ($mainItem.find('> .main-category-header .main-category-name').first().text() || '').trim();
+                    const mainHref = $mainItem.find('> .main-category-header .main-category-name').first().attr('href');
+
+                    if (mainName && mainHref) {
                         parts.push(`<span class="breadcrumb-separator">/</span>`);
-                        parts.push(`<li class="active">${escapeHtml(mainName)}</li>`);
+                        parts.push(`<li><a href="${mainHref}">${escapeHtml(mainName)}</a></li>`);
                     }
 
-                    // Build parent chain using the nested <ul data-parent-id="...">
+                    // Build parent chain with IDs, names, and hrefs
                     const chain = [];
                     let currentId = categoryId;
                     let $currentLi = $activeLi;
@@ -1478,7 +1525,8 @@
                     // Ensure the active name is present
                     const resolvedActiveName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
                     if (resolvedActiveName) {
-                        chain.push(resolvedActiveName);
+                        const activeHref = getSidebarLinkHref($activeLi);
+                        chain.push({ id: categoryId, name: resolvedActiveName, href: activeHref });
                     }
 
                     while (true) {
@@ -1500,7 +1548,8 @@
                         ).trim();
 
                         if (parentName) {
-                            chain.push(parentName);
+                            const parentHref = getSidebarLinkHref($parentLi);
+                            chain.push({ id: parentId, name: parentName, href: parentHref });
                         }
 
                         currentId = parentId;
@@ -1508,10 +1557,17 @@
                     }
 
                     // Render chain from top (closest to main) to active
-                    const trail = chain.reverse().filter(Boolean);
-                    trail.forEach(function(name) {
+                    const trail = chain.reverse().filter(item => item && item.name);
+                    trail.forEach(function(item, index) {
                         parts.push(`<span class="breadcrumb-separator">/</span>`);
-                        parts.push(`<li class="active">${escapeHtml(name)}</li>`);
+                        // Last item (active category) is not a link, others are clickable
+                        if (index === trail.length - 1) {
+                            parts.push(`<li class="active">${escapeHtml(item.name)}</li>`);
+                        } else {
+                            // Use the href from sidebar if available, otherwise construct it
+                            const href = item.href || `{{ url('/category-level2') }}/${item.id}?open=${item.id}`;
+                            parts.push(`<li><a href="${href}">${escapeHtml(item.name)}</a></li>`);
+                        }
                     });
                 } else {
                     // Fallback: just show the active category name
@@ -1538,48 +1594,53 @@
             }
 
             function renderSidebarProducts(productList, categoryId) {
+                // Don't show products in sidebar - always keep it hidden
                 const $section = $('#sidebar-products-section');
-                const $list = $('#sidebar-products-list');
-
-                $list.html('');
-
-                if (!productList || !Array.isArray(productList) || productList.length === 0) {
-                    $section.addClass('d-none');
-                    return;
-                }
-
-                productList.forEach(function(p) {
-                    const name = p.name || '';
-                    const slug = p.slug || '';
-                    if (!slug) return;
-
-                    const modalUrl = `{{ route('product.modal', '___SLUG___') }}`.replace('___SLUG___', slug) +
-                        (categoryId ? `?category_id=${categoryId}` : '');
-
-                    $list.append(
-                        `<li data-product-slug="${slug}">
-                            <a href="/product/${slug}" class="js-open-product-details" data-modal-url="${modalUrl}" data-product-slug="${slug}">
-                                ${$('<div>').text(name).html()}
-                            </a>
-                        </li>`
-                    );
-                });
-
-                $section.removeClass('d-none');
+                $section.addClass('d-none');
+                $('#sidebar-products-list').html('');
             }
 
             function setActiveCategory(categoryId) {
                 activeCategoryId = categoryId;
 
-                $('.category-sidebar li').removeClass('active');
-                $(`.category-sidebar li[data-category-id="${categoryId}"]`).addClass('active');
-
-                // Open and highlight the correct main section
+                // Remove all active and active-trail classes
+                $('.category-sidebar li').removeClass('active is-active-trail');
+                
+                // Add active class to the clicked category
                 const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`);
-                const $section = $activeLi.closest('.sidebar-section');
-                if ($section.length) {
-                    $('.sidebar-section').removeClass('is-open is-main-active');
-                    $section.addClass('is-open is-main-active');
+                $activeLi.addClass('active');
+
+                // Add is-active-trail class to all parent categories
+                let $currentLi = $activeLi;
+                while ($currentLi.length) {
+                    const $parentUl = $currentLi.closest('ul.sub-categories, ul.sub-sub-categories');
+                    if (!$parentUl.length) break;
+                    
+                    const parentId = parseInt($parentUl.attr('data-parent-id'), 10);
+                    if (!parentId) break;
+                    
+                    const $parentLi = $(`.category-sidebar li[data-category-id="${parentId}"]`);
+                    if (!$parentLi.length) break;
+                    
+                    // Add is-active-trail to parent (but not active, since active is only for the clicked item)
+                    if (!$parentLi.hasClass('active')) {
+                        $parentLi.addClass('is-active-trail');
+                    }
+                    
+                    $currentLi = $parentLi;
+                }
+
+                // Open and highlight the correct main (level 0) section
+                const $mainItem = $activeLi.closest('.main-category-item');
+                if ($mainItem.length) {
+                    $('.main-category-item').removeClass('active');
+                    $('.main-category-children').removeClass('show');
+                    $('.main-toggle-icon').removeClass('rotated');
+
+                    $mainItem.addClass('active');
+                    const $children = $mainItem.find('> .main-category-children');
+                    $children.addClass('show');
+                    $mainItem.find('> .main-category-header .main-toggle-icon').addClass('rotated');
                 }
 
                 // Expand parents for the active li
@@ -1598,16 +1659,57 @@
                 }
             }
 
-            // Toggle main sections (accordion)
-            $(document).on('click', '.sidebar-section-header', function() {
-                const $section = $(this).closest('.sidebar-section');
-                if (!$section.length) return;
+            // Sidebar UX: make header blocks clickable (not only the <a>)
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.category-sidebar .category-header');
+                if (header) {
+                    if (e.target.closest('.toggle-icon')) return;
+                    const link = header.querySelector('a.category-name');
+                    if (link && link.getAttribute('href')) window.location.href = link.getAttribute('href');
+                }
 
-                // If clicking the already-open section, collapse it; otherwise open it and collapse others
-                const isOpen = $section.hasClass('is-open');
-                $('.sidebar-section').removeClass('is-open');
-                if (!isOpen) {
-                    $section.addClass('is-open');
+                const mainHeader = e.target.closest('.category-sidebar .main-category-header');
+                if (mainHeader) {
+                    if (e.target.closest('.main-toggle-icon')) return;
+                    const link = mainHeader.querySelector('a.main-category-name');
+                    if (link && link.getAttribute('href')) window.location.href = link.getAttribute('href');
+                }
+            });
+
+            // Toggle "All Categories" main wrapper
+            document.addEventListener('click', function(e) {
+                const icon = e.target.closest('.toggle-all-main');
+                if (!icon) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const wrap = document.querySelector('.all-main-categories-wrapper');
+                if (!wrap) return;
+                const collapsed = wrap.classList.contains('collapsed');
+                if (collapsed) {
+                    wrap.classList.remove('collapsed');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    wrap.classList.add('collapsed');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Toggle main category children
+            document.addEventListener('click', function(e) {
+                const icon = e.target.closest('.main-toggle-icon');
+                if (!icon) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const mainItem = icon.closest('.main-category-item');
+                const children = mainItem?.querySelector('.main-category-children');
+                if (!children) return;
+                const isVisible = children.classList.contains('show');
+                if (isVisible) {
+                    children.classList.remove('show');
+                    icon.classList.remove('rotated');
+                } else {
+                    children.classList.add('show');
+                    icon.classList.add('rotated');
                 }
             });
 

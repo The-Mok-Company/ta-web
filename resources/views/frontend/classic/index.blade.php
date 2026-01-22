@@ -486,14 +486,17 @@
             color: white;
             font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
         }
 
         .gather-section .top-bar .text-content p {
             color: rgba(255, 255, 255, 0.85);
             font-size: 0.95rem;
             margin: 0;
+            margin-top: 0;
             max-width: 450px;
+            line-height: 1.5;
         }
 
         .gather-section .top-bar .explore-btn {
@@ -753,14 +756,16 @@
         .product-card {
             flex: 0 0 calc(25% - 15px);
             background: white;
-            border-radius: clamp(12px, 2vw, 15px);
+            border-radius: clamp(12px, 2vw, 16px);
             overflow: hidden;
             cursor: pointer;
-            padding: clamp(12px, 2vw, 16px);
+            padding: clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px) clamp(8px, 1.5vw, 12px);
             transition: all 0.3s ease;
             text-decoration: none;
-            display: block;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f0f0f0;
         }
 
         .product-card:hover {
@@ -771,8 +776,10 @@
         .product-card .image-wrapper {
             position: relative;
             width: 100%;
-            height: clamp(150px, 20vw, 200px);
+            aspect-ratio: 1 / 1;
             overflow: hidden;
+            border-radius: clamp(8px, 1.5vw, 12px);
+            background: #f5f5f5;
         }
 
         .product-card .image-wrapper img {
@@ -787,68 +794,103 @@
             transform: scale(1.1);
         }
 
-        .product-card .add-btn {
+        /* Home featured card action icons (match category-page cards) */
+        .product-card .featured-action-icons {
             position: absolute;
-            bottom: clamp(10px, 1.5vw, 15px);
-            right: clamp(10px, 1.5vw, 15px);
+            top: clamp(8px, 1.5vw, 12px);
+            right: clamp(8px, 1.5vw, 12px);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1vw, 8px);
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover .featured-action-icons {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .product-card .featured-action-btn {
             width: clamp(32px, 4vw, 36px);
             height: clamp(32px, 4vw, 36px);
-            background-color: #1a1a1a;
-            border-radius: 18px;
+            border-radius: 50%;
             border: none;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 0;
-            z-index: 2;
-            transition: width 0.4s ease,
-                padding 0.4s ease,
-                background-color 0.3s ease;
-        }
-
-        .product-card .add-btn svg {
-            width: clamp(16px, 2vw, 18px);
-            height: clamp(16px, 2vw, 18px);
-            flex-shrink: 0;
-        }
-
-        .product-card .add-btn .btn-text {
-            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
-            font-weight: 500;
-            opacity: 0;
-            max-width: 0;
-            margin-left: 0;
-            transform: translateX(-10px);
             transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            color: #6c757d;
+            position: relative;
+            overflow: hidden;
         }
 
-        .product-card .add-btn:hover {
-            background-color: #000000;
-            width: auto;
-            padding: 0 16px 0 12px;
+        .product-card .featured-action-btn svg {
+            width: clamp(14px, 2vw, 16px);
+            height: clamp(14px, 2vw, 16px);
         }
 
-        .product-card .add-btn:hover .btn-text {
-            opacity: 1;
-            max-width: 150px;
-            margin-left: 8px;
-            transform: translateX(0);
+        .product-card .featured-action-btn:hover {
+            background: #007bff;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .product-card .featured-inquiry-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(33, 150, 243, 0.25);
+        }
+
+        .product-card .featured-inquiry-btn:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+        }
+
+        .product-card .featured-inquiry-btn .icon-check { display: none; }
+        .product-card .featured-inquiry-btn.is-added .icon-default { display: none; }
+        .product-card .featured-inquiry-btn.is-added .icon-check { display: block; }
+
+        .product-card .featured-inquiry-btn.is-loading {
+            opacity: .92;
+            pointer-events: none;
+        }
+
+        .product-card .featured-inquiry-btn.is-added::before {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+            animation: featuredRipple .6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes featuredRipple {
+            0% { opacity: 0; transform: scale(.7); }
+            30% { opacity: 1; }
+            100% { opacity: 0; transform: scale(1.25); }
         }
 
         .product-card .product-info {
-            padding: clamp(12px, 2.5vw, 20px);
-            max-height: clamp(60px, 8vw, 70px);
+            padding: clamp(10px, 2vw, 14px) 0 0 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .product-card .product-info h3 {
             font-size: clamp(0.95rem, 2vw, 1.1rem);
             font-weight: 600;
             color: #1a1a1a;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            margin-top: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -860,6 +902,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            margin: 0;
         }
 
         .product-info {
@@ -886,7 +929,13 @@
             }
 
             .product-card .image-wrapper {
-                height: clamp(140px, 25vw, 180px);
+                aspect-ratio: 1 / 1;
+            }
+
+            /* Show action icons on touch/mobile */
+            .product-card .featured-action-icons {
+                opacity: 1;
+                transform: translateX(0);
             }
 
             .featured-products-section .section-header {
@@ -906,7 +955,7 @@
             }
 
             .product-card .image-wrapper {
-                height: clamp(200px, 50vw, 250px);
+                aspect-ratio: 1 / 1;
             }
 
             .products-wrapper {
@@ -1139,30 +1188,22 @@
                             $category = \App\Models\Category::find($product->category_id);
                             $categoryName = $category?->getTranslation('name');
                             $categoryUrl = $category ? (route('categories.level2', $category->id) . '?open=' . $category->id) : '#';
+                            
+                            $hasVariants = $product->choice_options && count(json_decode($product->choice_options, true)) > 0;
                         @endphp
 
-                        <a href="{{ $productUrl }}" class="product-card">
-                            <div class="image-wrapper">
-                                <img src="{{ $productImage }}" alt="{{ $productName }}"
-                                    onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'">
-                                <button class="add-btn" onclick="event.preventDefault();">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    <span class="btn-text">Inquire Now</span>
-                                </button>
-                            </div>
-
-                            <div class="product-info" data-category-url="{{ $categoryUrl }}"
-                                onclick="event.preventDefault(); event.stopPropagation(); window.location.href = this.getAttribute('data-category-url');">
-                                <h3>{{ $productName }}</h3>
-
-                                <p class="featured-product-category">
-                                    {{ $categoryName ?? translate('Products') }}
-                                </p>
-                            </div>
-                        </a>
+                        @include('frontend.components.product_card', [
+                            'product' => $product,
+                            'lang' => $lang,
+                            'productName' => $productName,
+                            'productImage' => $productImage,
+                            'productUrl' => $productUrl,
+                            'categoryName' => $categoryName ?? translate('Products'),
+                            'categoryUrl' => $categoryUrl,
+                            'useCategoryRedirect' => true,
+                            'useModal' => false,
+                            'showBadges' => false,
+                        ])
                     @endforeach
                 </div>
             </div>
@@ -1399,4 +1440,69 @@
                 });
             }
         });
+
+        // Featured Products Inquiry Function
+        function featuredInquiryAction(btnEl) {
+            try {
+                const btn = btnEl;
+                const productId = parseInt(btn?.dataset?.productId || '0', 10);
+                const hasVariants = (btn?.dataset?.hasVariants || '0') === '1';
+
+                if (!productId) return;
+
+                if (hasVariants) {
+                    if (typeof showAddToCartModal === 'function') {
+                        showAddToCartModal(productId);
+                    }
+                    return;
+                }
+
+                if (btn.classList.contains('is-loading')) return;
+                btn.classList.add('is-loading');
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('cart.addToCart') }}",
+                    data: {
+                        id: productId,
+                        quantity: 1,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(data) {
+                        if (data) {
+                            if (data.cart_count !== undefined) {
+                                const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (data.nav_cart_view) {
+                                $('#cart_items').html(data.nav_cart_view);
+                            }
+                            if (typeof flashHeaderCartSuccess === 'function') {
+                                flashHeaderCartSuccess();
+                            }
+
+                            btn.classList.remove('is-loading');
+                            btn.classList.add('is-added');
+                            window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+
+                            try {
+                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                                    AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                                }
+                            } catch (e) {}
+                        }
+                    },
+                    error: function() {
+                        btn.classList.remove('is-loading');
+                        try {
+                            if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                                AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                            }
+                        } catch (e) {}
+                    }
+                });
+            } catch (e) {
+                console.error('Error in featuredInquiryAction:', e);
+            }
+        }
     </script>
