@@ -18,6 +18,20 @@ class InquiryController extends Controller
         $this->cartCacheService = $cartCacheService;
     }
 
+    public function index()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+
+        $inquiries = Inquiry::query()
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(15);
+
+        return view('frontend.user.inquiries.index', compact('inquiries'));
+    }
+
     public function requestOffer(Request $request)
     {
         if (!Auth::check()) {

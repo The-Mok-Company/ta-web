@@ -179,6 +179,7 @@
         .home-category-banner::after {
             content: "{{ translate('View All') }}";
         }
+
     </style>
 
 @if (get_setting('google_analytics') == 1)
@@ -291,7 +292,7 @@
                             </button>
                         </div>
                     </div>
-                @endif                  
+                @endif
             @else
                 <div class="mb-3 custom-alert-box removable-session d-none" data-key="custom-alert-box-{{ $custom_alert->id }}" data-value="removed" style="box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.24);">
                     <div class="rounded-0 position-relative" style="background: {{ $custom_alert->background_color }};">
@@ -330,7 +331,7 @@
                             ->exists();
             $showPopup = $hasUnreviewed;
             }else{
-              $showPopup= false;  
+              $showPopup= false;
             }
         }
         @endphp
@@ -452,7 +453,7 @@
     a[aria-label="Go to GetButton.io website"] {
         display: none !important;
     }
-    
+
 </style>
 
     <script>
@@ -618,8 +619,27 @@
         });
 
         function updateNavCart(view,count){
-            $('.cart-count').html(count);
+            const c = (count === undefined || count === null) ? 0 : count;
+            $('.cart-count').html(c).attr('data-count', c);
             $('#cart_items').html(view);
+        }
+
+        // Flash header cart icon as "added" (green + check)
+        let __cartFlashTimer = null;
+        function flashHeaderCartSuccess() {
+            try {
+                document.querySelectorAll('.header-cart-btn').forEach((el) => {
+                    el.classList.add('is-success');
+                });
+                if (__cartFlashTimer) window.clearTimeout(__cartFlashTimer);
+                __cartFlashTimer = window.setTimeout(() => {
+                    document.querySelectorAll('.header-cart-btn.is-success').forEach((el) => {
+                        el.classList.remove('is-success');
+                    });
+                }, 1200);
+            } catch (e) {
+                // no-op
+            }
         }
 
         function removeFromCart(key){
@@ -722,7 +742,7 @@
             });
         }
 
-       
+
 
         function showReviewImageModal(imageUrl, imagesJson) {
             try {
@@ -861,11 +881,15 @@
                     if (data) {
                         // Update cart count in header
                         if(data.cart_count !== undefined) {
-                            $('.cart-count').html(data.cart_count);
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
                         }
                         // Update cart dropdown if exists
                         if(data.nav_cart_view) {
                             $('#cart_items').html(data.nav_cart_view);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
                         }
                         AIZ.plugins.notify('success', "{{ translate('Product added to cart successfully') }}");
                     }
@@ -1099,7 +1123,7 @@
                 }
             }
         </script>
-        
+
     @endif
 
     @if (get_setting('header_element') == 5 || get_setting('header_element') == 6)
@@ -1181,7 +1205,7 @@
 
 
         function startRandomAlerts() {
-            const min = parseInt(`{{ get_setting('sale_alert_min_time') }}`)  * 1000; 
+            const min = parseInt(`{{ get_setting('sale_alert_min_time') }}`)  * 1000;
             const max = parseInt(`{{ get_setting('sale_alert_max_time') }}`)  * 1000;
             const randomDelay = Math.random() * (max - min) + min;
 

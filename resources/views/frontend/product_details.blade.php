@@ -266,7 +266,7 @@
 
                                                                 @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                     <div class="category-header">
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                        <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                             class="category-name">
                                                                             <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         </a>
@@ -278,7 +278,7 @@
                                                                         @foreach ($level2Category->childrenCategories as $level3Category)
                                                                             <li
                                                                                 class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                     <i class="fas fa-chevron-right"></i>
@@ -287,7 +287,7 @@
                                                                         @endforeach
                                                                     </ul>
                                                                 @else
-                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                         class="category-link">
                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         <i class="fas fa-chevron-right"></i>
@@ -297,7 +297,7 @@
                                                         @endforeach
                                                     </ul>
                                                 @else
-                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                    <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
                                                         class="category-link">
                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                         <i class="fas fa-chevron-right"></i>

@@ -26,6 +26,84 @@
 @endphp
 
 <style>
+    .add-inquiry-btn .icon-check{ display:none; }
+.add-inquiry-btn.added .icon-plus{ display:none; }
+.add-inquiry-btn.added .icon-check{
+    display:block;
+    color:#fff;
+    font-size:18px;
+    font-weight:700;
+}
+.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+
+    /* ===== Add to Inquiry button on cards ===== */
+.add-inquiry-wrap{
+    position:absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 6; /* أعلى من overlay */
+}
+
+.add-inquiry-btn{
+    width: 40px;
+    height: 40px;
+    background: #0891B2;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1),
+                box-shadow .18s ease,
+                background .18s ease;
+}
+
+.add-inquiry-btn .icon{
+    color:#fff;
+    font-size:22px;
+    font-weight:700;
+    line-height:1;
+    pointer-events:none;
+}
+
+/* يبان بوضوح انه button */
+.add-inquiry-btn:hover{
+    background:#0E7490;
+    transform: scale(1.08);
+    box-shadow:
+        0 8px 22px rgba(8,145,178,.45),
+        0 0 0 4px rgba(8,145,178,.25);
+}
+
+.add-inquiry-btn:active{
+    transform: scale(0.95);
+}
+
+/* Added state */
+.add-inquiry-btn.added{
+    background:#16a34a;
+    cursor: default;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+.add-inquiry-btn.added .icon{
+    font-size:18px;
+}
+
+.add-inquiry-btn.added .icon::before{
+    content:"✓";
+}
+
+/* لو اتعمل disable */
+.add-inquiry-btn:disabled{
+    opacity:.9;
+    cursor: not-allowed;
+}
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -465,19 +543,7 @@
     }
 
     .category-card .cart-icon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        cursor: pointer;
-        transition: .3s;
+        display: none;
     }
 
     .category-card .cart-icon:hover {
@@ -492,7 +558,7 @@
 
     .category-card .category-title {
         position: absolute;
-        bottom: 60px;
+        bottom: 20px;
         left: 20px;
         z-index: 2;
         text-align: left;
@@ -519,6 +585,17 @@
         overflow: visible;
         text-overflow: clip;
         word-break: break-word;
+    }
+
+    /* Make the subline clickable (each segment as a link) */
+    .category-card .category-subline a.category-subline-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .category-card .category-subline a.category-subline-link:hover {
+        text-decoration: underline;
+        color: #fff;
     }
 
     .category-card .sub-categories-bottom {
@@ -1051,7 +1128,7 @@
 
                                                             @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
                                                                 <div class="category-header">
-                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                         class="category-name">
                                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     </a>
@@ -1086,7 +1163,7 @@
 
                                                                             @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                                 <div class="category-header">
-                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                         class="category-name">
                                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
@@ -1098,7 +1175,7 @@
                                                                                     @foreach ($level2Category->childrenCategories as $level3Category)
                                                                                         <li
                                                                                             class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}"
                                                                                                 class="category-link">
                                                                                                 <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                                 <i
@@ -1108,7 +1185,7 @@
                                                                                     @endforeach
                                                                                 </ul>
                                                                             @else
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
@@ -1117,7 +1194,7 @@
                                                                     @endforeach
                                                                 </ul>
                                                             @else
-                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                     class="category-link">
                                                                     <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     <i class="fas fa-chevron-right"></i>
@@ -1153,21 +1230,35 @@
                                                 <div class="cart-icon">
                                                     <i class="fas fa-shopping-basket"></i>
                                                 </div>
+<div class="add-inquiry-wrap">
+    <button type="button"
+            class="add-inquiry-btn js-add-category"
+            data-id="{{ $subCategory->id }}"
+            data-name="{{ $subCategory->getTranslation('name') }}"
+            title="Add to Inquiry">
+        <span class="icon icon-plus">+</span>
+<span class="icon icon-check"></span>
+
+    </button>
+</div>
 
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
                                                     @php
                                                         $cardChildren = $subCategory->childrenCategories ?? ($subCategory->categories ?? collect());
-                                                        $cardChildNames = $cardChildren
-                                                            ->take(4)
-                                                            ->map(fn($c) => method_exists($c, 'getTranslation') ? $c->getTranslation('name') : ($c->name ?? ''))
-                                                            ->filter()
-                                                            ->values()
-                                                            ->all();
+                                                        $cardChildren = $cardChildren instanceof \Illuminate\Support\Collection
+                                                            ? $cardChildren->take(4)
+                                                            : collect($cardChildren)->take(4);
                                                     @endphp
-                                                    @if (!empty($cardChildNames))
+                                                    @if ($cardChildren->count() > 0)
                                                         <div class="category-subline">
-                                                            {{ implode(' / ', $cardChildNames) }}
+                                                            @foreach ($cardChildren as $child)
+                                                                <a class="category-subline-link"
+                                                                    href="{{ route('categories.level2', $child->id) }}"
+                                                                    onclick="event.stopPropagation();">
+                                                                    {{ method_exists($child, 'getTranslation') ? $child->getTranslation('name') : ($child->name ?? '') }}
+                                                                </a>@if(!$loop->last)<span class="category-subline-sep"> / </span>@endif
+                                                            @endforeach
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1199,6 +1290,21 @@
             const allMainToggle = document.querySelector('.toggle-all-main');
             const allMainWrapper = document.querySelector('.all-main-categories-wrapper');
             const mainCategoryItems = document.querySelectorAll('.main-category-item');
+
+            // Make the whole category header clickable (not just the text),
+            // but keep the toggle icon only for expanding/collapsing.
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.category-sidebar .category-header');
+                if (!header) return;
+
+                // If user clicked the toggle icon, let the toggle handler run.
+                if (e.target.closest('.toggle-icon')) return;
+
+                const link = header.querySelector('a.category-name');
+                if (link && link.getAttribute('href')) {
+                    window.location.href = link.getAttribute('href');
+                }
+            });
 
             // Toggle للـ Main Categories
             mainCategoryItems.forEach(function(mainItem) {
@@ -1344,5 +1450,66 @@
                 }
             });
         });
+
+
+
+
+
+        // Add category to Inquiry (Ajax) - prevent card navigation
+document.addEventListener('click', function(e){
+    const btn = e.target.closest('.js-add-category');
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();   // يمنع onclick بتاع الكارد
+    e.stopImmediatePropagation();
+
+    if(btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+    const categoryId = btn.getAttribute('data-id');
+    const categoryName = btn.getAttribute('data-name');
+
+    btn.dataset.loading = "1";
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('cart.addCategoryToCart') }}",
+        data: {
+            _token: "{{ csrf_token() }}",
+            category_id: categoryId
+        },
+        success: function (data) {
+            if (data && data.status === 1) {
+
+                if (data.cart_count !== undefined) {
+                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                    $('.cart-count').html(c).attr('data-count', c);
+                }
+                if (typeof flashHeaderCartSuccess === 'function') {
+                    flashHeaderCartSuccess();
+                }
+
+                btn.classList.add('added');
+                btn.setAttribute('disabled', 'disabled');
+
+                if (data.message === 'Category already in cart') {
+                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
+                } else {
+                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
+                }
+
+            } else {
+                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
+            }
+        },
+        error: function () {
+            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+        },
+        complete: function () {
+            btn.dataset.loading = "0";
+        }
+    });
+}, true);
+
     </script>
 @endsection
