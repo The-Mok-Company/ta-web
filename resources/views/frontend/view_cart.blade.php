@@ -324,6 +324,717 @@
         }
     </style>
 
+    <style>
+        /* ============== Categories Dropdown Section ============== */
+        .categories-dropdown-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            padding: 130px 0;
+            margin-bottom: 0;
+        }
+
+        .section-header-wrapper {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+
+        .categories-dropdown-subtitle {
+            font-size: 16px;
+            color: #64748b;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Category Dropdown Card */
+        .category-dropdown-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(8, 145, 178, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .category-dropdown-card:hover {
+            box-shadow: 0 8px 30px rgba(8, 145, 178, 0.15);
+        }
+
+        /* Dropdown Header */
+        .category-dropdown-header {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .category-dropdown-header:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .header-icon.main {
+            background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+        }
+
+        .header-icon.sub {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        }
+
+        .header-icon.sub-sub {
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+        }
+
+        .header-icon.products {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .header-count {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .dropdown-arrow {
+            font-size: 20px;
+            color: #64748b;
+            transition: transform 0.3s ease;
+        }
+
+        .category-dropdown-header.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown List */
+        .category-dropdown-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-dropdown-list.open {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        .category-dropdown-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-dropdown-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .category-dropdown-list::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        /* Category Item */
+        .category-item {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .category-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-item:hover {
+            background: #f8fafc;
+        }
+
+        .category-item.in-cart {
+            background: #f0fdf4;
+        }
+
+        .category-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        /* Category Bullets */
+        .category-bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .main-bullet {
+            background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+            box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+        }
+
+        .sub-bullet {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .sub-sub-bullet {
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+
+        .category-name-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .category-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-parent {
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .in-cart-badge {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .in-cart-badge i {
+            font-size: 14px;
+        }
+
+        /* Add Button */
+        .category-add-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .category-add-btn:hover {
+            background: linear-gradient(135deg, var(--primary-hover) 0%, #075985 100%);
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+
+        .category-add-btn i {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .category-add-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .category-add-btn.loading i {
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Product Item Styles */
+        .product-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-item:hover {
+            background: #f0fdf4;
+            transform: translateX(4px);
+        }
+
+        .product-thumbnail {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .product-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            font-size: 13px;
+            font-weight: 700;
+            color: #10B981;
+        }
+
+        .product-stock {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .product-add-btn {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #dbeafe;
+            color: #1e40af;
+            border: 0px;
+        }
+
+        .product-stock.out-of-stock {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 40px 24px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+            opacity: 0.5;
+        }
+
+        .empty-state span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .categories-dropdown-section {
+                padding: 50px 0;
+            }
+
+            .categories-dropdown-title {
+                font-size: 28px;
+            }
+
+            .category-dropdown-list.open {
+                max-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-header-wrapper {
+                margin-bottom: 30px;
+            }
+
+            .category-dropdown-header {
+                padding: 20px;
+            }
+
+            .header-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .header-title {
+                font-size: 16px;
+            }
+
+            .category-item {
+                padding: 14px 20px;
+            }
+
+            .category-name {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .categories-dropdown-title {
+                font-size: 24px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .header-left {
+                gap: 12px;
+            }
+
+            .category-dropdown-header {
+                padding: 16px;
+            }
+
+            .header-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .category-item {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+
+
+
+    {{-- ✅ Categories & Products Dropdown List Section --}}
+    <section class="categories-dropdown-section">
+        <div class="container">
+            <div class="section-header-wrapper">
+                <p class="categories-dropdown-subtitle">
+                    {{ translate('Select categories to add to your inquiry or browse products') }}
+                </p>
+            </div>
+
+            <div class="row g-4">
+                @php
+                    // Group categories by level
+                    $mainCategories = $Category->where('level', 0);
+                    $subCategories = $Category->where('level', 1);
+                    $subSubCategories = $Category->where('level', 2);
+
+                    // Check which categories are already in cart
+                    $cartCategoryIds = [];
+                    if (isset($carts) && count($carts) > 0) {
+                        foreach ($carts as $cart) {
+                            if (isset($cart['category_id'])) {
+                                $cartCategoryIds[] = $cart['category_id'];
+                            }
+                        }
+                    }
+
+                    $allProducts = \App\Models\Product::where('published', 1)
+                        ->where('approved', 1)
+                        ->select('id', 'name', 'slug', 'thumbnail_img', 'unit_price', 'current_stock', 'category_id')
+                        ->orderBy('num_of_sale', 'desc')
+                        ->get()
+                        ->groupBy('category_id');
+                @endphp
+
+                {{-- Main Categories (Level 0) --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="category-dropdown-card">
+                        <div class="category-dropdown-header" onclick="toggleCategoryList('main-categories')">
+                            <div class="header-left">
+                                <div class="header-icon main">
+                                    <i class="bi bi-folder-fill"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h3 class="header-title">{{ translate('Main Categories') }}</h3>
+                                    <span class="header-count">{{ $mainCategories->count() }}
+                                        {{ translate('Categories') }}</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+                        </div>
+
+                        <div class="category-dropdown-list" id="main-categories">
+                            @if ($mainCategories->count() > 0)
+                                @foreach ($mainCategories as $category)
+                                    @php
+                                        $categoryName = $category->getTranslation('name', $lang ?? 'en');
+                                        $inCart = in_array($category->id, $cartCategoryIds);
+                                    @endphp
+
+                                    <div class="category-item {{ $inCart ? 'in-cart' : '' }}"
+                                        data-category-id="{{ $category->id }}">
+                                        <div class="category-item-left"
+                                            onclick="showCategoryProducts({{ $category->id }}, '{{ $categoryName }}')">
+                                            <div class="category-bullet main-bullet"></div>
+                                            <span class="category-name">{{ $categoryName }}</span>
+                                        </div>
+
+                                        @if ($inCart)
+                                            <span class="category-badge in-cart-badge">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                {{ translate('In Cart') }}
+                                            </span>
+                                        @else
+                                            <button class="category-add-btn" data-id="{{ $category->id }}"
+                                                data-name="{{ $categoryName }}" data-level="main"
+                                                title="{{ translate('Add to Cart') }}">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    <span>{{ translate('No main categories found') }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sub Categories (Level 1) --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="category-dropdown-card">
+                        <div class="category-dropdown-header" onclick="toggleCategoryList('sub-categories')">
+                            <div class="header-left">
+                                <div class="header-icon sub">
+                                    <i class="bi bi-folder2-open"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h3 class="header-title">{{ translate('Sub Categories') }}</h3>
+                                    <span class="header-count">{{ $subCategories->count() }}
+                                        {{ translate('Categories') }}</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+                        </div>
+
+                        <div class="category-dropdown-list" id="sub-categories">
+                            @if ($subCategories->count() > 0)
+                                @foreach ($subCategories as $category)
+                                    @php
+                                        $categoryName = $category->getTranslation('name', $lang ?? 'en');
+                                        $inCart = in_array($category->id, $cartCategoryIds);
+
+                                        // Get parent category name
+                                        $parentCategory = $Category->where('id', $category->parent_id)->first();
+                                        $parentName = $parentCategory
+                                            ? $parentCategory->getTranslation('name', $lang ?? 'en')
+                                            : '';
+                                    @endphp
+
+                                    <div class="category-item {{ $inCart ? 'in-cart' : '' }}"
+                                        data-category-id="{{ $category->id }}">
+                                        <div class="category-item-left"
+                                            onclick="showCategoryProducts({{ $category->id }}, '{{ $categoryName }}')">
+                                            <div class="category-bullet sub-bullet"></div>
+                                            <div class="category-name-wrapper">
+                                                <span class="category-name">{{ $categoryName }}</span>
+                                                @if ($parentName)
+                                                    <span class="category-parent">{{ $parentName }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if ($inCart)
+                                            <span class="category-badge in-cart-badge">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                {{ translate('In Cart') }}
+                                            </span>
+                                        @else
+                                            <button class="category-add-btn" data-id="{{ $category->id }}"
+                                                data-name="{{ $categoryName }}" data-level="sub"
+                                                title="{{ translate('Add to Cart') }}">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    <span>{{ translate('No sub categories found') }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sub-Sub Categories (Level 2) --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="category-dropdown-card">
+                        <div class="category-dropdown-header" onclick="toggleCategoryList('sub-sub-categories')">
+                            <div class="header-left">
+                                <div class="header-icon sub-sub">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h3 class="header-title">{{ translate('Sub-Sub Categories') }}</h3>
+                                    <span class="header-count">{{ $subSubCategories->count() }}
+                                        {{ translate('Categories') }}</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+                        </div>
+
+                        <div class="category-dropdown-list" id="sub-sub-categories">
+                            @if ($subSubCategories->count() > 0)
+                                @foreach ($subSubCategories as $category)
+                                    @php
+                                        $categoryName = $category->getTranslation('name', $lang ?? 'en');
+                                        $inCart = in_array($category->id, $cartCategoryIds);
+
+                                        // Get parent category name
+                                        $parentCategory = $Category->where('id', $category->parent_id)->first();
+                                        $parentName = $parentCategory
+                                            ? $parentCategory->getTranslation('name', $lang ?? 'en')
+                                            : '';
+                                    @endphp
+
+                                    <div class="category-item {{ $inCart ? 'in-cart' : '' }}"
+                                        data-category-id="{{ $category->id }}">
+                                        <div class="category-item-left"
+                                            onclick="showCategoryProducts({{ $category->id }}, '{{ $categoryName }}')">
+                                            <div class="category-bullet sub-sub-bullet"></div>
+                                            <div class="category-name-wrapper">
+                                                <span class="category-name">{{ $categoryName }}</span>
+                                                @if ($parentName)
+                                                    <span class="category-parent">{{ $parentName }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if ($inCart)
+                                            <span class="category-badge in-cart-badge">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                {{ translate('In Cart') }}
+                                            </span>
+                                        @else
+                                            <button class="category-add-btn" data-id="{{ $category->id }}"
+                                                data-name="{{ $categoryName }}" data-level="sub-sub"
+                                                title="{{ translate('Add to Cart') }}">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    <span>{{ translate('No sub-sub categories found') }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Products List (New 4th Column) --}}
+                {{-- Products List (New 4th Column) --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="category-dropdown-card">
+                        <div class="category-dropdown-header active" onclick="toggleProductsList()">
+                            <div class="header-left">
+                                <div class="header-icon products">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h3 class="header-title" id="products-title">{{ translate('Products') }}</h3>
+                                    <span class="header-count"
+                                        id="products-count">{{ translate('Select a category') }}</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+                        </div>
+
+                        <div class="category-dropdown-list open" id="products-list">
+                            <div class="empty-state">
+                                <i class="bi bi-box-seam"></i>
+                                <span>{{ translate('Click on any category to view products') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- Hidden Products Data --}}
+    <script id="products-data" type="application/json">
+{!! json_encode($allProducts) !!}
+</script>
+
+
+
     <section class="cart-section">
         <div class="container py-4">
 
@@ -395,114 +1106,6 @@
         </div>
     </section>
 
-    <!-- Section 3: Items & Updates -->
-    <section class="items-section" id="items-section">
-        <div class="container">
-
-            <div class="inquiry-title mb-4">Inquiry #356</div>
-
-            <!-- Tabs -->
-            <div class="items-tabs">
-                <button class="items-tab active" type="button">Items</button>
-                <button class="items-tab" type="button">Updates</button>
-            </div>
-
-            <!-- Items List -->
-            <div class="row">
-                <div class="col-lg-8">
-                    @for ($i = 0; $i < 2; $i++)
-                        <div class="item-row">
-                            <img class="item-image"
-                                src="{{ asset('uploads/all/EbM9tJYgdR2oFheJi7nfrknYHRxVfWjYtqSBy8wy.jpeg') }}"
-                                alt="Product">
-
-                            <div class="item-info">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <span class="item-qty">8Tons</span>
-                                    <span class="product-title" style="margin: 0;">Mix Fruit for Juice</span>
-                                </div>
-                                <div class="product-category mb-2">Vegetables & Fruit</div>
-                                <div class="product-description" style="max-width: 500px;">
-                                    From food and beverages to raw materials and recycled goods — Trades Axis bridges
-                                    global demand and supply with precision, trust, and efficiency.
-                                </div>
-                            </div>
-
-                            <div class="item-price-badge">
-                                Price &nbsp;&nbsp; {{ $i == 0 ? '3,600 EGP' : '4,200 EGP' }}
-                            </div>
-                        </div>
-                    @endfor
-
-                    <!-- Pagination -->
-                    <div class="pagination-info">
-                        24 / 31
-                    </div>
-                </div>
-
-                <!-- Right: Summary -->
-                <div class="col-lg-4">
-                    <div class="card summary-card">
-                        <div class="card-body p-4">
-
-                            <div class="summary-title">Inquiry Summary</div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="pill bg-primary text-white">Inquiry Number</div>
-                                <div class="pill bg-primary text-white">#36591</div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span style="color: #1e293b; font-weight: 700;">Status</span>
-                                <span class="badge"
-                                    style="background: #DC2626; padding: 8px 16px; border-radius: 999px; font-weight: 700;">Ongoing</span>
-                            </div>
-
-                            <hr style="border-color:#e2e8f0;margin:24px 0">
-
-                            <div class="summary-row">
-                                <span>Available products Price</span>
-                                <span style="color: #1e293b; font-weight: 700;">3600 EGP</span>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Taxes</span>
-                                <span style="color: #1e293b; font-weight: 700;">3600 EGP</span>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Delivery</span>
-                                <span style="color: #1e293b; font-weight: 700;">3600 EGP</span>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Discount</span>
-                                <span style="color: #1e293b; font-weight: 700;">3600 EGP</span>
-                            </div>
-
-                            <div class="summary-row mb-4">
-                                <span>Extra fees</span>
-                                <span style="color: #1e293b; font-weight: 700;">3600 EGP</span>
-                            </div>
-
-                            <hr style="border-color:#e2e8f0;margin:24px 0">
-
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <span style="font-size: 18px; font-weight: 700; color: #1e293b;">Total</span>
-                                <span style="font-size: 18px; font-weight: 700; color: #1e293b;">3600 EGP</span>
-                            </div>
-
-                            <button type="button" class="btn w-100 request-btn" style="background: #0891B2;">
-                                <span>Accept Offer</span>
-                            </button>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
 @endsection
 
 @section('script')
@@ -701,6 +1304,302 @@
         // run once on load
         $(document).ready(function() {
             updateCartSummary();
+        });
+    </script>
+    <script>
+        // Global products data
+        var productsData = {};
+
+        $(document).ready(function() {
+            // Parse products data from JSON
+            try {
+                var jsonData = $('#products-data').text();
+                productsData = JSON.parse(jsonData);
+                console.log('Products Data Loaded:', productsData);
+            } catch (e) {
+                console.error('Error parsing products data:', e);
+            }
+
+            // Open Main Categories by default
+            var firstList = document.getElementById('main-categories');
+            if (firstList) {
+                firstList.classList.add('open');
+                firstList.previousElementSibling.classList.add('active');
+            }
+        });
+
+        // ✅ Toggle Category Dropdown Lists
+        function toggleCategoryList(listId) {
+            var list = document.getElementById(listId);
+            var header = list.previousElementSibling;
+
+            if (list.classList.contains('open')) {
+                list.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                // Close all other dropdowns (except products)
+                document.querySelectorAll('.category-dropdown-list').forEach(function(el) {
+                    if (el.id !== 'products-list') {
+                        el.classList.remove('open');
+                    }
+                });
+                document.querySelectorAll('.category-dropdown-header').forEach(function(el) {
+                    if (el.querySelector('#products-title') === null) {
+                        el.classList.remove('active');
+                    }
+                });
+
+                // Open clicked dropdown
+                list.classList.add('open');
+                header.classList.add('active');
+            }
+        }
+
+        // ✅ Toggle Products List (يفتح ويقفل)
+        function toggleProductsList() {
+            var list = document.getElementById('products-list');
+            var header = list.previousElementSibling;
+
+            if (list.classList.contains('open')) {
+                list.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                list.classList.add('open');
+                header.classList.add('active');
+            }
+        }
+
+        // ✅ Show Products by Category ID
+        function showCategoryProducts(categoryId, categoryName) {
+            var productsList = $('#products-list');
+            var productsTitle = $('#products-title');
+            var productsCount = $('#products-count');
+
+            console.log('Looking for category:', categoryId);
+            console.log('Available categories:', Object.keys(productsData));
+
+            // Update header
+            productsTitle.text(categoryName);
+
+            // Get products for this category - تأكد من التحويل لـ string لأن المفاتيح في JSON دايماً strings
+            var categoryProducts = productsData[String(categoryId)] || productsData[categoryId] || [];
+
+            console.log('Products found:', categoryProducts.length);
+
+            if (categoryProducts.length > 0) {
+                var productsHtml = '';
+
+                // Limit to first 20 products
+                var limitedProducts = categoryProducts.slice(0, 20);
+
+                limitedProducts.forEach(function(product) {
+                    var thumbnailUrl = product.thumbnail_img ?
+                        '{{ asset('') }}' + product.thumbnail_img :
+                        '{{ static_asset('assets/img/placeholder.jpg') }}';
+
+                    var productUrl = '{{ url('product') }}/' + product.slug;
+                    var price = parseFloat(product.unit_price).toFixed(2);
+                    var stockStatus = product.current_stock > 0 ?
+                        'in-stock' : 'out-of-stock';
+                    var stockText = product.current_stock > 0 ?
+                        '{{ translate('In Stock') }}' : '{{ translate('Out of Stock') }}';
+
+                    productsHtml += `
+                    <div class="product-item-wrapper" data-product-id="${product.id}">
+                        <div class="product-item">
+                            <img src="${thumbnailUrl}" alt="${product.name}" class="product-thumbnail" onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-price">${price} {{ translate('EGP') }}</div>
+                            </div>
+                            <span class="product-stock ${stockStatus}">${stockText}</span>
+                            ${product.current_stock > 0 ? `
+                                                <button class="product-add-btn"
+                                                    data-product-id="${product.id}"
+                                                    data-product-name="${product.name}"
+                                                    title="{{ translate('Add to Cart') }}">
+                                                    <i class="bi bi-cart-plus"></i>
+                                                </button>
+                                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                });
+
+                productsList.html(productsHtml);
+                productsCount.text(categoryProducts.length + ' {{ translate('Products') }}');
+
+                // فتح الـ products list تلقائياً
+                if (!productsList.hasClass('open')) {
+                    productsList.addClass('open');
+                    productsList.prev('.category-dropdown-header').addClass('active');
+                }
+            } else {
+                // No products found
+                productsList.html(`
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <span>{{ translate('No products found in this category') }}</span>
+                </div>
+            `);
+                productsCount.text('0 {{ translate('Products') }}');
+            }
+        }
+
+        // ✅ Add Product to Cart
+        $(document).on('click', '.product-add-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
+            var productName = $btn.data('product-name');
+
+            // Prevent double click
+            if ($btn.hasClass('loading')) return;
+
+            // Add loading state
+            $btn.addClass('loading');
+            var originalIcon = $btn.find('i').attr('class');
+            $btn.find('i').attr('class', 'bi bi-hourglass-split');
+
+            $.ajax({
+                type: "POST",
+                url: '{{ route('cart.addToCart') }}',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: productId,
+                    quantity: 1
+                },
+                success: function(data) {
+                    if (data && data.status == 1) {
+                        // Update cart count in navbar
+                        if (data.cart_count !== undefined) {
+                            $('.cart-count').html(data.cart_count);
+                        }
+
+                        // Show success message
+                        if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                            AIZ.plugins.notify('success', productName +
+                                ' {{ translate('added to cart successfully') }}');
+                        }
+
+                        // Change button to success state
+                        $btn.removeClass('loading');
+                        $btn.find('i').attr('class', 'bi bi-check-circle-fill');
+                        $btn.css('background', 'linear-gradient(135deg, #10B981 0%, #059669 100%)');
+
+                        // Reset button after 2 seconds
+                        setTimeout(function() {
+                            $btn.find('i').attr('class', originalIcon);
+                            $btn.css('background', '');
+                        }, 2000);
+
+                    } else {
+                        // Error
+                        $btn.removeClass('loading');
+                        $btn.find('i').attr('class', originalIcon);
+
+                        if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                            AIZ.plugins.notify('danger', data.message ||
+                                '{{ translate('Something went wrong') }}');
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    $btn.removeClass('loading');
+                    $btn.find('i').attr('class', originalIcon);
+
+                    if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                        AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                    }
+                }
+            });
+        });
+
+        // ✅ Add Category to Cart from Dropdown
+        $(document).on('click', '.category-add-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $btn = $(this);
+            var categoryId = $btn.data('id');
+            var categoryName = $btn.data('name');
+            var categoryLevel = $btn.data('level');
+
+            // Prevent double click
+            if ($btn.hasClass('loading')) return;
+
+            // Add loading state
+            $btn.addClass('loading');
+            var originalIcon = $btn.find('i').attr('class');
+            $btn.find('i').attr('class', 'bi bi-hourglass-split');
+
+            $.ajax({
+                type: "POST",
+                url: '{{ route('cart.addCategoryToCart') }}',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status == 1) {
+                        // Update cart count in navbar
+                        if (data.cart_count !== undefined) {
+                            $('.cart-count').html(data.cart_count);
+                        }
+
+                        // Show success message
+                        if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                            if (data.message === 'Category already in cart') {
+                                AIZ.plugins.notify('warning', categoryName +
+                                    ' {{ translate('is already in cart') }}');
+                            } else {
+                                AIZ.plugins.notify('success', categoryName +
+                                    ' {{ translate('added to cart successfully') }}');
+                            }
+                        }
+
+                        // Change button to "In Cart" badge
+                        var $categoryItem = $btn.closest('.category-item');
+                        $categoryItem.addClass('in-cart');
+
+                        $btn.replaceWith(
+                            '<span class="category-badge in-cart-badge">' +
+                            '<i class="bi bi-check-circle-fill"></i>' +
+                            '{{ translate('In Cart') }}' +
+                            '</span>'
+                        );
+
+                        // Update cart summary if on same page
+                        if (typeof updateCartSummary === 'function') {
+                            setTimeout(function() {
+                                location.reload();
+                            }, 800);
+                        }
+
+                    } else {
+                        // Error
+                        $btn.removeClass('loading');
+                        $btn.find('i').attr('class', originalIcon);
+
+                        if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                            AIZ.plugins.notify('danger', data.message ||
+                                '{{ translate('Something went wrong') }}');
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    $btn.removeClass('loading');
+                    $btn.find('i').attr('class', originalIcon);
+
+                    if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
+                        AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                    }
+                }
+            });
         });
     </script>
 @endsection
