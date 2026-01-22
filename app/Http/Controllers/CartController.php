@@ -24,32 +24,33 @@ class CartController extends Controller
         $this->cartCacheService = $cartCacheService;
     }
 
-    public function index(Request $request)
-    {
-        $user_id = null;
-        $temp_user_id = null;
+  public function index(Request $request)
+{
+    if (!Auth::check()) {
+        $request->session()->put('url.intended', url()->current());
 
-        if (auth()->user() != null) {
-            $user_id = Auth::user()->id;
-            if ($request->session()->get('temp_user_id')) {
-                // Merge temp cart with user cart
-                $this->cartCacheService->mergeTempCart($request->session()->get('temp_user_id'), $user_id);
-                Session::forget('temp_user_id');
-            }
-        } else {
-            $temp_user_id = $request->session()->get('temp_user_id');
-        }
-
-        $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
-
-        // Update shipping cost to 0
-        if (count($carts) > 0) {
-            $this->cartCacheService->updateShippingCost(0, $user_id, $temp_user_id);
-            $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
-        }
-
-        return view('frontend.view_cart', compact('carts'));
+        return redirect()->route('user.login');
+        // return redirect('/users/login');
     }
+
+    $user_id = Auth::id();
+    $temp_user_id = null;
+
+    if ($request->session()->get('temp_user_id')) {
+        $this->cartCacheService->mergeTempCart($request->session()->get('temp_user_id'), $user_id);
+        Session::forget('temp_user_id');
+    }
+
+    $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
+
+    // Update shipping cost to 0
+    if (count($carts) > 0) {
+        $this->cartCacheService->updateShippingCost(0, $user_id, $temp_user_id);
+        $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
+    }
+
+    return view('frontend.view_cart', compact('carts'));
+}
 
     public function showCartModal(Request $request)
     {
@@ -303,18 +304,15 @@ public function updateQuantity(Request $request)
         ]);
     }
 
-    // ✅ الكمية الجديدة
     $newQuantity = (int) $request->quantity;
     if ($newQuantity < 1) $newQuantity = 1;
     if ($newQuantity < (int)$product->min_qty) $newQuantity = (int)$product->min_qty;
 
-    // ✅ هات الستوك للـ variant أو أول ستوك
     $variant = $cartItem['variation'] ?? '';
     $product_stock = $product->stocks->where('variant', $variant)->first();
     if (!$product_stock) $product_stock = $product->stocks->first();
 
     if (!$product_stock) {
-        // مفيش ستوك أصلاً
         return response()->json([
             'cart_count'    => $this->cartCacheService->getCartCount($user_id, $temp_user_id),
             'status'        => 0,
@@ -323,11 +321,9 @@ public function updateQuantity(Request $request)
         ], 400);
     }
 
-    // ✅ stock limit
     $maxQty = (int) $product_stock->qty;
     if ($maxQty > 0 && $newQuantity > $maxQty) $newQuantity = $maxQty;
 
-    // ✅ احسب السعر بنفس منطق addToCart
     $price = CartUtility::get_price($product, $product_stock, $newQuantity);
     $tax   = CartUtility::tax_calculation($product, $price);
 
