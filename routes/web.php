@@ -73,8 +73,6 @@ use App\Models\User;
 Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
     ->name('inquiry.requestOffer');
 
-
-// في routes/web.php
 Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
 Route::get('/search/initial', [HomeController::class, 'initialSearch'])->name('search.initial');
 

@@ -24,37 +24,47 @@ class CartController extends Controller
         $this->cartCacheService = $cartCacheService;
     }
 
-  public function index(Request $request)
-{
-    if (!Auth::check()) {
-        $request->session()->put('url.intended', url()->current());
+    public function index(Request $request)
+    {
+        $user_id = null;
+        $temp_user_id = null;
+        $Category = Category::get();
 
-        return redirect()->route('user.login');
-        // return redirect('/users/login');
-    }
 
-    $user_id = Auth::id();
-    $temp_user_id = null;
+        if (auth()->user() != null) {
+            $user_id = Auth::user()->id;
+            if ($request->session()->get('temp_user_id')) {
+                $this->cartCacheService->mergeTempCart($request->session()->get('temp_user_id'), $user_id);
+                Session::forget('temp_user_id');
+            }
+        } else {
+            $temp_user_id = $request->session()->get('temp_user_id');
+        }
+
+
+        $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
 
     if ($request->session()->get('temp_user_id')) {
         $this->cartCacheService->mergeTempCart($request->session()->get('temp_user_id'), $user_id);
         Session::forget('temp_user_id');
     }
 
+ 
     $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
 
     // Update shipping cost to 0
     if (count($carts) > 0) {
         $this->cartCacheService->updateShippingCost(0, $user_id, $temp_user_id);
         $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
-    }
+     }
 
-    return view('frontend.view_cart', compact('carts'));
+        return view('frontend.view_cart', compact('carts', 'Category'));
 }
 
     public function showCartModal(Request $request)
     {
         $product = Product::find($request->id);
+
         return view('frontend.partials.cart.addToCart', compact('product'));
     }
 
