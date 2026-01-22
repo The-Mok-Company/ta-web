@@ -106,17 +106,6 @@
 
         @if (($product->auction_product ?? 0) == 0)
             <div class="featured-action-icons">
-                <button type="button" class="featured-action-btn featured-wishlist-btn"
-                    onclick="event.preventDefault(); event.stopPropagation(); addToWishList({{ $product->id }});"
-                    title="{{ translate('Add to wishlist') }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14.4">
-                        <g transform="translate(-3.05 -4.178)">
-                            <path d="M11.3,5.507l-.247.246L10.8,5.506A4.538,4.538,0,1,0,4.38,11.919l.247.247,6.422,6.412,6.422-6.412.247-.247A4.538,4.538,0,1,0,11.3,5.507Z"
-                                transform="translate(0 0)" fill="currentColor" />
-                        </g>
-                    </svg>
-                </button>
-
                 <button type="button"
                     class="featured-action-btn featured-inquiry-btn"
                     data-product-id="{{ $product->id }}"
