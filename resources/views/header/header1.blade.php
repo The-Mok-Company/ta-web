@@ -1011,6 +1011,8 @@
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 let initialProductsLoaded = false;
+let activeFetchController = null;
+const searchCache = new Map(); // query -> products[]
 
 // Load initial products when search opens
 function loadInitialProducts() {
@@ -1019,14 +1021,18 @@ function loadInitialProducts() {
     searchResults.innerHTML = '<div class="search-loading">جاري التحميل...</div>';
     searchResults.classList.add('active');
 
-    fetch(`{{ route('search.ajax') }}`)
+    // cancel any in-flight request
+    try { activeFetchController?.abort(); } catch (e) {}
+    activeFetchController = new AbortController();
+
+    fetch(`{{ route('search.initial') }}`, { signal: activeFetchController.signal })
         .then(response => response.json())
         .then(data => {
             initialProductsLoaded = true;
-            console.log(data);
             displayProducts(data.products);
         })
         .catch(error => {
+            if (error?.name === 'AbortError') return;
             console.error('Error loading products:', error);
             searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في التحميل</div>';
         });
@@ -1068,22 +1074,42 @@ searchInput?.addEventListener('input', function(e) {
         return;
     }
 
-    // Search from first character
-    if (query.length >= 1) {
+    // Performance: require at least 2 chars before searching
+    if (query.length < 2) {
+        searchResults.classList.remove('active');
+        return;
+    }
+
+    // Cache hit (instant)
+    const cacheKey = query.toLowerCase();
+    if (searchCache.has(cacheKey)) {
+        searchResults.classList.add('active');
+        displayProducts(searchCache.get(cacheKey));
+        return;
+    }
+
+    // Search (debounced + abort previous)
+    if (query.length >= 2) {
         searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
         searchResults.classList.add('active');
 
         searchTimeout = setTimeout(() => {
-            fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`)
+            try { activeFetchController?.abort(); } catch (e) {}
+            activeFetchController = new AbortController();
+
+            fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`, { signal: activeFetchController.signal })
                 .then(response => response.json())
                 .then(data => {
-                    displayProducts(data.products);
+                    const products = Array.isArray(data?.products) ? data.products : [];
+                    searchCache.set(cacheKey, products);
+                    displayProducts(products);
                 })
                 .catch(error => {
+                    if (error?.name === 'AbortError') return;
                     console.error('Search error:', error);
                     searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في البحث</div>';
                 });
-        }, 300);
+        }, 400);
     }
 });
 
@@ -1106,7 +1132,7 @@ searchInput?.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         const query = this.value.trim();
         if (query) {
-            window.location.href = `{{ route('search.ajax') }}?keyword=${encodeURIComponent(query)}`;
+            window.location.href = `{{ route('search') }}?keyword=${encodeURIComponent(query)}`;
         }
     }
 });
@@ -1131,6 +1157,8 @@ function toggleSearch() {
         searchResults.classList.remove('active');
         searchInput.value = '';
         initialProductsLoaded = false; // Reset for next time
+        searchCache.clear();
+        try { activeFetchController?.abort(); } catch (e) {}
     }
 }
 

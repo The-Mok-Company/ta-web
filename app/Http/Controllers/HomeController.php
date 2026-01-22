@@ -92,37 +92,52 @@ class HomeController extends Controller
 
     public function ajaxSearch(Request $request)
     {
-        $query = $request->get('query');
-        Log::info('Search query: ' . $query);
-        return response()->json(['products' => Product::where('name', 'like', '%' . $query . '%')->get()]);
+        $query = trim((string) $request->get('query', ''));
 
-        $products = Product::where('published', 1)
-            ->where('approved', 1)
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like',  '%'.$query . '%')
-                    ->orWhereHas('product_translations', function ($qt) use ($query) {
-                        $qt->where('name', 'like', '%' . $query . '%');
-                    });
-            })
-            ->orWhere(function ($q) use ($query) {
-                $q->where('name', 'like', '%' . $query . '%')
-                    ->orWhereHas('product_translations', function ($qt) use ($query) {
-                        $qt->where('name', 'like', '%' . $query . '%');
-                    });
-            })
-            ->with(['thumbnail', 'product_translations'])
-            ->limit(10)
-            ->get()
-            ->unique('id')
-            ->map(function ($product) {
-                return [
-                    'name' => $product->getTranslation('name'),
-                    'price' => format_price(home_discounted_base_price($product)),
-                    'thumbnail_img' => $product->thumbnail ? $product->thumbnail->file_name : null,
-                    'url' => route('product', $product->slug)
-                ];
-            })
-            ->values();
+        // Avoid expensive queries for empty/very short input
+        if ($query === '' || mb_strlen($query) < 2) {
+            return response()->json(['products' => []]);
+        }
+
+        $cacheKey = 'ajax_search:' . md5(app()->getLocale() . '|' . mb_strtolower($query));
+
+        $products = Cache::remember($cacheKey, 30, function () use ($query) {
+            $base = Product::query()
+                ->where('published', 1)
+                ->where('approved', 1)
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', '%' . $query . '%')
+                        ->orWhereHas('product_translations', function ($qt) use ($query) {
+                            $qt->where('name', 'like', '%' . $query . '%');
+                        });
+                })
+                ->select(['id', 'name', 'slug', 'thumbnail_img']);
+
+            // Relations may exist in this codebase; keep them guarded by eager loading only.
+            $base->with(['thumbnail', 'product_translations']);
+
+            return $base
+                ->orderBy('id', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($product) {
+                    $thumb = null;
+                    // Prefer product.thumbnail_img if present (string path)
+                    if (!empty($product->thumbnail_img)) {
+                        $thumb = $product->thumbnail_img;
+                    } elseif (isset($product->thumbnail) && $product->thumbnail) {
+                        $thumb = $product->thumbnail->file_name ?? null;
+                    }
+
+                    return [
+                        'id' => $product->id,
+                        'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : ($product->name ?? ''),
+                        'thumbnail_img' => $thumb,
+                        'url' => route('product', $product->slug),
+                    ];
+                })
+                ->values();
+        });
 
         return response()->json(['products' => $products]);
     }
