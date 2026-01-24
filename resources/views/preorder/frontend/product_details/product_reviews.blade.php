@@ -42,7 +42,7 @@
                         class="btn px-4 border-yellow hov-bg-yellow p1-3 rounded-4 mt-3">
                         <span class="d-md-inline-block "> {{ translate('Rate this Product') }}</span>
                     </a>
-     
+
                 </div>
             </div>
         </div>

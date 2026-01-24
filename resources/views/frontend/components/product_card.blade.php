@@ -118,6 +118,7 @@
                     <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 6L9 17l-5-5" />
                     </svg>
+                    <span class="btn-text">Add to Inquiry</span>
                 </button>
             </div>
         @endif
@@ -184,7 +185,6 @@
             font-weight: 600;
             color: #1a1a1a;
             margin: 0 0 4px 0;
-            /* Use available space (wrap to 2 lines) */
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -222,7 +222,7 @@
         .product-card .featured-action-btn {
             width: clamp(32px, 4vw, 36px);
             height: clamp(32px, 4vw, 36px);
-            border-radius: 50%;
+            border-radius: 50px;
             border: none;
             background: #fff;
             display: flex;
@@ -234,9 +234,33 @@
             color: #6c757d;
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
-        .product-card .featured-action-btn svg { width: clamp(14px, 2vw, 16px); height: clamp(14px, 2vw, 16px); }
-        .product-card .featured-action-btn:hover { background: #007bff; color: #fff; transform: scale(1.1); }
+        .product-card .featured-action-btn svg {
+            width: clamp(14px, 2vw, 16px);
+            height: clamp(14px, 2vw, 16px);
+            flex-shrink: 0;
+            transition: all .3s ease;
+        }
+        .product-card .featured-action-btn .btn-text {
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            font-size: clamp(11px, 1.5vw, 13px);
+            font-weight: 600;
+            margin-left: 0;
+            transition: all .3s ease;
+        }
+        .product-card .featured-action-btn:hover {
+            width: auto;
+            padding: 0 clamp(12px, 2vw, 16px);
+            border-radius: 50px;
+        }
+        .product-card .featured-action-btn:hover .btn-text {
+            max-width: 150px;
+            opacity: 1;
+            margin-left: clamp(6px, 1vw, 8px);
+        }
 
         .product-card .featured-inquiry-btn {
             background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
@@ -246,6 +270,7 @@
         .product-card .featured-inquiry-btn:hover {
             background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
             box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+            transform: scale(1.05);
         }
         .product-card .featured-inquiry-btn .icon-check { display: none; }
         .product-card .featured-inquiry-btn.is-added .icon-default { display: none; }
@@ -349,4 +374,3 @@
         };
     </script>
 @endonce
-

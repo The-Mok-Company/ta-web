@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ uploaded_asset(get_setting('site_icon')) }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/logo.png') }}">
     <link rel="apple-touch-icon" href="{{ uploaded_asset(get_setting('site_icon')) }}">
     <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
 
@@ -144,7 +144,7 @@
         </div><!-- .aiz-content-wrapper -->
     </div><!-- .aiz-main-wrapper -->
 
-    
+
     <!-- Bulk Action modal -->
     @include('modals.bulk_action_modal')
     @yield('modal')

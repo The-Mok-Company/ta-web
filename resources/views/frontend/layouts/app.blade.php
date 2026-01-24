@@ -55,11 +55,13 @@
 
     <!-- Favicon -->
     @php
-        $site_icon = uploaded_asset(get_setting('site_icon'));
+        $site_icon = asset(get_setting('site_icon'));
     @endphp
-    <link rel="icon" href="{{ $site_icon }}">
-    <link rel="apple-touch-icon" href="{{ $site_icon }}">
 
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/logo.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/logo.png') }}">
+<link rel="shortcut icon" href="{{ asset('assets/img/logo.png') }}">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

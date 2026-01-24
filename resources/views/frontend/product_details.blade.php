@@ -436,7 +436,7 @@
             });
         </script>
     @else
-        <section class="mb-4 pt-3">
+        <section class="mb-4 pt-3" style="padding-top:116px !important">
             <div class="container">
                 <div class="bg-white py-3">
                     <div class="row">
@@ -455,7 +455,7 @@
         </section>
 
         <section class="mb-4">
-            <div class="container">
+            <div class="container" >
                 @if ($detailedProduct->auction_product)
                     <!-- Reviews & Ratings -->
                     @include('frontend.product_details.review_section')
