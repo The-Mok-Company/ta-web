@@ -108,7 +108,7 @@
     .nav {
         display: flex;
         align-items: center;
-        gap: 39px;
+        gap: 36px;
         flex: 1;
         justify-content: center;
     }
@@ -190,7 +190,7 @@
         background: #2a2a2a;
     }
 
-    .icon-btn > a {
+    .icon-btn>a {
         width: 100%;
         height: 100%;
         display: flex;
@@ -252,7 +252,8 @@
         border-radius: 10px;
         min-width: 16px;
         text-align: center;
-        border: 2px solid #1a1a1a; /* matches header bg */
+        border: 2px solid #1a1a1a;
+        /* matches header bg */
     }
 
     .badge-count[data-count="0"] {
@@ -482,7 +483,7 @@
     }
 
     .dropdown-item:hover {
-        background: #fff;
+        background: #dbdbdb;
         color: black !important;
     }
 
@@ -670,13 +671,29 @@
             margin-top: 5px;
         }
     }
-        @media (max-width: 1161px) and (min-width: 968px) {
+
+    @media (max-width: 1325px) and (min-width: 1161px) {
         .header-container {
             width: 100%;
         }
 
         .nav {
-            gap: 18px;
+            gap: 8px;
+        }
+    }
+
+    @media (max-width: 1161px) and (min-width: 968px) {
+        .header-container {
+            width: 100%;
+            padding: 0 18px;
+        }
+
+        #logo-iconstyle {
+            max-width: 170px;
+        }
+
+        .nav {
+            gap: 5px;
         }
     }
 </style>
@@ -898,14 +915,17 @@
                 </a>
                 <span class="cart-success-check" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                 </span>
-                <span class="badge-count cart-count" data-count="{{ $header_cart_count }}">{{ $header_cart_count }}</span>
+                <span class="badge-count cart-count"
+                    data-count="{{ $header_cart_count }}">{{ $header_cart_count }}</span>
             </div>
 
             <!-- User Icon -->
-            <div class="icon-btn user-menu-btn" style="position: relative; top:5px;" tabindex="0" aria-label="{{ translate('Account') }}">
+            <div class="icon-btn user-menu-btn" style="position: relative; top:5px;" tabindex="0"
+                aria-label="{{ translate('Account') }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -1007,47 +1027,51 @@
 </header>
 
 <script>
- let searchTimeout;
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
-let initialProductsLoaded = false;
-let activeFetchController = null;
-const searchCache = new Map(); // query -> products[]
+    let searchTimeout;
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    let initialProductsLoaded = false;
+    let activeFetchController = null;
+    const searchCache = new Map(); // query -> products[]
 
-// Load initial products when search opens
-function loadInitialProducts() {
-    if (initialProductsLoaded) return;
+    // Load initial products when search opens
+    function loadInitialProducts() {
+        if (initialProductsLoaded) return;
 
-    searchResults.innerHTML = '<div class="search-loading">جاري التحميل...</div>';
-    searchResults.classList.add('active');
+        searchResults.innerHTML = '<div class="search-loading">جاري التحميل...</div>';
+        searchResults.classList.add('active');
 
-    // cancel any in-flight request
-    try { activeFetchController?.abort(); } catch (e) {}
-    activeFetchController = new AbortController();
+        // cancel any in-flight request
+        try {
+            activeFetchController?.abort();
+        } catch (e) {}
+        activeFetchController = new AbortController();
 
-    fetch(`{{ route('search.initial') }}`, { signal: activeFetchController.signal })
-        .then(response => response.json())
-        .then(data => {
-            initialProductsLoaded = true;
-            displayProducts(data.products);
-        })
-        .catch(error => {
-            if (error?.name === 'AbortError') return;
-            console.error('Error loading products:', error);
-            searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في التحميل</div>';
-        });
-}
+        fetch(`{{ route('search.initial') }}`, {
+                signal: activeFetchController.signal
+            })
+            .then(response => response.json())
+            .then(data => {
+                initialProductsLoaded = true;
+                displayProducts(data.products);
+            })
+            .catch(error => {
+                if (error?.name === 'AbortError') return;
+                console.error('Error loading products:', error);
+                searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في التحميل</div>';
+            });
+    }
 
-// Display products function
-function displayProducts(products) {
-    if (products && products.length > 0) {
-        let html = '';
-        products.forEach(product => {
-            const imageUrl = product.thumbnail_img ?
-                `{{ asset('') }}${product.thumbnail_img}` :
-                '{{ asset('public/assets/img/placeholder.jpg') }}';
+    // Display products function
+    function displayProducts(products) {
+        if (products && products.length > 0) {
+            let html = '';
+            products.forEach(product => {
+                const imageUrl = product.thumbnail_img ?
+                    `{{ asset('') }}${product.thumbnail_img}` :
+                    '{{ asset('public/assets/img/placeholder.jpg') }}';
 
-            html += `
+                html += `
                 <a href="${product.url}" class="search-result-item">
                     <img src="${imageUrl}" alt="${product.name}" class="search-result-img" onerror="this.src='{{ asset('public/assets/img/placeholder.jpg') }}'">
                     <div class="search-result-info">
@@ -1055,197 +1079,205 @@ function displayProducts(products) {
                      </div>
                 </a>
             `;
-        });
-        searchResults.innerHTML = html;
-    } else {
-        searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
-    }
-}
-
-// Dynamic Search Function - Search starts from first character
-searchInput?.addEventListener('input', function(e) {
-    const query = e.target.value.trim();
-
-    clearTimeout(searchTimeout);
-
-    // If empty, show initial products
-    if (query.length === 0) {
-        loadInitialProducts();
-        return;
-    }
-
-    // Performance: require at least 2 chars before searching
-    if (query.length < 2) {
-        searchResults.classList.remove('active');
-        return;
-    }
-
-    // Cache hit (instant)
-    const cacheKey = query.toLowerCase();
-    if (searchCache.has(cacheKey)) {
-        searchResults.classList.add('active');
-        displayProducts(searchCache.get(cacheKey));
-        return;
-    }
-
-    // Search (debounced + abort previous)
-    if (query.length >= 2) {
-        searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
-        searchResults.classList.add('active');
-
-        searchTimeout = setTimeout(() => {
-            try { activeFetchController?.abort(); } catch (e) {}
-            activeFetchController = new AbortController();
-
-            fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`, { signal: activeFetchController.signal })
-                .then(response => response.json())
-                .then(data => {
-                    const products = Array.isArray(data?.products) ? data.products : [];
-                    searchCache.set(cacheKey, products);
-                    displayProducts(products);
-                })
-                .catch(error => {
-                    if (error?.name === 'AbortError') return;
-                    console.error('Search error:', error);
-                    searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في البحث</div>';
-                });
-        }, 400);
-    }
-});
-
-// Show initial products when search input is focused
-searchInput?.addEventListener('focus', function() {
-    if (this.value.trim().length === 0) {
-        loadInitialProducts();
-    }
-});
-
-// Close search results when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.search-input-wrapper')) {
-        searchResults.classList.remove('active');
-    }
-});
-
-// Navigate to full search on Enter
-searchInput?.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = this.value.trim();
-        if (query) {
-            window.location.href = `{{ route('search') }}?keyword=${encodeURIComponent(query)}`;
+            });
+            searchResults.innerHTML = html;
+        } else {
+            searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
         }
     }
-});
 
-function toggleSearch() {
-    const container = document.getElementById('headerContainer');
-    const searchContainer = document.getElementById('searchContainer');
-    const searchInput = searchContainer.querySelector('.search-input');
+    // Dynamic Search Function - Search starts from first character
+    searchInput?.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
 
-    container.classList.toggle('search-active');
-    searchContainer.classList.toggle('active');
+        clearTimeout(searchTimeout);
 
-    if (searchContainer.classList.contains('active')) {
-        setTimeout(() => {
-            searchInput.focus();
-            // Load initial products when search opens
-            if (searchInput.value.trim().length === 0) {
-                loadInitialProducts();
-            }
-        }, 300);
-    } else {
-        searchResults.classList.remove('active');
-        searchInput.value = '';
-        initialProductsLoaded = false; // Reset for next time
-        searchCache.clear();
-        try { activeFetchController?.abort(); } catch (e) {}
-    }
-}
+        // If empty, show initial products
+        if (query.length === 0) {
+            loadInitialProducts();
+            return;
+        }
 
-function toggleMobileMenu() {
-    const nav = document.getElementById('mainNav');
-    nav.classList.toggle('active');
-}
+        // Performance: require at least 2 chars before searching
+        if (query.length < 2) {
+            searchResults.classList.remove('active');
+            return;
+        }
 
-// Close menus when clicking outside
-document.addEventListener('click', function(event) {
-    const nav = document.getElementById('mainNav');
-    const menuBtn = document.querySelector('.mobile-menu-btn');
-    const searchContainer = document.getElementById('searchContainer');
-    const headerContainer = document.getElementById('headerContainer');
+        // Cache hit (instant)
+        const cacheKey = query.toLowerCase();
+        if (searchCache.has(cacheKey)) {
+            searchResults.classList.add('active');
+            displayProducts(searchCache.get(cacheKey));
+            return;
+        }
 
-    if (nav && menuBtn && !nav.contains(event.target) && !menuBtn.contains(event.target)) {
-        nav.classList.remove('active');
-    }
+        // Search (debounced + abort previous)
+        if (query.length >= 2) {
+            searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
+            searchResults.classList.add('active');
 
-    if (searchContainer.classList.contains('active') &&
-        !searchContainer.contains(event.target) &&
-        !event.target.closest('.icon-btn')) {
-        headerContainer.classList.remove('search-active');
-        searchContainer.classList.remove('active');
-        initialProductsLoaded = false;
-    }
-});
+            searchTimeout = setTimeout(() => {
+                try {
+                    activeFetchController?.abort();
+                } catch (e) {}
+                activeFetchController = new AbortController();
 
-// Mobile dropdown handling
-document.addEventListener('DOMContentLoaded', function() {
-    const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-
-    dropdownBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            if (window.innerWidth <= 968) {
-                e.preventDefault();
-                const parent = this.closest('.nav-dropdown');
-
-                document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                    if (dropdown !== parent) {
-                        dropdown.classList.remove('active');
-                    }
-                });
-
-                parent.classList.toggle('active');
-                this.classList.toggle('active');
-            }
-        });
+                fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`, {
+                        signal: activeFetchController.signal
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const products = Array.isArray(data?.products) ? data.products : [];
+                        searchCache.set(cacheKey, products);
+                        displayProducts(products);
+                    })
+                    .catch(error => {
+                        if (error?.name === 'AbortError') return;
+                        console.error('Search error:', error);
+                        searchResults.innerHTML =
+                            '<div class="search-no-results">حدث خطأ في البحث</div>';
+                    });
+            }, 400);
+        }
     });
 
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 968) {
-            const clickedItem = e.target.closest('.category-item-wrapper > .dropdown-item');
+    // Show initial products when search input is focused
+    searchInput?.addEventListener('focus', function() {
+        if (this.value.trim().length === 0) {
+            loadInitialProducts();
+        }
+    });
 
-            if (clickedItem) {
-                const wrapper = clickedItem.parentElement;
-                const hasSubDropdown = wrapper.querySelector(':scope > .sub-dropdown');
+    // Close search results when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.search-input-wrapper')) {
+            searchResults.classList.remove('active');
+        }
+    });
 
-                if (hasSubDropdown) {
+    // Navigate to full search on Enter
+    searchInput?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const query = this.value.trim();
+            if (query) {
+                window.location.href = `{{ route('search') }}?keyword=${encodeURIComponent(query)}`;
+            }
+        }
+    });
+
+    function toggleSearch() {
+        const container = document.getElementById('headerContainer');
+        const searchContainer = document.getElementById('searchContainer');
+        const searchInput = searchContainer.querySelector('.search-input');
+
+        container.classList.toggle('search-active');
+        searchContainer.classList.toggle('active');
+
+        if (searchContainer.classList.contains('active')) {
+            setTimeout(() => {
+                searchInput.focus();
+                // Load initial products when search opens
+                if (searchInput.value.trim().length === 0) {
+                    loadInitialProducts();
+                }
+            }, 300);
+        } else {
+            searchResults.classList.remove('active');
+            searchInput.value = '';
+            initialProductsLoaded = false; // Reset for next time
+            searchCache.clear();
+            try {
+                activeFetchController?.abort();
+            } catch (e) {}
+        }
+    }
+
+    function toggleMobileMenu() {
+        const nav = document.getElementById('mainNav');
+        nav.classList.toggle('active');
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById('mainNav');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const searchContainer = document.getElementById('searchContainer');
+        const headerContainer = document.getElementById('headerContainer');
+
+        if (nav && menuBtn && !nav.contains(event.target) && !menuBtn.contains(event.target)) {
+            nav.classList.remove('active');
+        }
+
+        if (searchContainer.classList.contains('active') &&
+            !searchContainer.contains(event.target) &&
+            !event.target.closest('.icon-btn')) {
+            headerContainer.classList.remove('search-active');
+            searchContainer.classList.remove('active');
+            initialProductsLoaded = false;
+        }
+    });
+
+    // Mobile dropdown handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (window.innerWidth <= 968) {
                     e.preventDefault();
-                    e.stopPropagation();
+                    const parent = this.closest('.nav-dropdown');
 
-                    const parentContainer = wrapper.parentElement;
-                    const siblings = parentContainer.querySelectorAll(':scope > .category-item-wrapper');
-
-                    siblings.forEach(sibling => {
-                        if (sibling !== wrapper) {
-                            sibling.classList.remove('active');
+                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                        if (dropdown !== parent) {
+                            dropdown.classList.remove('active');
                         }
                     });
 
-                    wrapper.classList.toggle('active');
+                    parent.classList.toggle('active');
+                    this.classList.toggle('active');
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 968) {
+                const clickedItem = e.target.closest('.category-item-wrapper > .dropdown-item');
+
+                if (clickedItem) {
+                    const wrapper = clickedItem.parentElement;
+                    const hasSubDropdown = wrapper.querySelector(':scope > .sub-dropdown');
+
+                    if (hasSubDropdown) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const parentContainer = wrapper.parentElement;
+                        const siblings = parentContainer.querySelectorAll(
+                            ':scope > .category-item-wrapper');
+
+                        siblings.forEach(sibling => {
+                            if (sibling !== wrapper) {
+                                sibling.classList.remove('active');
+                            }
+                        });
+
+                        wrapper.classList.toggle('active');
+                    }
+                }
+
+                if (!e.target.closest('.nav-dropdown') && !e.target.closest('.category-item-wrapper')) {
+                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                    document.querySelectorAll('.category-item-wrapper').forEach(wrapper => {
+                        wrapper.classList.remove('active');
+                    });
+                    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
                 }
             }
-
-            if (!e.target.closest('.nav-dropdown') && !e.target.closest('.category-item-wrapper')) {
-                document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-                document.querySelectorAll('.category-item-wrapper').forEach(wrapper => {
-                    wrapper.classList.remove('active');
-                });
-                document.querySelectorAll('.dropdown-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-            }
-        }
+        });
     });
-});
 </script>
