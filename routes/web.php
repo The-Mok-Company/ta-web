@@ -72,6 +72,9 @@ use App\Models\User;
 
 Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
     ->name('inquiry.requestOffer');
+      Route::post('/inquiries/{id}/accept', [InquiryController::class, 'acceptOffer'])
+        ->name('inquiries.accept');
+    Route::get('/inquiries/{id}', [InquiryController::class, 'show'])->name('inquiries.show');
 
 Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
 Route::get('/search/initial', [HomeController::class, 'initialSearch'])->name('search.initial');
@@ -248,6 +251,8 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
     Route::get('/cart/tracking', 'tracking')->name('cart.tracking');
     Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry');
+    
+
 });
 
 //Paypal START

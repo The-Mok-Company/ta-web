@@ -2,175 +2,227 @@
 
 @section('content')
     <div class="inquiry-details-container">
-        <!-- Header -->
-        <div class="inquiry-details-header">
-            <h1>Inquiry #356</h1>
-        </div>
 
-        <!-- Tabs -->
-        <div class="tabs-container">
-            <div class="tab active" id="itemsTab">Items</div>
-            <div class="tab" id="conversationsTab">Updates</div>
-        </div>
+        @forelse($inquiries as $inquiry)
+            @php
+                $status = $inquiry->status ?? 'pending';
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Left Section: Items/Conversations -->
-            <div class="content-section">
-                <!-- Items Section -->
-                <div class="items-section" id="itemsContent">
-                    <!-- Item 1 -->
-                    <div class="item-card">
-                        <div class="item-image">
-                            <img src="https://via.placeholder.com/70" alt="Product Image">
-                        </div>
-                        <div class="item-details">
-                            <div class="item-header">
-                                <div class="item-weight">8Tons</div>
-                                <h3 class="item-title">Mix Fruit for Juice</h3>
-                            </div>
-                            <p class="item-category">Vegetables & Fruit</p>
-                            <p class="item-description">
-                                From food and beverages to raw materials and recycled goods — Tradex Aria bridges global demand
-                                and supply with precision, trust, and efficiency.
-                            </p>
-                        </div>
-                        <button class="btn btn-price">Price&nbsp;&nbsp;&nbsp;3,600 EGP</button>
-                    </div>
+                $inquiryNumber = $inquiry->code
+                    ? $inquiry->code
+                    : ('INQ-' . str_pad($inquiry->id, 6, '0', STR_PAD_LEFT));
 
-                    <!-- Item 2 -->
-                    <div class="item-card">
-                        <div class="item-image">
-                            <img src="https://via.placeholder.com/70" alt="Product Image">
-                        </div>
-                        <div class="item-details">
-                            <div class="item-header">
-                                <div class="item-weight">8Tons</div>
-                                <h3 class="item-title">Mix Fruit for Juice</h3>
-                            </div>
-                            <p class="item-category">Vegetables & Fruit</p>
-                            <p class="item-description">
-                                From food and beverages to raw materials and recycled goods — Tradex Aria bridges global demand
-                                and supply with precision, trust, and efficiency.
-                            </p>
-                        </div>
-                        <button class="btn btn-price">Price&nbsp;&nbsp;&nbsp;0 EGP</button>
-                    </div>
-                </div>
+                $badgeClass = ($status === 'ongoing') ? 'ongoing' : (($status === 'accepted') ? 'accepted' : 'pending');
+                $badgeLabel = ($status === 'ongoing') ? 'Ongoing' : (($status === 'accepted') ? 'Accepted' : 'Pending');
 
-                <!-- Conversations Section -->
-                <div class="conversations-section" id="conversationsContent" style="display: none;">
-                    <div class="chat-container">
-                        <!-- Messages Container -->
-                        <div class="messages-container" id="messagesContainer">
-                            <!-- System Message -->
-                            <div class="conversation-message system-message">
-                                <div class="message-content">
-                                    <p class="message-text">Mokhtar Created inquiry order.</p>
-                                    <span class="message-time">15 May 2025 - 08:45</span>
-                                    <svg class="checkmark-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M13.5 4L6 11.5L2.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                $itemsTabId = "itemsTab-{$inquiry->id}";
+                $convTabId  = "conversationsTab-{$inquiry->id}";
+                $itemsId    = "itemsContent-{$inquiry->id}";
+                $convId     = "conversationsContent-{$inquiry->id}";
+            @endphp
+
+            <!-- Header -->
+            <div class="inquiry-details-header">
+                <h1>Inquiry #{{ $inquiryNumber }}</h1>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tab active" id="{{ $itemsTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $itemsId }}">Items</div>
+                <div class="tab" id="{{ $convTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $convId }}">Updates</div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Left Section: Items/Conversations -->
+                <div class="content-section">
+
+                    <!-- Items Section -->
+                    <div class="items-section" id="{{ $itemsId }}">
+                        @forelse($inquiry->items as $item)
+                            @php
+                                $isProduct  = ($item->type === 'product');
+                                $isCategory = ($item->type === 'category');
+
+                                $title = $isProduct
+                                    ? ($item->product->name ?? 'Product')
+                                    : ($item->category->name ?? 'Category');
+
+                                $categoryName = '';
+                                if ($isProduct && $item->product && method_exists($item->product, 'category') && $item->product->category) {
+                                    $categoryName = $item->product->category->name ?? '';
+                                }
+
+                                $desc = '';
+                                if ($isProduct && $item->product) {
+                                    $desc = $item->product->description ?? '';
+                                } elseif ($isCategory && $item->category) {
+                                    $desc = $item->category->description ?? '';
+                                }
+
+                                $qty = (int)($item->quantity ?? 1);
+
+                                // image
+                                $img = 'https://via.placeholder.com/70';
+                                if ($isProduct && $item->product) {
+                                    if (!empty($item->product->thumbnail_img)) $img = asset($item->product->thumbnail_img);
+                                    elseif (!empty($item->product->image)) $img = asset($item->product->image);
+                                }
+
+                                $price = null;
+                                if (isset($item->price) && is_numeric($item->price)) {
+                                    $price = (float)$item->price;
+                                } elseif ($isProduct && $item->product && isset($item->product->unit_price) && is_numeric($item->product->unit_price)) {
+                                    $price = (float)$item->product->unit_price;
+                                }
+
+                                $waiting = ($status === 'pending') || (!$price || $price <= 0);
+                            @endphp
+
+                            <div class="item-card">
+                                <div class="item-image">
+                                    <img src="{{ $img }}" alt="Product Image">
                                 </div>
-                            </div>
 
-                            <!-- Admin Message -->
-                            <div class="conversation-message admin-message">
-                                <div class="message-header">
-                                    <span class="sender-name">Admin Gaser</span>
-                                </div>
-                                <div class="message-content">
-                                    <p class="message-text">Hello, Mr Mokhtar<br>
-                                    We are ready to make you an offer with the items you wanted, but there's something we need to discuss first.</p>
-                                    <span class="message-time">15 May 2025 - 08:45</span>
-                                </div>
-                            </div>
+                                <div class="item-details">
+                                    <div class="item-header">
+                                        <div class="item-weight">{{ $qty }} Qty</div>
+                                        <h3 class="item-title">{{ $title }}</h3>
+                                    </div>
 
-                            <!-- User Message -->
-                            <div class="conversation-message user-message">
-                                <div class="message-header">
-                                    <span class="sender-name">You</span>
-                                </div>
-                                <div class="message-content">
-                                    <p class="message-text">Thank you for the quick response. What do you need to discuss?</p>
-                                    <span class="message-time">15 May 2025 - 09:15</span>
-                                </div>
-                            </div>
+                                    @if($categoryName)
+                                        <p class="item-category">{{ $categoryName }}</p>
+                                    @elseif($isCategory)
+                                        <p class="item-category">Category</p>
+                                    @endif
 
-                            <!-- Offer Message -->
-                            <div class="conversation-message offer-message">
-                                <div class="message-content">
-                                    <p class="message-text">Offer was made for 16,500 EGP by Admin Gaser</p>
-                                    <span class="message-time">15 May 2025 - 09:30</span>
+                                    @if(!empty($desc))
+                                        <p class="item-description">
+                                            {!! nl2br(e(\Illuminate\Support\Str::limit(strip_tags($desc), 180))) !!}
+                                        </p>
+                                    @endif
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Chat Input -->
-                        <div class="chat-input-container">
-                            <div class="chat-input-wrapper">
-                                <textarea
-                                    id="chatInput"
-                                    class="chat-input"
-                                    placeholder="Type your message here..."
-                                    rows="1"
-                                ></textarea>
-                                <button class="send-button" id="sendButton">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                        <path d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                                <button class="btn btn-price" type="button">
+                                    @if($waiting)
+                                        Price&nbsp;&nbsp;&nbsp; Waiting for offer
+                                    @else
+                                        Price&nbsp;&nbsp;&nbsp;{{ number_format($price, 0) }} EGP
+                                    @endif
                                 </button>
                             </div>
+                        @empty
+                            <div class="item-card">
+                                <div class="item-details">
+                                    <h3 class="item-title">No items</h3>
+                                    <p class="item-description">This inquiry has no items.</p>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Conversations Section -->
+                    <div class="conversations-section" id="{{ $convId }}" style="display: none;">
+                        <div class="chat-container">
+                            <!-- Messages Container -->
+                            <div class="messages-container" id="messagesContainer-{{ $inquiry->id }}">
+                                <div class="conversation-message system-message">
+                                    <div class="message-content">
+                                        <p class="message-text">You Created inquiry order.</p>
+                                        <span class="message-time">{{ optional($inquiry->created_at)->format('d M Y - H:i') }}</span>
+                                        <svg class="checkmark-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M13.5 4L6 11.5L2.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Chat Input -->
+                            <div class="chat-input-container">
+                                <div class="chat-input-wrapper">
+                                    <textarea
+                                        class="chat-input"
+                                        placeholder="Type your message here..."
+                                        rows="1"
+                                        disabled
+                                    ></textarea>
+                                    <button class="send-button" disabled>
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                            <path d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Section: Inquiry Summary -->
+                <div class="summary-section">
+                    <div class="summary-card">
+                        <h2>Inquiry Summary</h2>
+
+                        <div class="summary-header">
+                            <div class="summary-info">
+                                <span class="summary-label">Inquiry Number</span>
+                                <span class="summary-value">#{{ $inquiryNumber }}</span>
+                            </div>
+                            <span class="status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+                        </div>
+
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span class="row-label">Available products Price</span>
+                                <span class="row-value">{{ number_format((float)($inquiry->subtotal ?? 0), 0) }} EGP</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="row-label">Taxes</span>
+                                <span class="row-value">{{ number_format((float)($inquiry->tax ?? 0), 0) }} EGP</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="row-label">Delivery</span>
+                                <span class="row-value">{{ number_format((float)($inquiry->delivery ?? 0), 0) }} EGP</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="row-label">Discount</span>
+                                <span class="row-value">{{ number_format((float)($inquiry->discount ?? 0), 0) }} EGP</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="row-label">Extra fees</span>
+                                <span class="row-value">{{ number_format((float)($inquiry->extra_fees ?? 0), 0) }} EGP</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-total">
+                            <span class="total-label">Total</span>
+                            <span class="total-value">{{ number_format((float)($inquiry->total ?? 0), 0) }} EGP</span>
+                        </div>
+
+                        @if(($inquiry->status ?? '') === 'ongoing')
+                            <form method="POST" action="{{ route('inquiries.accept', $inquiry->id) }}">
+                                @csrf
+                                <button class="btn btn-accept" type="submit">Accept Offer</button>
+                            </form>
+                        @else
+                            <button class="btn btn-accept" type="button" disabled>
+                                @if(($inquiry->status ?? 'pending') === 'pending')
+                                    Waiting for offer
+                                @else
+                                    {{ ucfirst($inquiry->status ?? 'pending') }}
+                                @endif
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
 
-            <!-- Right Section: Inquiry Summary -->
-            <div class="summary-section">
-                <div class="summary-card">
-                    <h2>Inquiry Summary</h2>
-
-                    <div class="summary-header">
-                        <div class="summary-info">
-                            <span class="summary-label">Inquiry Number</span>
-                            <span class="summary-value">#36591</span>
-                        </div>
-                        <span class="status-badge ongoing">Ongoing</span>
-                    </div>
-
-                    <div class="summary-details">
-                        <div class="summary-row">
-                            <span class="row-label">Available products Price</span>
-                            <span class="row-value">3600 EGP</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="row-label">Taxes</span>
-                            <span class="row-value">3600 EGP</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="row-label">Delivery</span>
-                            <span class="row-value">3600 EGP</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="row-label">Discount</span>
-                            <span class="row-value">3600 EGP</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="row-label">Extra fees</span>
-                            <span class="row-value">3600 EGP</span>
-                        </div>
-                    </div>
-
-                    <div class="summary-total">
-                        <span class="total-label">Total</span>
-                        <span class="total-value">3600 EGP</span>
-                    </div>
-
-                    <button class="btn btn-accept">Accept Offer</button>
-                </div>
+            <hr style="border-color:#e5e7eb; margin:32px 0;">
+        @empty
+            <div class="inquiry-details-header">
+                <h1>No Inquiries</h1>
             </div>
-        </div>
+        @endforelse
     </div>
 
     <style>
@@ -355,14 +407,8 @@
         }
 
         @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* System Message */
@@ -432,9 +478,7 @@
             align-self: flex-end;
         }
 
-        .user-message .message-header {
-            margin-bottom: 8px;
-        }
+        .user-message .message-header { margin-bottom: 8px; }
 
         .user-message .sender-name {
             font-size: 14px;
@@ -534,9 +578,7 @@
             transform: scale(1.05);
         }
 
-        .send-button:active {
-            transform: scale(0.95);
-        }
+        .send-button:active { transform: scale(0.95); }
 
         .send-button:disabled {
             background: #d1d5db;
@@ -583,16 +625,9 @@
             gap: 6px;
         }
 
-        .summary-label {
-            font-size: 11px;
-            color: #ffffff;
-        }
+        .summary-label { font-size: 11px; color: #ffffff; }
 
-        .summary-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #ffffff;
-        }
+        .summary-value { font-size: 14px; font-weight: 600; color: #ffffff; }
 
         .status-badge {
             padding: 6px 16px;
@@ -601,10 +636,9 @@
             font-weight: 500;
         }
 
-        .status-badge.ongoing {
-            background-color: #ef4444;
-            color: white;
-        }
+        .status-badge.ongoing { background-color: #ef4444; color: white; }
+        .status-badge.pending { background-color: #f59e0b; color: white; } /* ✅ جديد */
+        .status-badge.accepted { background-color: #10b981; color: white; } /* ✅ جديد */
 
         .summary-details {
             display: flex;
@@ -621,16 +655,9 @@
             align-items: center;
         }
 
-        .row-label {
-            font-size: 13px;
-            color: #6b7280;
-        }
+        .row-label { font-size: 13px; color: #6b7280; }
 
-        .row-value {
-            font-size: 13px;
-            font-weight: 600;
-            color: #111827;
-        }
+        .row-value { font-size: 13px; font-weight: 600; color: #111827; }
 
         .summary-total {
             display: flex;
@@ -641,17 +668,9 @@
             margin-bottom: 20px;
         }
 
-        .total-label {
-            font-size: 15px;
-            font-weight: 600;
-            color: #111827;
-        }
+        .total-label { font-size: 15px; font-weight: 600; color: #111827; }
 
-        .total-value {
-            font-size: 15px;
-            font-weight: bold;
-            color: #111827;
-        }
+        .total-value { font-size: 15px; font-weight: bold; color: #111827; }
 
         /* Buttons */
         .btn {
@@ -672,9 +691,7 @@
             margin-top: 0;
         }
 
-        .btn-price:hover {
-            background-color: #0e7490;
-        }
+        .btn-price:hover { background-color: #0e7490; }
 
         .btn-accept {
             width: 100%;
@@ -684,152 +701,47 @@
             font-size: 14px;
         }
 
-        .btn-accept:hover {
-            background-color: #0e7490;
-        }
+        .btn-accept:hover { background-color: #0e7490; }
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .main-content {
-                flex-direction: column;
-            }
-
-            .summary-section {
-                width: 100%;
-            }
-
-            .tab {
-                padding: 12px 80px;
-            }
-
-            .conversation-message {
-                max-width: 85%;
-            }
+            .main-content { flex-direction: column; }
+            .summary-section { width: 100%; }
+            .tab { padding: 12px 80px; }
+            .conversation-message { max-width: 85%; }
         }
 
         @media (max-width: 768px) {
-            .tab {
-                padding: 12px 40px;
-            }
-
-            .chat-container {
-                height: 500px;
-            }
+            .tab { padding: 12px 40px; }
+            .chat-container { height: 500px; }
         }
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const itemsTab = document.getElementById('itemsTab');
-            const conversationsTab = document.getElementById('conversationsTab');
-            const itemsContent = document.getElementById('itemsContent');
-            const conversationsContent = document.getElementById('conversationsContent');
-            const chatInput = document.getElementById('chatInput');
-            const sendButton = document.getElementById('sendButton');
-            const messagesContainer = document.getElementById('messagesContainer');
 
-            // Items tab click
-            itemsTab.addEventListener('click', function() {
-                itemsTab.classList.add('active');
-                conversationsTab.classList.remove('active');
-                itemsContent.style.display = 'flex';
-                conversationsContent.style.display = 'none';
+            document.querySelectorAll('.tabs-container .tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    const inquiryId = tab.getAttribute('data-inquiry');
+                    const targetId  = tab.getAttribute('data-target');
+
+                    tab.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const items = document.getElementById('itemsContent-' + inquiryId);
+                    const conv  = document.getElementById('conversationsContent-' + inquiryId);
+
+                    if (!items || !conv) return;
+
+                    if (targetId === ('itemsContent-' + inquiryId)) {
+                        items.style.display = 'flex';
+                        conv.style.display  = 'none';
+                    } else {
+                        conv.style.display  = 'flex';
+                        items.style.display = 'none';
+                    }
+                });
             });
-
-            // Conversations tab click
-            conversationsTab.addEventListener('click', function() {
-                conversationsTab.classList.add('active');
-                itemsTab.classList.remove('active');
-                conversationsContent.style.display = 'flex';
-                itemsContent.style.display = 'none';
-            });
-
-            // Auto-resize textarea
-            chatInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-            });
-
-            // Send message on button click
-            sendButton.addEventListener('click', sendMessage);
-
-            // Send message on Enter (Shift+Enter for new line)
-            chatInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-
-            function sendMessage() {
-                const messageText = chatInput.value.trim();
-
-                if (messageText === '') return;
-
-                // Get current time
-                const now = new Date();
-                const timeString = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
-                                 ' - ' +
-                                 now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-                // Create user message element
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'conversation-message user-message';
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <span class="sender-name">You</span>
-                    </div>
-                    <div class="message-content">
-                        <p class="message-text">${messageText.replace(/\n/g, '<br>')}</p>
-                        <span class="message-time">${timeString}</span>
-                    </div>
-                `;
-
-                // Add message to container
-                messagesContainer.appendChild(messageDiv);
-
-                // Clear input
-                chatInput.value = '';
-                chatInput.style.height = 'auto';
-
-                // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                // Simulate admin response after 2 seconds
-                setTimeout(simulateAdminResponse, 2000);
-            }
-
-            function simulateAdminResponse() {
-                const responses = [
-                    "Thank you for your message. I'll look into this right away.",
-                    "I understand your request. Let me check with our team.",
-                    "Great! I'll prepare the updated offer for you.",
-                    "I've received your message. We'll get back to you shortly.",
-                    "Perfect! Let me process this information."
-                ];
-
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-
-                const now = new Date();
-                const timeString = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
-                                 ' - ' +
-                                 now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'conversation-message admin-message';
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <span class="sender-name">Admin Gaser</span>
-                    </div>
-                    <div class="message-content">
-                        <p class="message-text">${randomResponse}</p>
-                        <span class="message-time">${timeString}</span>
-                    </div>
-                `;
-
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
         });
     </script>
 @endsection

@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Cookie;
+use Session;
+use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Carrier;
-use Illuminate\Http\Request;
+use App\Models\Country;
+use App\Models\Inquiry;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Cart;
-use App\Models\Country;
-use Auth;
 use App\Utility\CartUtility;
+use Illuminate\Http\Request;
 use App\Services\CartCacheService;
-use Session;
-use Cookie;
 
 class CartController extends Controller
 {
@@ -402,8 +403,17 @@ public function updateQuantity(Request $request)
     {
         return view('frontend.tracking');
     }
+
     public function inquiry(Request $request)
     {
-        return view('frontend.inquiry');
+
+     $user = Auth::user();
+
+        $inquiries = Inquiry::where('user_id', $user->id)
+            ->with(['items.product', 'items.category'])
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('frontend.inquiry', compact('inquiries'));
     }
+    
 }
