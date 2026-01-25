@@ -306,9 +306,26 @@
                                     <i class="la la-share"></i> {{ translate($detailedProduct->external_link_btn) }}
                                 </a>
                             @else
+                                @php
+                                    $detailHasVariants = false;
+                                    try {
+                                        $detailColors = is_string($detailedProduct->colors ?? null) ? json_decode($detailedProduct->colors, true) : ($detailedProduct->colors ?? []);
+                                        $detailChoice = is_string($detailedProduct->choice_options ?? null) ? json_decode($detailedProduct->choice_options, true) : ($detailedProduct->choice_options ?? []);
+                                        $detailHasVariants = (is_array($detailColors) && count($detailColors) > 0) || (is_array($detailChoice) && count($detailChoice) > 0);
+                                    } catch (\Throwable $e) {
+                                        $detailHasVariants = false;
+                                    }
+                                @endphp
                                 <button type="button"
                                     class="btn btn-primary add-to-cart fw-600 min-w-150px w-75 rounded-1 text-white hov-opacity-90"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                                    data-product-id="{{ $detailedProduct->id }}"
+                                    data-has-variants="{{ $detailHasVariants ? 1 : 0 }}"
+                                    data-min-qty="{{ (int) $detailedProduct->min_qty }}"
+                                    @if (Auth::check() || get_Setting('guest_checkout_activation') == 1)
+                                        onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);"
+                                    @else
+                                        onclick="showLoginModal()"
+                                    @endif>
                                     <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
                                 </button>
                                 <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
@@ -341,7 +358,14 @@
                         <div class="col-sm-9">
                             <button type="button"
                                 class="btn btn-primary add-to-cart fw-600 min-w-150px w-100 rounded-1 text-white hov-opacity-90"
-                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                                data-product-id="{{ $detailedProduct->id }}"
+                                data-has-variants="0"
+                                data-min-qty="1"
+                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1)
+                                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);"
+                                @else
+                                    onclick="showLoginModal()"
+                                @endif>
                                 <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
                             </button>
                         </div>

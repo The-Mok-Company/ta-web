@@ -906,6 +906,87 @@
             }
         }
 
+        // Unified "Add to Inquiry" handler (used on cards + CTAs)
+        // - If product has variants and we're on a listing card -> open variant modal
+        // - If we're on product details page -> submit option form (includes qty/options)
+        // - Otherwise -> quick add with qty = min_qty (fallback 1)
+        window.featuredInquiryAction = window.featuredInquiryAction || function (btnEl) {
+            try {
+                const btn = btnEl;
+                const productId = parseInt(btn?.dataset?.productId || btn?.getAttribute('data-product-id') || '0', 10);
+                const hasVariants = (btn?.dataset?.hasVariants || btn?.getAttribute('data-has-variants') || '0') === '1';
+                if (!productId) return;
+
+                const $form = $('#option-choice-form');
+                const hasForm = $form.length > 0 && $form.find('input[name="id"]').length > 0;
+
+                // Listing cards: variants should open modal
+                if (hasVariants && !hasForm && typeof showAddToCartModal === 'function') {
+                    showAddToCartModal(productId);
+                    return;
+                }
+
+                if (btn && btn.classList && btn.classList.contains('is-loading')) return;
+                if (btn && btn.classList) btn.classList.add('is-loading');
+
+                // Prepare payload
+                let payload = null;
+                if (hasForm) {
+                    // Ensure form has correct id (just in case)
+                    $form.find('input[name="id"]').val(productId);
+
+                    if (typeof checkAddToCartValidity === 'function' && !checkAddToCartValidity()) {
+                        if (btn && btn.classList) btn.classList.remove('is-loading');
+                        try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('warning', "{{ translate('Please choose all the options') }}"); } catch (e) {}
+                        return;
+                    }
+                    payload = $form.serializeArray();
+                } else {
+                    const minQty = parseInt(btn?.dataset?.minQty || '1', 10) || 1;
+                    payload = { id: productId, quantity: minQty, _token: (typeof AIZ !== 'undefined' ? AIZ.data.csrf : "{{ csrf_token() }}") };
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '{{ route('cart.addToCart') }}',
+                    data: payload,
+                    success: function (data) {
+                        try {
+                            const cartCount = data?.cart_count;
+                            if (cartCount !== undefined) {
+                                const c = (cartCount === undefined || cartCount === null) ? 0 : cartCount;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (data?.nav_cart_view) $('#cart_items').html(data.nav_cart_view);
+                        } catch (e) {}
+
+                        // If min qty not satisfied on quick add, open modal so user can adjust
+                        if (data?.status === 0 && typeof data?.message === 'string' && data.message.toLowerCase().includes('min qty')) {
+                            if (typeof showAddToCartModal === 'function') showAddToCartModal(productId);
+                        }
+
+                        if (btn && btn.classList) {
+                            btn.classList.remove('is-loading');
+                            btn.classList.add('is-added');
+                            window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+                        }
+
+                        try {
+                            if (data?.status === 0 && data?.message && typeof AIZ !== 'undefined' && AIZ.plugins?.notify) {
+                                AIZ.plugins.notify('warning', data.message);
+                            } else if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) {
+                                AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                            }
+                        } catch (e) {}
+                    },
+                    error: function () {
+                        if (btn && btn.classList) btn.classList.remove('is-loading');
+                        try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}"); } catch (e) {}
+                    }
+                });
+            } catch (e) {}
+        };
+
         function buyNow(){
             @if (Auth::check() && Auth::user()->user_type != 'customer')
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
