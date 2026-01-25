@@ -1,4 +1,6 @@
 @extends('backend.layouts.app')
+@section('meta_title', 'Admin Dashboard')
+
 
 @section('content')
     @if (auth()->user()->can('smtp_settings') &&
@@ -674,7 +676,7 @@
             @endif
         </div>
     @endcan
-    
+
 @endsection
 @section('script')
     <!-- dashboard script -->

@@ -19,7 +19,7 @@
     <!-- Favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/logo.png') }}">
     <link rel="apple-touch-icon" href="{{ uploaded_asset(get_setting('site_icon')) }}">
-    <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
+    <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
 
     <!-- google font -->
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"> --}}
@@ -128,6 +128,7 @@
 </head>
 
 <body class="">
+
 
     <div class="aiz-main-wrapper">
         @include('backend.inc.admin_sidenav')
