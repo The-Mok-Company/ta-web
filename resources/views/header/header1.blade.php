@@ -945,7 +945,7 @@
                     <div class="header-dropdown icon-dropdown">
                         <div class="dropdown-header">{{ Auth::user()->name }}</div>
 
-                        <a href="{{ route('inquiries.index') }}" class="dropdown-item">
+                        <a href="{{ route('cart.inquiry') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
@@ -976,7 +976,7 @@
                     </div>
                 @else
                     <div class="header-dropdown icon-dropdown">
-                        <a href="{{ route('cart') }}" class="dropdown-item">
+                        <a href="{{ route('cart.inquiry') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
