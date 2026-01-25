@@ -1,5 +1,7 @@
 @extends('frontend.layouts.app')
 
+@section('meta_title', 'Content Us')
+
 @section('content')
     @php
         use App\Models\ContactUs;
@@ -332,23 +334,46 @@
                 <div class="contact-form-title">Get in touch</div>
                 <div class="contact-form-desc">Fill out the form and our team will get back to you shortly.</div>
 
-                <form action="#" method="POST">
+                {{-- Success Message --}}
+                @if (session('success'))
+                    <div class="alert alert-success"
+                        style="padding: 15px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border-radius: 5px;">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                {{-- Error Messages --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger"
+                        style="padding: 15px; margin-bottom: 20px; background-color: #f8d7da; color: #721c24; border-radius: 5px;">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('contact.store') }}" method="POST">
                     @csrf
 
                     <div class="contact-form-grid">
                         <div class="form-group">
                             <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-input" placeholder="Enter Name" required>
+                            <input type="text" name="name" class="form-input" placeholder="Enter Name"
+                                value="{{ old('name') }}" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-input" placeholder="Enter Email" required>
+                            <input type="email" name="email" class="form-input" placeholder="Enter Email"
+                                value="{{ old('email') }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Phone no. (optional)</label>
-                            <input type="tel" name="phone" class="form-input" placeholder="Enter Phone">
+                            <label class="form-label">Subject</label>
+                            <input type="text" name="subject" class="form-input" placeholder="Enter Subject"
+                                value="{{ old('subject') }}" required>
                         </div>
 
                         <div class="form-group">
@@ -356,14 +381,17 @@
                             <select name="category_id" class="form-select">
                                 <option value="">Select Category</option>
                                 @foreach ($Category as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}"
+                                        {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div class="form-group form-group-full">
                             <label class="form-label">Tell us about your query</label>
-                            <textarea name="message" class="form-textarea" placeholder="Type here..." required></textarea>
+                            <textarea name="message" class="form-textarea" placeholder="Type here..." required>{{ old('message') }}</textarea>
                         </div>
                     </div>
 

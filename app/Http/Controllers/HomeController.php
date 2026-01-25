@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\Events\PasswordReset;
 use App\Models\Cart;
+use App\Models\ContactUsForm;
 use App\Models\Preorder;
 use App\Rules\Recaptcha;
 use Illuminate\Validation\Rule;
@@ -170,6 +171,20 @@ class HomeController extends Controller
     {
         $Category = Category::where('level', 0)->get();
         return view('frontend.contact_us.index', compact('Category'));
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'message' => 'required|string'
+        ]);
+
+        ContactUsForm::create($validated);
+
+        return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
 
     public function load_newest_product_section(Request $request)

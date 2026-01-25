@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\Setting\ContactMessageController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
 use App\Http\Controllers\Admin\Setting\ContactUsController;
 use App\Http\Controllers\Admin\Setting\FooterController;
@@ -97,6 +98,7 @@ Route::controller(UpdateController::class)->group(function () {
 
 Route::get('/admin', [AdminController::class, 'admin_dashboard'])->name('admin.dashboard')->middleware(['auth', 'admin', 'prevent-back-history']);
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-back-history']], function () {
+
 
     // cyber sources
     Route::controller(CybersourceSettingController::class)->group(function () {
@@ -646,19 +648,25 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
 
 
+
+
+
     Route::get('/settings/footer', [FooterController::class, 'index'])->name('settings.footer');
     Route::post('/settings/footer', [FooterController::class, 'update'])->name('settings.footer.update');
 
-Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
-    ->name('settings.home-page.update');
+    Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
+        ->name('settings.home-page.update');
 
 
-        // Contact Us Settings
+    // Contact Us Settings
     Route::get('/settings/contact-us', [ContactUsController::class, 'index'])
         ->name('settings.contact-us');
 
     Route::post('/settings/contact-us/update', [ContactUsController::class, 'update'])
         ->name('settings.contact-us.update');
+
+            Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('messages.index');
+    Route::post('/contact-messages/{id}/toggle-status', [ContactMessageController::class, 'toggleStatus'])->name('admin.contact.messages.toggle-status');
 
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {

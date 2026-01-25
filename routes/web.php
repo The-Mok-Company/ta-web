@@ -251,7 +251,7 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
     Route::get('/cart/tracking', 'tracking')->name('cart.tracking');
     Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry');
-    
+
 
 });
 
@@ -456,6 +456,7 @@ Route::get('/join_us', [HomeController::class, 'join_us'])->name('join_us');
 Route::post('/partner',  [PartnerController::class, 'store'])
     ->name('partner.store');
 Route::get('/contact_us', [HomeController::class, 'contact_us'])->name('contact_us');
+Route::post('/contact_us/form', [HomeController::class, 'store'])->name('contact.store');
 
 
 
