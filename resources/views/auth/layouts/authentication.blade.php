@@ -22,13 +22,15 @@
     @php
         $site_icon = uploaded_asset(get_setting('site_icon'));
     @endphp
-    <link rel="icon" href="{{ $site_icon }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/logo.png') }}">
     <link rel="apple-touch-icon" href="{{ $site_icon }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
@@ -36,9 +38,9 @@
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
-    
+
     <style>
-        :root{
+        :root {
             --blue: #3490f3;
             --hov-blue: #2e7fd6;
             --soft-blue: rgba(0, 123, 255, 0.15);
@@ -62,7 +64,8 @@
             --hov-primary: {{ get_setting('base_hov_color', '#9d1b1a') }};
             --soft-primary: {{ hex2rgba(get_setting('base_color', '#d43533'), 0.15) }};
         }
-        body{
+
+        body {
             font-family: {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
             font-weight: 400;
         }
@@ -70,16 +73,18 @@
         .form-control:focus {
             border-width: 2px !important;
         }
+
         @media (max-width: 991px) {
-            .right-content{
+            .right-content {
                 background: var(--white);
                 margin-top: -60%;
                 border-radius: 24px;
                 min-height: 550px;
             }
         }
+
         @media (min-width: 991px) {
-            .right-content{
+            .right-content {
                 height: 100%;
             }
         }
@@ -90,6 +95,7 @@
         var AIZ = AIZ || {};
     </script>
 </head>
+
 <body>
 
     @yield('content')
@@ -100,4 +106,5 @@
     @yield('script')
 
 </body>
+
 </html>
