@@ -1,4 +1,5 @@
 @extends('auth.layouts.authentication')
+@section('meta_title', 'Verify Your Email/Phone')
 
 @section('content')
     @php $isOtpSystemActivated = addon_is_activated('otp_system'); @endphp
@@ -13,7 +14,7 @@
                             <div class="col-lg-6">
                                     <img src="{{ uploaded_asset(get_setting('seller_register_page_image')) }}" alt="" class="img-fit h-100">
                                 </div>
-                                    
+
                                 <!-- Right Side -->
                                 <div class="col-lg-6 p-4 p-lg-5 d-flex flex-column justify-content-center border right-content" style="height: auto;">
                                     <!-- Site Icon -->

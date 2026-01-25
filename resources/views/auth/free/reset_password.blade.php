@@ -1,4 +1,6 @@
 @extends('auth.layouts.authentication')
+@section('meta_title', 'Reset Password')
+
 
 @section('content')
     <div class="aiz-main-wrapper d-flex flex-column justify-content-center bg-white">
@@ -10,7 +12,7 @@
                         <img src="{{ uploaded_asset(get_setting('password_reset_page_image')) }}" alt="{{ translate('Password Reset Page Image') }}" class="img-fit h-100">
                     </div>
                 </div>
-                
+
                 <!-- Right Side -->
                 <div class="col-xxl-6 col-lg-5">
                     <div class="right-content">
@@ -34,42 +36,42 @@
                                     <div class="">
                                         <form class="form-default" role="form" action="{{ route('password.update') }}" method="POST">
                                             @csrf
-                                            
+
                                             <!-- Email -->
                                             <div class="form-group">
                                                 <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ $email ?? old('email') }}" @if(!empty($email ?? null)) readonly @endif placeholder="{{ translate('Email') }}" required autofocus>
-                    
+
                                                 @if ($errors->has('email'))
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $errors->first('email') }}</strong>
                                                     </span>
                                                 @endif
                                             </div>
-                                            
+
                                             <!-- Code -->
                                             <div class="form-group">
                                                 <input id="code" type="text" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}" name="code" value="{{old('code') }}" placeholder="{{translate('Code')}}" required autofocus>
-                    
+
                                                 @if ($errors->has('code'))
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $errors->first('code') }}</strong>
                                                     </span>
                                                 @endif
                                             </div>
-                    
+
                                             <!-- Password -->
                                             <div class="form-group">
                                                 <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="{{ translate('New Password') }}" required>
-                    
+
                                                 @if ($errors->has('password'))
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $errors->first('password') }}</strong>
                                                     </span>
                                                 @endif
                                             </div>
-                    
+
                                             <!-- Password Confirmation-->
-                
+
                                             <div class="form-group">
                                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="{{ translate('Reset Password') }}" required>
                                             </div>

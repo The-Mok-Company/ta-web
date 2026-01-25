@@ -1,5 +1,6 @@
 @extends('auth.layouts.authentication')
 
+
 @section('content')
    <!-- aiz-main-wrapper -->
    <div class="aiz-main-wrapper d-flex flex-column justify-content-center bg-white">
@@ -11,7 +12,7 @@
                         <img src="{{ uploaded_asset(get_setting('seller_register_page_image')) }}" alt="" class="img-fit h-100">
                     </div>
                 </div>
-                
+
                 <!-- Right Side -->
                 <div class="col-xxl-6 col-lg-5">
                     <div class="right-content">
@@ -91,7 +92,7 @@
 
 
                                             <div class="fs-15 fw-600 py-2">{{ translate('Basic Info')}}</div>
-                                            
+
                                             <div class="form-group">
                                                 <label for="shop_name" class="fs-12 fw-700 text-soft-dark">{{  translate('Shop Name') }}</label>
                                                 <input type="text" class="form-control rounded-0{{ $errors->has('shop_name') ? ' is-invalid' : '' }}" value="{{ old('shop_name') }}" placeholder="{{  translate('Shop Name') }}" name="shop_name" required>
@@ -114,14 +115,14 @@
 
                                             <!-- Recaptcha -->
                                             @if(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_seller_register') == 1)
-                                                
+
                                                 @if ($errors->has('g-recaptcha-response'))
                                                     <span class="border invalid-feedback rounded p-2 mb-3 bg-danger text-white" role="alert" style="display: block;">
                                                         <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
                                                     </span>
                                                 @endif
                                             @endif
-                                        
+
                                             <!-- Submit Button -->
                                             <div class="mb-4 mt-4">
                                                 <button type="submit" class="btn btn-primary btn-block fw-600 rounded-0">{{  translate('Register Your Shop') }}</button>
@@ -151,7 +152,7 @@
 @section('script')
     @if(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_customer_register') == 1)
         <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_KEY') }}"></script>
-        
+
         <script type="text/javascript">
                 document.getElementById('reg-form').addEventListener('submit', function(e) {
                     e.preventDefault();

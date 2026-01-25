@@ -1,4 +1,6 @@
 @extends('auth.layouts.authentication')
+@section('meta_title', 'Verify Your Email Address')
+
 
 @section('content')
     <div class="aiz-main-wrapper d-flex flex-column justify-content-center bg-white">
@@ -10,7 +12,7 @@
                         <img src="{{ uploaded_asset(get_setting('password_reset_page_image')) }}" alt="{{ translate('Password Reset Page Image') }}" class="img-fit h-100">
                     </div>
                 </div>
-                
+
                 <!-- Right Side -->
                 <div class="col-xxl-6 col-lg-5">
                     <div class="right-content">
