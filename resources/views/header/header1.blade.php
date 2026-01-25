@@ -661,6 +661,7 @@
     #logo-iconstyle {
         max-height: 40px;
         max-width: 200px;
+        margin-bottom: 3px;
         object-fit: contain;
     }
 
@@ -668,7 +669,7 @@
         #logo-iconstyle {
             max-height: 20px;
             max-width: 150px;
-            margin-top: 5px;
+            /* margin-top: 5px; */
         }
     }
 
