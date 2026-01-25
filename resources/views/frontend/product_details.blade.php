@@ -436,7 +436,7 @@
             });
         </script>
     @else
-        <section class="mb-4 pt-3" style="padding-top:116px !important">
+        <section class="mb-4 pt-3" style="padding-top:140px !important">
             <div class="container">
                 <div class="bg-white py-3">
                     <div class="row">
@@ -472,10 +472,7 @@
                             <!-- Seller Info -->
                             @include('frontend.product_details.seller_info')
 
-                            <!-- Top Selling Products -->
-                            <div class="d-none d-lg-block">
-                                @include('frontend.product_details.top_selling_products')
-                            </div>
+
                         </div>
 
                         <!-- Right side -->
