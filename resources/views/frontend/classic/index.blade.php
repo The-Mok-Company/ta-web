@@ -1015,7 +1015,7 @@
 
     <!-- Carousel Section -->
     <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel">
-        <div class="carousel-indicators">
+        <div class="carousel-indicators" style="margin-bottom: 20px;">
             @if ($hero && isset($hero->value['slides']))
                 @foreach ($hero->value['slides'] as $index => $slide)
                     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $index }}"
