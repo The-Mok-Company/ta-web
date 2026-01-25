@@ -662,6 +662,7 @@
         max-height: 40px;
         max-width: 200px;
         object-fit: contain;
+        margin-bottom:3px;
     }
 
     @media (max-width: 600px) {
@@ -1032,28 +1033,77 @@
     const searchResults = document.getElementById('searchResults');
     let initialProductsLoaded = false;
     let activeFetchController = null;
-    const searchCache = new Map(); // query -> products[]
+    const searchCache = new Map();
 
-    // Load initial products when search opens
-    function loadInitialProducts() {
+    const routes = {
+        initial: "{{ route('search.initial') }}",
+        ajax: "{{ route('search.ajax') }}",
+        search: "{{ route('search') }}",
+        placeholder: "{{ asset('public/assets/img/placeholder.jpg') }}"
+    };
+
+    // Preload initial products on page load (in background)
+    document.addEventListener('DOMContentLoaded', function() {
+        preloadInitialProducts();
+    });
+
+    // Preload function (silent background fetch)
+    function preloadInitialProducts() {
         if (initialProductsLoaded) return;
 
+        fetch(routes.initial, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.ok ? response.json() : null)
+            .then(data => {
+                if (data?.products) {
+                    searchCache.set('__initial__', data.products);
+                    initialProductsLoaded = true;
+                }
+            })
+            .catch(err => console.warn('Preload failed:', err));
+    }
+
+    // Load initial products when search opens (instant from cache)
+    function loadInitialProducts() {
+        // Check cache first (instant)
+        if (searchCache.has('__initial__')) {
+            displayProducts(searchCache.get('__initial__'));
+            searchResults.classList.add('active');
+            return;
+        }
+
+        // Fallback: fetch if not cached
         searchResults.innerHTML = '<div class="search-loading">جاري التحميل...</div>';
         searchResults.classList.add('active');
 
-        // cancel any in-flight request
         try {
             activeFetchController?.abort();
         } catch (e) {}
         activeFetchController = new AbortController();
 
-        fetch(`{{ route('search.initial') }}`, {
-                signal: activeFetchController.signal
+        fetch(routes.initial, {
+                signal: activeFetchController.signal,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
             .then(data => {
-                initialProductsLoaded = true;
-                displayProducts(data.products);
+                if (data?.products) {
+                    searchCache.set('__initial__', data.products);
+                    initialProductsLoaded = true;
+                    displayProducts(data.products);
+                } else {
+                    searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
+                }
             })
             .catch(error => {
                 if (error?.name === 'AbortError') return;
@@ -1062,106 +1112,108 @@
             });
     }
 
-    // Display products function
+    // Display products (optimized)
     function displayProducts(products) {
-        if (products && products.length > 0) {
-            let html = '';
-            products.forEach(product => {
-                const imageUrl = product.thumbnail_img ?
-                    `{{ asset('') }}${product.thumbnail_img}` :
-                    '{{ asset('public/assets/img/placeholder.jpg') }}';
+        if (!products || products.length === 0) {
+            searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
+            return;
+        }
 
-                html += `
+        // Use DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
+        const tempDiv = document.createElement('div');
+
+        products.forEach(product => {
+            // Image already has full URL from backend
+            const imageUrl = product.photos || routes.placeholder;
+
+
+            tempDiv.innerHTML = `
                 <a href="${product.url}" class="search-result-item">
-                    <img src="${imageUrl}" alt="${product.name}" class="search-result-img" onerror="this.src='{{ asset('public/assets/img/placeholder.jpg') }}'">
+                    <img src="${imageUrl}" alt="${product.name || 'منتج'}" class="search-result-img"
+                         onerror="this.src='${routes.placeholder}'" loading="lazy">
                     <div class="search-result-info">
-                        <p class="search-result-name">${product.name}</p>
-                     </div>
+                        <p class="search-result-name">${product.name || 'منتج'}</p>
+                    </div>
                 </a>
             `;
-            });
-            searchResults.innerHTML = html;
-        } else {
-            searchResults.innerHTML = '<div class="search-no-results">لا توجد منتجات</div>';
-        }
+            fragment.appendChild(tempDiv.firstElementChild);
+        });
+
+        searchResults.innerHTML = '';
+        searchResults.appendChild(fragment);
     }
 
-    // Dynamic Search Function - Search starts from first character
+    // Debounced search with instant cache
     searchInput?.addEventListener('input', function(e) {
         const query = e.target.value.trim();
-
         clearTimeout(searchTimeout);
 
-        // If empty, show initial products
         if (query.length === 0) {
             loadInitialProducts();
             return;
         }
 
-        // Performance: require at least 2 chars before searching
         if (query.length < 2) {
             searchResults.classList.remove('active');
             return;
         }
 
-        // Cache hit (instant)
         const cacheKey = query.toLowerCase();
+
+        // Instant cache hit
         if (searchCache.has(cacheKey)) {
             searchResults.classList.add('active');
             displayProducts(searchCache.get(cacheKey));
             return;
         }
 
-        // Search (debounced + abort previous)
-        if (query.length >= 2) {
-            searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
-            searchResults.classList.add('active');
+        // Show loading immediately
+        searchResults.innerHTML = '<div class="search-loading">جاري البحث...</div>';
+        searchResults.classList.add('active');
 
-            searchTimeout = setTimeout(() => {
-                try {
-                    activeFetchController?.abort();
-                } catch (e) {}
-                activeFetchController = new AbortController();
+        // Debounced fetch
+        searchTimeout = setTimeout(() => {
+            try {
+                activeFetchController?.abort();
+            } catch (e) {}
+            activeFetchController = new AbortController();
 
-                fetch(`{{ route('search.ajax') }}?query=${encodeURIComponent(query)}`, {
-                        signal: activeFetchController.signal
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const products = Array.isArray(data?.products) ? data.products : [];
-                        searchCache.set(cacheKey, products);
-                        displayProducts(products);
-                    })
-                    .catch(error => {
-                        if (error?.name === 'AbortError') return;
-                        console.error('Search error:', error);
-                        searchResults.innerHTML =
-                            '<div class="search-no-results">حدث خطأ في البحث</div>';
-                    });
-            }, 400);
-        }
+            fetch(`${routes.ajax}?query=${encodeURIComponent(query)}`, {
+                    signal: activeFetchController.signal,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const products = Array.isArray(data?.products) ? data.products : [];
+                    searchCache.set(cacheKey, products);
+                    displayProducts(products);
+                })
+                .catch(error => {
+                    if (error?.name === 'AbortError') return;
+                    console.error('Search error:', error);
+                    searchResults.innerHTML = '<div class="search-no-results">حدث خطأ في البحث</div>';
+                });
+        }, 300);
     });
 
-    // Show initial products when search input is focused
     searchInput?.addEventListener('focus', function() {
         if (this.value.trim().length === 0) {
             loadInitialProducts();
         }
     });
 
-    // Close search results when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.search-input-wrapper')) {
-            searchResults.classList.remove('active');
-        }
-    });
-
-    // Navigate to full search on Enter
     searchInput?.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             const query = this.value.trim();
             if (query) {
-                window.location.href = `{{ route('search') }}?keyword=${encodeURIComponent(query)}`;
+                window.location.href = `${routes.search}?keyword=${encodeURIComponent(query)}`;
             }
         }
     });
@@ -1169,7 +1221,9 @@
     function toggleSearch() {
         const container = document.getElementById('headerContainer');
         const searchContainer = document.getElementById('searchContainer');
-        const searchInput = searchContainer.querySelector('.search-input');
+        const searchInput = searchContainer?.querySelector('.search-input');
+
+        if (!container || !searchContainer || !searchInput) return;
 
         container.classList.toggle('search-active');
         searchContainer.classList.toggle('active');
@@ -1177,16 +1231,13 @@
         if (searchContainer.classList.contains('active')) {
             setTimeout(() => {
                 searchInput.focus();
-                // Load initial products when search opens
                 if (searchInput.value.trim().length === 0) {
                     loadInitialProducts();
                 }
-            }, 300);
+            }, 100);
         } else {
             searchResults.classList.remove('active');
             searchInput.value = '';
-            initialProductsLoaded = false; // Reset for next time
-            searchCache.clear();
             try {
                 activeFetchController?.abort();
             } catch (e) {}
@@ -1195,26 +1246,31 @@
 
     function toggleMobileMenu() {
         const nav = document.getElementById('mainNav');
-        nav.classList.toggle('active');
+        if (nav) nav.classList.toggle('active');
     }
 
-    // Close menus when clicking outside
+    // Close handlers
     document.addEventListener('click', function(event) {
         const nav = document.getElementById('mainNav');
         const menuBtn = document.querySelector('.mobile-menu-btn');
         const searchContainer = document.getElementById('searchContainer');
         const headerContainer = document.getElementById('headerContainer');
+        const searchWrapper = event.target.closest('.search-input-wrapper');
 
         if (nav && menuBtn && !nav.contains(event.target) && !menuBtn.contains(event.target)) {
             nav.classList.remove('active');
         }
 
-        if (searchContainer.classList.contains('active') &&
+        if (!searchWrapper && searchResults) {
+            searchResults.classList.remove('active');
+        }
+
+        if (searchContainer && headerContainer &&
+            searchContainer.classList.contains('active') &&
             !searchContainer.contains(event.target) &&
             !event.target.closest('.icon-btn')) {
             headerContainer.classList.remove('search-active');
             searchContainer.classList.remove('active');
-            initialProductsLoaded = false;
         }
     });
 
@@ -1253,8 +1309,7 @@
                         e.stopPropagation();
 
                         const parentContainer = wrapper.parentElement;
-                        const siblings = parentContainer.querySelectorAll(
-                            ':scope > .category-item-wrapper');
+                        const siblings = parentContainer.querySelectorAll(':scope > .category-item-wrapper');
 
                         siblings.forEach(sibling => {
                             if (sibling !== wrapper) {

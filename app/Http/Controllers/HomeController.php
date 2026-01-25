@@ -94,15 +94,14 @@ class HomeController extends Controller
     {
         $query = trim((string) $request->get('query', ''));
 
-        // Avoid expensive queries for empty/very short input
         if ($query === '' || mb_strlen($query) < 2) {
             return response()->json(['products' => []]);
         }
 
         $cacheKey = 'ajax_search:' . md5(app()->getLocale() . '|' . mb_strtolower($query));
 
-        $products = Cache::remember($cacheKey, 30, function () use ($query) {
-            $base = Product::query()
+        $products = Cache::remember($cacheKey, 300, function () use ($query) {
+            return Product::query()
                 ->where('published', 1)
                 ->where('approved', 1)
                 ->where(function ($q) use ($query) {
@@ -111,28 +110,16 @@ class HomeController extends Controller
                             $qt->where('name', 'like', '%' . $query . '%');
                         });
                 })
-                ->select(['id', 'name', 'slug', 'thumbnail_img']);
-
-            // Relations may exist in this codebase; keep them guarded by eager loading only.
-            $base->with(['thumbnail', 'product_translations']);
-
-            return $base
-                ->orderBy('id', 'desc')
+                ->select(['id', 'name', 'slug', 'photos'])
+                ->with('product_translations:id,product_id,name,lang')
+                ->orderBy('num_of_sale', 'desc')
                 ->limit(10)
                 ->get()
                 ->map(function ($product) {
-                    $thumb = null;
-                    // Prefer product.thumbnail_img if present (string path)
-                    if (!empty($product->thumbnail_img)) {
-                        $thumb = $product->thumbnail_img;
-                    } elseif (isset($product->thumbnail) && $product->thumbnail) {
-                        $thumb = $product->thumbnail->file_name ?? null;
-                    }
-
                     return [
                         'id' => $product->id,
-                        'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : ($product->name ?? ''),
-                        'thumbnail_img' => $thumb,
+                        'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : $product->name,
+                        'photos' => $product->photos ? uploaded_asset($product->photos) : null,
                         'url' => route('product', $product->slug),
                     ];
                 })
@@ -144,24 +131,40 @@ class HomeController extends Controller
 
     public function initialSearch()
     {
-        $products = Product::where('published', 1)
-            ->where('approved', 1)
-            ->orderBy('featured', 'desc')
-            ->orderBy('num_of_sale', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->with(['thumbnail', 'product_translations'])
-            ->limit(8)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'name' => $product->getTranslation('name'),
-                    'price' => format_price(home_discounted_base_price($product)),
-                    'thumbnail_img' => $product->thumbnail ? $product->thumbnail->file_name : null,
-                    'url' => route('product', $product->slug)
-                ];
+        try {
+            $cacheKey = 'initial_search:' . app()->getLocale();
+
+            $products = Cache::remember($cacheKey, 3600, function () {
+                return Product::where('published', 1)
+                    ->where('approved', 1)
+                    ->select(['id', 'name', 'slug', 'photos', 'featured', 'num_of_sale'])
+                    ->with('product_translations:id,product_id,name,lang')
+                    ->orderByRaw('featured DESC, num_of_sale DESC')
+                    ->limit(10)
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'id' => $product->id,
+                            'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : $product->name,
+                            'photos' => $product->photos ? uploaded_asset($product->photos) : null,
+                            'url' => route('product', $product->slug)
+                        ];
+                    })
+                    ->values();
             });
 
-        return response()->json(['products' => $products]);
+            return response()->json([
+                'success' => true,
+                'products' => $products
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Initial Search Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'products' => []
+            ], 500);
+        }
     }
     public function contact_us()
     {

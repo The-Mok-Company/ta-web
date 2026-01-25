@@ -62,6 +62,7 @@
     }
 @endphp
 
+
 <a href="{{ $productUrl }}"
     class="product-card {{ $useModal ? 'js-open-product-details' : '' }}"
     @if ($useModal)
@@ -130,6 +131,7 @@
             onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.getAttribute('data-category-url');"
         @endif
     >
+    
         <h3>{{ $productName }}</h3>
         <p class="featured-product-category">{{ $categoryName }}</p>
     </div>
