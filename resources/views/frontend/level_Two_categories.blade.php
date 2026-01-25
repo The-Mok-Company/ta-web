@@ -39,7 +39,8 @@
 @endphp
 
 <style>
-    <style>.add-inquiry-btn .icon-check {
+    /* ===== Add to Inquiry button (matches featured-inquiry-btn: colors, circle, hover tooltip) ===== */
+    .add-inquiry-btn .icon-check {
         display: none;
     }
 
@@ -58,8 +59,6 @@
         content: "✓";
     }
 
-
-    /* ===== Add to Inquiry button on cards (Top Right) ===== */
     .add-inquiry-wrap {
         position: absolute;
         top: 15px;
@@ -68,96 +67,79 @@
     }
 
     .add-inquiry-btn {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
-        border-radius: 50px;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        border-radius: 50%;
         border: none;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
-        transition: all .3s ease;
-        overflow: hidden;
-        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
+        transition: box-shadow .2s ease, background .2s ease, color .2s ease;
+        overflow: visible;
+        flex-shrink: 0;
         padding: 0;
+    }
+
+    .add-inquiry-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+        box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
     }
 
     .add-inquiry-btn .icon {
         color: #fff;
-        font-size: 22px;
+        font-size: 18px;
         font-weight: 700;
         line-height: 1;
-        pointer-events: none;
         flex-shrink: 0;
-        transition: all .3s ease;
     }
 
     .add-inquiry-btn .btn-text {
-        max-width: 0;
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%) translateX(6px);
         opacity: 0;
-        overflow: hidden;
-        font-size: 13px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
         font-weight: 600;
-        margin-left: 0;
+        line-height: 1;
+        white-space: nowrap;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
         color: #fff;
-        transition: all .3s ease;
+        box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
     }
 
-    /* Hover – expand button */
-    .add-inquiry-btn:hover {
-        width: auto;
-        padding: 0 16px;
-        background: #5FB3F6;
-        transform: scale(1.05);
-        box-shadow: 0 8px 22px rgba(8, 145, 178, .45), 0 0 0 4px rgba(8, 145, 178, .25);
-    }
-
-    .add-inquiry-btn:hover .btn-text {
-        max-width: 150px;
+    .add-inquiry-btn:hover .btn-text,
+    .add-inquiry-btn:focus-visible .btn-text {
         opacity: 1;
-        margin-left: 8px;
+        transform: translateY(-50%) translateX(0);
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
     }
 
-    .add-inquiry-btn:hover .icon {
-        transform: scale(1.1);
+    .add-inquiry-btn.added .btn-text,
+    .add-inquiry-btn.added:hover .btn-text {
+        opacity: 0;
+        visibility: hidden;
     }
 
-    .add-inquiry-btn:active {
-        transform: scale(0.95);
-    }
-
-    /* Added state */
     .add-inquiry-btn.added {
         background: #16a34a;
         cursor: default;
-        width: 40px;
-        padding: 0;
-    }
-
-    .add-inquiry-btn.added:hover {
-        width: 40px;
-        padding: 0;
-        transform: scale(1);
         box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     }
 
-    .add-inquiry-btn.added .btn-text {
-        max-width: 0;
-        opacity: 0;
-        margin-left: 0;
+    .add-inquiry-btn.added:hover {
+        background: #16a34a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     }
 
-    .add-inquiry-btn.added .icon {
-        font-size: 18px;
-    }
-
-    .add-inquiry-btn.added .icon::before {
-        content: "✓";
-    }
-
-    /* disabled */
     .add-inquiry-btn:disabled {
         opacity: .9;
         cursor: not-allowed;
@@ -817,7 +799,7 @@
         .back-arrow {
             width: 40px;
             height: 40px;
-            top: 15px;
+            top: -60px;
             left: 15px;
         }
 
@@ -888,7 +870,7 @@
         .back-arrow {
             width: 38px;
             height: 38px;
-            top: 12px;
+            top: -60px;
             left: 12px;
         }
 
@@ -1459,25 +1441,6 @@
         </div>
     </div>
 
-    <!-- Product Details Modal (stay on same page) -->
-    <div class="modal fade" id="productDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-600">{{ translate('Product details') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body pt-0" id="productDetailModalBody">
-                    <div class="text-center p-4">
-                        <div class="spinner-border" role="status" aria-hidden="true"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- JavaScript for Toggle Functionality --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1993,60 +1956,7 @@
                 openCategoryProducts(initialOpenCategoryId, initialOpenCategoryName || '', 1);
             }
 
-            // Open product details in modal (stay on same page)
-            $(document).on('click', 'a.js-open-product-details', function(e) {
-                // allow open-in-new-tab behaviors
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-                    return true;
-                }
-
-                const modalUrl = $(this).data('modal-url');
-                if (!modalUrl) {
-                    return true;
-                }
-
-                e.preventDefault();
-
-                // Highlight the clicked product in sidebar list
-                setActiveProduct($(this).data('product-slug'));
-
-                $('#productDetailModalBody').html(
-                    '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
-                );
-                $('#productDetailModal').modal('show');
-
-                $.get(modalUrl, function(html) {
-                    $('#productDetailModalBody').html(html);
-
-                    try {
-                        if (typeof AIZ !== 'undefined' && AIZ.plugins) {
-                            AIZ.plugins.slickCarousel();
-                            AIZ.plugins.zoom();
-                        }
-                        if (typeof AIZ !== 'undefined' && AIZ.extra) {
-                            AIZ.extra.plusMinus();
-                        }
-
-                        if (typeof getVariantPrice === 'function') {
-                            $('#option-choice-form input').off('change').on('change', function() {
-                                getVariantPrice();
-                            });
-                        }
-                    } catch (err) {
-                        console.warn('Product modal init error:', err);
-                    }
-                }).fail(function() {
-                    $('#productDetailModalBody').html(
-                        '<div class="p-4 text-center text-danger">{{ translate('Something went wrong') }}</div>'
-                    );
-                });
-            });
-
-            $('#productDetailModal').on('hidden.bs.modal', function() {
-                $('#productDetailModalBody').html(
-                    '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
-                );
-            });
+            // Product cards link to the single product page (no modal)
         });
     </script>
     <script>

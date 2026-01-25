@@ -24,15 +24,19 @@
             content: "✓";
         }
 
-        /* ================= HERO ================= */
+        /* ================= HERO (left-aligned at bottom of banner, same colors as category-hero) ================= */
         .categories-hero {
             position: relative;
-            padding: 140px 20px;
+            height: 450px;
+            padding: 20px;
+            padding-bottom: 50px;
             margin-bottom: 60px;
             background-image: url("{{ asset('assets/img/eaf877854196422d963fe04e58d086e83a98ac67.png') }}");
             background-size: cover;
             background-position: center;
             overflow: hidden;
+            display: flex;
+            align-items: flex-end;
         }
 
         .categories-hero::before {
@@ -50,23 +54,28 @@
         }
 
         .categories-hero-content {
+            width: 100%;
             max-width: 1200px;
-            margin: auto;
+            margin: 0 auto;
             padding: 0 30px;
         }
 
         .categories-hero h1 {
-            color: #60a5fa;
-            font-size: 2.5rem;
+            color: #5fb3f6;
+            font-size: 46px;
             font-weight: 700;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, .5);
+            margin: 0 0 5px 0;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+            line-height: 1.2;
         }
 
         .categories-hero .subtitle {
             color: #fff;
-            font-size: 2.5rem;
+            font-size: 52px;
             font-weight: 700;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, .5);
+            margin: 0;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+            line-height: 1.2;
         }
 
         /* ================= GRID ================= */
@@ -132,7 +141,7 @@
             margin: 0;
         }
 
-        /* ================= ADD BUTTON ================= */
+        /* ================= ADD BUTTON (matches featured-inquiry-btn: colors, circle, hover tooltip) ================= */
         .add-inquiry-wrap {
             position: absolute;
             top: 15px;
@@ -141,65 +150,72 @@
         }
 
         .add-inquiry-btn {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
-            border-radius: 50px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+            border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
-            transition: all .3s ease;
-            overflow: hidden;
-            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
+            transition: box-shadow .2s ease, background .2s ease, color .2s ease;
+            position: relative;
+            overflow: visible;
+            flex-shrink: 0;
             padding: 0;
         }
 
-        /* Icons and Text */
+        .add-inquiry-btn:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
+        }
+
         .add-inquiry-btn .icon {
             color: #fff;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             line-height: 1;
-            transition: all .3s ease;
             flex-shrink: 0;
         }
 
+        .add-inquiry-btn .icon-check { display: none; }
+        .add-inquiry-btn.added .icon-plus { display: none; }
+        .add-inquiry-btn.added .icon-check { display: block; }
+        .add-inquiry-btn.added .icon-check::before { content: "✓"; }
+
         .add-inquiry-btn .btn-text {
-            max-width: 0;
+            position: absolute;
+            top: 50%;
+            right: calc(100% + 8px);
+            transform: translateY(-50%) translateX(6px);
             opacity: 0;
-            overflow: hidden;
-            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
             font-weight: 600;
-            margin-left: 0;
+            line-height: 1;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity .18s ease, transform .18s ease;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
             color: #fff;
-            transition: all .3s ease;
+            box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
         }
 
-        /* Hover – expand button */
-        .add-inquiry-btn:hover {
-            width: auto;
-            padding: 0 16px;
-            background: #5FB3F6;
-            transform: scale(1.05);
-            box-shadow: 0 8px 22px rgba(8, 145, 178, .45), 0 0 0 4px rgba(8, 145, 178, .25);
-        }
-
-        .add-inquiry-btn:hover .btn-text {
-            max-width: 150px;
+        .add-inquiry-btn:hover .btn-text,
+        .add-inquiry-btn:focus-visible .btn-text {
             opacity: 1;
-            margin-left: 8px;
+            transform: translateY(-50%) translateX(0);
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
         }
 
-        .add-inquiry-btn:hover .icon {
-            transform: scale(1.1);
-        }
-
-        /* Active (click feedback) */
-        .add-inquiry-btn:active {
-            transform: scale(0.95);
+        .add-inquiry-btn.added .btn-text,
+        .add-inquiry-btn.added:hover .btn-text {
+            opacity: 0;
+            visibility: hidden;
         }
 
         /* Added state */
@@ -207,33 +223,31 @@
             background: #16a34a;
             cursor: default;
             box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
-            width: 40px;
-            padding: 0;
         }
 
         .add-inquiry-btn.added:hover {
-            width: 40px;
-            padding: 0;
-            transform: scale(1);
+            background: #16a34a;
             box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
         }
 
-        .add-inquiry-btn.added .btn-text {
-            max-width: 0;
-            opacity: 0;
-            margin-left: 0;
+        /* Hero responsive (match category-hero breakpoints) */
+        @media (min-width: 1400px) {
+            .categories-hero { height: 500px; }
+            .categories-hero h1 { font-size: 52px; }
+            .categories-hero .subtitle { font-size: 60px; }
         }
 
-        .add-inquiry-btn.added .icon {
-            font-size: 18px;
+        @media (max-width: 1024px) {
+            .categories-hero { height: 380px; padding-bottom: 40px; }
+            .categories-hero h1 { font-size: 38px; }
+            .categories-hero .subtitle { font-size: 44px; }
         }
 
-        .add-inquiry-btn.added .icon::before {
-            content: "✓";
-        }
-
-        /* Mobile */
         @media (max-width: 768px) {
+            .categories-hero { height: 320px; padding: 15px; padding-bottom: 35px; }
+            .categories-hero h1 { font-size: 32px; }
+            .categories-hero .subtitle { font-size: 36px; }
+            .categories-hero-content { padding: 0 20px; }
             .categories-grid {
                 grid-template-columns: 1fr;
                 padding: 0 20px 40px;
