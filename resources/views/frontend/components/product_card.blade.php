@@ -29,23 +29,16 @@
     $useCategoryRedirect = (bool) ($useCategoryRedirect ?? false);
     $showBadges = (bool) ($showBadges ?? false);
 
-    $productUrl = $productUrl ?? (function () use ($product, $category_id) {
+    $productUrl = $productUrl ?? (function () use ($product) {
         $url = route('product', $product->slug);
         if ($product->auction_product == 1) {
             $url = route('auction-product', $product->slug);
         }
-        if (isset($category_id) && !empty($category_id)) {
-            $url .= (str_contains($url, '?') ? '&' : '?') . http_build_query(['category_id' => $category_id]);
-        }
         return $url;
     })();
 
-    $productModalUrl = $productModalUrl ?? (function () use ($product, $category_id) {
-        $url = route('product.modal', $product->slug);
-        if (isset($category_id) && !empty($category_id)) {
-            $url .= '?' . http_build_query(['category_id' => $category_id]);
-        }
-        return $url;
+    $productModalUrl = $productModalUrl ?? (function () use ($product) {
+        return route('product.modal', $product->slug);
     })();
 
     // Variants detection (covers different product representations across templates)

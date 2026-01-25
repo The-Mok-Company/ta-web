@@ -321,7 +321,7 @@
                                     @foreach ($sidebar_products as $p)
                                         <li class="{{ $p->id == $detailedProduct->id ? 'active' : '' }}">
                                             <a class="category-link"
-                                                href="{{ route('product', $p->slug) }}?category_id={{ $sidebar_category_id }}">
+                                                href="{{ route('product', $p->slug) }}">
                                                 <span>{{ $p->getTranslation('name') }}</span>
                                             </a>
                                         </li>
