@@ -709,7 +709,7 @@
 
                             {{-- Massage --}}
                             <li class="aiz-side-nav-item">
-                                <a class="aiz-side-nav-link" href="{{ route('messages.index') }}">
+                                <a class="aiz-side-nav-link" href="{{ route('contact.messages.index') }}">
                                     <span class="aiz-side-nav-text">{{ translate('Massage') }}</span>
                                 </a>
                             </li>

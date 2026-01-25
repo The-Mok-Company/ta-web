@@ -665,13 +665,39 @@
         }
 
         .product-add-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+
+        .product-add-btn:hover {
+            background: linear-gradient(135deg, var(--primary-hover) 0%, #075985 100%);
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+
+        .product-add-btn i {
             font-size: 16px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: #dbeafe;
-            color: #1e40af;
-            border: 0px;
+            font-weight: 700;
+        }
+
+        .product-add-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .product-add-btn.loading i {
+            animation: spin 0.6s linear infinite;
         }
 
         .product-stock.out-of-stock {
@@ -1410,17 +1436,15 @@
                             <img src="${thumbnailUrl}" alt="${product.name}" class="product-thumbnail" onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                             <div class="product-info">
                                 <div class="product-name">${product.name}</div>
-                                <div class="product-price">${price} {{ translate('EGP') }}</div>
                             </div>
-                            <span class="product-stock ${stockStatus}">${stockText}</span>
                             ${product.current_stock > 0 ? `
-                                                <button class="product-add-btn"
-                                                    data-product-id="${product.id}"
-                                                    data-product-name="${product.name}"
-                                                    title="{{ translate('Add to Cart') }}">
-                                                    <i class="bi bi-cart-plus"></i>
-                                                </button>
-                                            ` : ''}
+                                                    <button class="product-add-btn"
+                                                        data-product-id="${product.id}"
+                                                        data-product-name="${product.name}"
+                                                        title="{{ translate('Add to Cart') }}">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                ` : ''}
                         </div>
                     </div>
                 `;
