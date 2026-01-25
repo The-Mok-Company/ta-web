@@ -1188,7 +1188,7 @@
                             $category = \App\Models\Category::find($product->category_id);
                             $categoryName = $category?->getTranslation('name');
                             $categoryUrl = $category ? (route('categories.level2', $category->id) . '?open=' . $category->id) : '#';
-                            
+
                             $hasVariants = $product->choice_options && count(json_decode($product->choice_options, true)) > 0;
                         @endphp
 

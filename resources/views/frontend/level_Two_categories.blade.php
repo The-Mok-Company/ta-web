@@ -1,4 +1,6 @@
 @extends('frontend.layouts.app')
+@section('meta_title', 'Level Two Categories')
+
 
 @php
     $mainCategories = App\Models\Category::where('level', 0)
@@ -37,83 +39,129 @@
 @endphp
 
 <style>
-.add-inquiry-btn .icon-check{ display:none; }
-.add-inquiry-btn.added .icon-plus{ display:none; }
-.add-inquiry-btn.added .icon-check{
-    display:block;
-    color:#fff;
-    font-size:18px;
-    font-weight:700;
-}
-.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+    <style>.add-inquiry-btn .icon-check {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-plus {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-check {
+        display: block;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .add-inquiry-btn.added .icon-check::before {
+        content: "✓";
+    }
 
 
     /* ===== Add to Inquiry button on cards (Top Right) ===== */
-.add-inquiry-wrap {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 6;
-}
+    .add-inquiry-wrap {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 6;
+    }
 
-.add-inquiry-btn {
-    width: 40px;
-    height: 40px;
-    background: #0891B2;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
+    .add-inquiry-btn {
+        width: 40px;
+        height: 40px;
+        background: #0891B2;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+        transition: all .3s ease;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 0;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .add-inquiry-btn .icon {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1;
+        pointer-events: none;
+        flex-shrink: 0;
+        transition: all .3s ease;
+    }
 
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-    transition: transform .18s cubic-bezier(.2,.8,.2,1),
-                box-shadow .18s ease,
-                background .18s ease;
-}
+    .add-inquiry-btn .btn-text {
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        font-size: 13px;
+        font-weight: 600;
+        margin-left: 0;
+        color: #fff;
+        transition: all .3s ease;
+    }
 
-.add-inquiry-btn .icon {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-    pointer-events: none;
-}
+    /* Hover – expand button */
+    .add-inquiry-btn:hover {
+        width: auto;
+        padding: 0 16px;
+        background: #0E7490;
+        transform: scale(1.05);
+        box-shadow: 0 8px 22px rgba(8, 145, 178, .45), 0 0 0 4px rgba(8, 145, 178, .25);
+    }
 
-/* clearly looks clickable */
-.add-inquiry-btn:hover {
-    background: #0E7490;
-    transform: scale(1.08);
-    box-shadow:
-        0 8px 22px rgba(8,145,178,.45),
-        0 0 0 4px rgba(8,145,178,.25);
-}
+    .add-inquiry-btn:hover .btn-text {
+        max-width: 150px;
+        opacity: 1;
+        margin-left: 8px;
+    }
 
-.add-inquiry-btn:active {
-    transform: scale(0.95);
-}
+    .add-inquiry-btn:hover .icon {
+        transform: scale(1.1);
+    }
 
-/* Added state -> check */
-.add-inquiry-btn.added {
-    background: #16a34a;
-    cursor: default;
-}
+    .add-inquiry-btn:active {
+        transform: scale(0.95);
+    }
 
-.add-inquiry-btn.added .icon {
-    font-size: 18px;
-}
+    /* Added state */
+    .add-inquiry-btn.added {
+        background: #16a34a;
+        cursor: default;
+        width: 40px;
+        padding: 0;
+    }
 
-.add-inquiry-btn.added .icon::before {
-    content: "✓";
-}
+    .add-inquiry-btn.added:hover {
+        width: 40px;
+        padding: 0;
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
 
-/* disabled */
-.add-inquiry-btn:disabled {
-    opacity: .9;
-    cursor: not-allowed;
-}
+    .add-inquiry-btn.added .btn-text {
+        max-width: 0;
+        opacity: 0;
+        margin-left: 0;
+    }
+
+    .add-inquiry-btn.added .icon {
+        font-size: 18px;
+    }
+
+    .add-inquiry-btn.added .icon::before {
+        content: "✓";
+    }
+
+    /* disabled */
+    .add-inquiry-btn:disabled {
+        opacity: .9;
+        cursor: not-allowed;
+    }
 
     .category-page {
         background: #f8f9fa;
@@ -332,7 +380,7 @@
     }
 
     /* IMPORTANT: only style the clicked item's own link (not its children) */
-    .category-sidebar ul li.active > a.category-link {
+    .category-sidebar ul li.active>a.category-link {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
         border-color: transparent;
@@ -340,14 +388,14 @@
     }
 
     /* IMPORTANT: only style the clicked item's own header (not nested ones) */
-    .category-sidebar ul li.active > .category-header {
+    .category-sidebar ul li.active>.category-header {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
         border-color: transparent;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar ul li.active > .category-header .category-name {
+    .category-sidebar ul li.active>.category-header .category-name {
         color: #fff;
     }
 
@@ -382,8 +430,8 @@
         background: #f8fafc;
     }
 
-    .category-sidebar ul li.active > a.category-link,
-    .category-sidebar ul li.active > .category-header {
+    .category-sidebar ul li.active>a.category-link,
+    .category-sidebar ul li.active>.category-header {
         border-color: transparent;
     }
 
@@ -479,7 +527,7 @@
     }
 
     /* Active trail styling (parents of active category) - only style the category-header with same blue as section header */
-    .category-sidebar li.is-active-trail:not(.active) > .category-header {
+    .category-sidebar li.is-active-trail:not(.active)>.category-header {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         border-color: transparent;
         color: #fff;
@@ -487,14 +535,14 @@
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar li.is-active-trail:not(.active) > .category-header a,
-    .category-sidebar li.is-active-trail:not(.active) > .category-header .category-name {
+    .category-sidebar li.is-active-trail:not(.active)>.category-header a,
+    .category-sidebar li.is-active-trail:not(.active)>.category-header .category-name {
         color: #fff;
         font-weight: 600;
     }
 
     /* Don't style category-link for active trail - only the header */
-    .category-sidebar li.is-active-trail:not(.active) > a.category-link {
+    .category-sidebar li.is-active-trail:not(.active)>a.category-link {
         /* Keep default styling - no special background */
     }
 
@@ -517,7 +565,7 @@
     }
 
     /* Indent without using UL padding */
-    .sub-categories > li {
+    .sub-categories>li {
         margin-left: 16px;
     }
 
@@ -586,7 +634,7 @@
     }
 
     /* Indent without using UL padding */
-    .sub-sub-categories > li {
+    .sub-sub-categories>li {
         margin-left: 16px;
     }
 
@@ -652,7 +700,7 @@
     }
 
     /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
-    .category-cards-grid > [class*="col-"] {
+    .category-cards-grid>[class*="col-"] {
         margin-bottom: 28px;
     }
 
@@ -675,7 +723,7 @@
     /* Category Title - Bottom Left */
     .category-card .category-title {
         position: absolute;
-        bottom: 30px; //important to change to be like the figma
+        bottom: 30px;
         left: 16px;
         right: 16px;
         z-index: 2;
@@ -828,6 +876,11 @@
         .category-card .category-title h5 {
             font-size: 22px;
         }
+
+        /* Mobile: Always show buttons */
+        .add-inquiry-wrap {
+            opacity: 1;
+        }
     }
 
     /* Mobile Portrait */
@@ -960,7 +1013,7 @@
     ======================== */
     /* Ensure vertical spacing between wrapped product rows */
     #products-row {
-        row-gap: 18px; /* works with flex-wrap rows */
+        row-gap: 18px;
     }
 
     #products-row .col.border-right.border-bottom {
@@ -1141,7 +1194,7 @@
     .btn-add-inquiry:hover {
         background: #0E7490;
         transform: translateY(-1px);
-        box-shadow: 0 8px 22px rgba(8,145,178,.25);
+        box-shadow: 0 8px 22px rgba(8, 145, 178, .25);
     }
 
     .btn-add-inquiry:disabled {
@@ -1157,19 +1210,33 @@
     }
 
     @media (max-width: 768px) {
-        .products-container { padding: 18px; }
-        .page-title { font-size: 22px; }
-        .toolbar { justify-content: flex-start; }
-        .sort-dropdown { width: 100%; }
-        .btn-add-inquiry { width: 100%; justify-content: center; }
+        .products-container {
+            padding: 18px;
+        }
+
+        .page-title {
+            font-size: 22px;
+        }
+
+        .toolbar {
+            justify-content: flex-start;
+        }
+
+        .sort-dropdown {
+            width: 100%;
+        }
+
+        .btn-add-inquiry {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
 
 @section('content')
     <div class="category-page">
         {{-- Hero Banner with Category Image --}}
-        <div class="category-hero"
-            style="background-image: url('{{ uploaded_asset($currentCategory->banner ?? '') }}');">
+        <div class="category-hero" style="background-image: url('{{ uploaded_asset($currentCategory->banner ?? '') }}');">
             <div class="container">
                 <a href="javascript:history.back()" class="back-arrow">
                     <i class="fas fa-arrow-left"></i>
@@ -1206,12 +1273,16 @@
                             <div class="all-main-categories-wrapper">
                                 @foreach ($mainCategories as $mainCategory)
                                     @php
-                                        $isMainActive = !empty($activeMainCategoryId) && (int) $mainCategory->id === (int) $activeMainCategoryId;
+                                        $isMainActive =
+                                            !empty($activeMainCategoryId) &&
+                                            (int) $mainCategory->id === (int) $activeMainCategoryId;
                                     @endphp
 
-                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}" data-main-id="{{ $mainCategory->id }}">
+                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}"
+                                        data-main-id="{{ $mainCategory->id }}">
                                         <div class="main-category-header">
-                                            <a href="{{ route('categories.level2', $mainCategory->id) }}" class="main-category-name">
+                                            <a href="{{ route('categories.level2', $mainCategory->id) }}"
+                                                class="main-category-name">
                                                 {{ $mainCategory->getTranslation('name') }}
                                             </a>
                                             @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
@@ -1224,23 +1295,33 @@
                                                 <ul class="parent-category-list main-level0">
                                                     @foreach ($mainCategory->childrenCategories as $level1Category)
                                                         @php
-                                                            $isTrail = in_array((int) $level1Category->id, $activeTrailIds ?? [], true);
+                                                            $isTrail = in_array(
+                                                                (int) $level1Category->id,
+                                                                $activeTrailIds ?? [],
+                                                                true,
+                                                            );
                                                         @endphp
 
                                                         <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }} {{ $isTrail ? 'is-active-trail' : '' }}"
                                                             data-category-id="{{ $level1Category->id }}">
                                                             @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
                                                                 <div class="category-header">
-                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}" class="category-name">
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}"
+                                                                        class="category-name">
                                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     </a>
                                                                     <i class="fas fa-chevron-down toggle-icon"></i>
                                                                 </div>
 
-                                                                <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
+                                                                <ul class="sub-categories"
+                                                                    data-parent-id="{{ $level1Category->id }}">
                                                                     @foreach ($level1Category->childrenCategories as $level2Category)
                                                                         @php
-                                                                            $isTrail2 = in_array((int) $level2Category->id, $activeTrailIds ?? [], true);
+                                                                            $isTrail2 = in_array(
+                                                                                (int) $level2Category->id,
+                                                                                $activeTrailIds ?? [],
+                                                                                true,
+                                                                            );
                                                                         @endphp
                                                                         <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }} {{ $isTrail2 ? 'is-active-trail' : '' }}"
                                                                             data-category-id="{{ $level2Category->id }}">
@@ -1250,13 +1331,19 @@
                                                                                         class="category-name">
                                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
-                                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                                    <i
+                                                                                        class="fas fa-chevron-down toggle-icon"></i>
                                                                                 </div>
 
-                                                                                <ul class="sub-sub-categories" data-parent-id="{{ $level2Category->id }}">
+                                                                                <ul class="sub-sub-categories"
+                                                                                    data-parent-id="{{ $level2Category->id }}">
                                                                                     @foreach ($level2Category->childrenCategories as $level3Category)
                                                                                         @php
-                                                                                            $isTrail3 = in_array((int) $level3Category->id, $activeTrailIds ?? [], true);
+                                                                                            $isTrail3 = in_array(
+                                                                                                (int) $level3Category->id,
+                                                                                                $activeTrailIds ?? [],
+                                                                                                true,
+                                                                                            );
                                                                                         @endphp
                                                                                         <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}"
                                                                                             data-category-id="{{ $level3Category->id }}">
@@ -1303,69 +1390,66 @@
                                 <h1 class="page-title" id="inline-page-title"></h1>
 
                                 <p class="page-description" id="inline-page-description">
-                                    To connect global markets efficiently and ethically by providing exceptional sourcing and
+                                    To connect global markets efficiently and ethically by providing exceptional sourcing
+                                    and
                                     trade solutions that enhance business value and foster sustainable growth.
                                 </p>
 
                                 <div class="action-bar">
                                     <div class="toolbar">
-                                        <select id="inline-sort-by" class="sort-dropdown" name="sort_by">
-                                            <option value="">{{ translate('Sort by') }}</option>
-                                            <option value="newest">{{ translate('Newest') }}</option>
-                                            <option value="oldest">{{ translate('Oldest') }}</option>
-                                            <option value="price-asc">{{ translate('Price low to high') }}</option>
-                                            <option value="price-desc">{{ translate('Price high to low') }}</option>
-                                        </select>
+
 
                                         <button type="button" class="btn-add-inquiry" id="inline-add-inquiry-btn">
                                             <i class="las la-plus"></i> {{ translate('Add to inquiry') }}
                                         </button>
 
-                                        <button type="button" class="btn btn-sm btn-light inline-back-btn" id="inline-products-back">
+                                        <button type="button" class="btn btn-sm btn-light inline-back-btn"
+                                            id="inline-products-back">
                                             <i class="las la-arrow-left"></i> {{ translate('Back') }}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-3" id="products-row"></div>
+                                <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-3" id="products-row">
+                                </div>
                                 <div class="pagination-wrapper mt-3" id="pagination"></div>
                             </div>
                         </div>
 
                         {{-- Categories grid (default) --}}
                         <div class="row gx-3 gy-5 category-cards-grid" id="level2-categories-grid">
-                          @foreach ($levelTwoCategories as $category)
-    <div class="col-lg-6 col-md-6">
-        <a href="{{ route('categories.level2', $category->id) }}?open={{ $category->id }}" style="text-decoration: none;"
-           class="js-open-category-products"
-           data-category-id="{{ $category->id }}"
-           data-category-name="{{ $category->getTranslation('name') }}">
+                            @foreach ($levelTwoCategories as $category)
+                                <div class="col-lg-6 col-md-6">
+                                    <a href="{{ route('categories.level2', $category->id) }}?open={{ $category->id }}"
+                                        style="text-decoration: none;" class="js-open-category-products"
+                                        data-category-id="{{ $category->id }}"
+                                        data-category-name="{{ $category->getTranslation('name') }}">
 
-            <div class="category-card">
-                <img src="{{ uploaded_asset($category->banner) }}"
-                     alt="{{ $category->getTranslation('name') }}">
+                                        <div class="category-card">
+                                            <img src="{{ uploaded_asset($category->banner) }}"
+                                                alt="{{ $category->getTranslation('name') }}">
 
-                {{-- Add to Inquiry Button - Top Right --}}
-                <div class="add-inquiry-wrap">
-                    <button type="button"
-                            class="add-inquiry-btn js-add-category"
-                            data-id="{{ $category->id }}"
-                            data-name="{{ $category->getTranslation('name') }}"
-                            title="Add to Inquiry">
-<span class="icon icon-plus">+</span>
-<span class="icon icon-check"></span>
-                    </button>
-                </div>
+                                            {{-- Add to Inquiry Button - Top Right --}}
+                                            <div class="add-inquiry-wrap">
+                                                <button type="button" class="add-inquiry-btn js-add-category"
+                                                    data-id="{{ $category->id }}"
+                                                    data-name="{{ $category->getTranslation('name') }}"
+                                                    title="Add to Inquiry">
+                                                    <span class="icon icon-plus">+</span>
+                                                    <span class="icon icon-check"></span>
+                                                    <span class="btn-text">Add to Inquiry</span>
+                                                </button>
+                                            </div>
 
-                {{-- Category Title - Bottom Left --}}
-                <div class="category-title">
-                    <h5>{{ $category->getTranslation('name') }}</h5>
-                </div>
-            </div>
+                                            {{-- Category Title - Bottom Left --}}
+                                            <div class="category-title">
+                                                <h5>{{ $category->getTranslation('name') }}</h5>
+                                            </div>
+                                        </div>
 
-        </a>
-    </div>
-@endforeach
+                                    </a>
+                                </div>
+                            @endforeach
 
                         </div>
                     </div>
@@ -1509,8 +1593,10 @@
                 // Try to add Main Category (level 0) from the accordion section
                 if ($activeLi.length) {
                     const $mainItem = $activeLi.closest('.main-category-item');
-                    const mainName = ($mainItem.find('> .main-category-header .main-category-name').first().text() || '').trim();
-                    const mainHref = $mainItem.find('> .main-category-header .main-category-name').first().attr('href');
+                    const mainName = ($mainItem.find('> .main-category-header .main-category-name').first()
+                        .text() || '').trim();
+                    const mainHref = $mainItem.find('> .main-category-header .main-category-name').first().attr(
+                        'href');
 
                     if (mainName && mainHref) {
                         parts.push(`<span class="breadcrumb-separator">/</span>`);
@@ -1526,7 +1612,11 @@
                     const resolvedActiveName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
                     if (resolvedActiveName) {
                         const activeHref = getSidebarLinkHref($activeLi);
-                        chain.push({ id: categoryId, name: resolvedActiveName, href: activeHref });
+                        chain.push({
+                            id: categoryId,
+                            name: resolvedActiveName,
+                            href: activeHref
+                        });
                     }
 
                     while (true) {
@@ -1549,7 +1639,11 @@
 
                         if (parentName) {
                             const parentHref = getSidebarLinkHref($parentLi);
-                            chain.push({ id: parentId, name: parentName, href: parentHref });
+                            chain.push({
+                                id: parentId,
+                                name: parentName,
+                                href: parentHref
+                            });
                         }
 
                         currentId = parentId;
@@ -1565,7 +1659,8 @@
                             parts.push(`<li class="active">${escapeHtml(item.name)}</li>`);
                         } else {
                             // Use the href from sidebar if available, otherwise construct it
-                            const href = item.href || `{{ url('/category-level2') }}/${item.id}?open=${item.id}`;
+                            const href = item.href ||
+                                `{{ url('/category-level2') }}/${item.id}?open=${item.id}`;
                             parts.push(`<li><a href="${href}">${escapeHtml(item.name)}</a></li>`);
                         }
                     });
@@ -1605,7 +1700,7 @@
 
                 // Remove all active and active-trail classes
                 $('.category-sidebar li').removeClass('active is-active-trail');
-                
+
                 // Add active class to the clicked category
                 const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`);
                 $activeLi.addClass('active');
@@ -1615,18 +1710,18 @@
                 while ($currentLi.length) {
                     const $parentUl = $currentLi.closest('ul.sub-categories, ul.sub-sub-categories');
                     if (!$parentUl.length) break;
-                    
+
                     const parentId = parseInt($parentUl.attr('data-parent-id'), 10);
                     if (!parentId) break;
-                    
+
                     const $parentLi = $(`.category-sidebar li[data-category-id="${parentId}"]`);
                     if (!$parentLi.length) break;
-                    
+
                     // Add is-active-trail to parent (but not active, since active is only for the clicked item)
                     if (!$parentLi.hasClass('active')) {
                         $parentLi.addClass('is-active-trail');
                     }
-                    
+
                     $currentLi = $parentLi;
                 }
 
@@ -1790,7 +1885,8 @@
                 e.preventDefault();
 
                 const categoryId = $(this).data('category-id');
-                const categoryName = $(this).data('category-name') || $(this).find('span').first().text() || '';
+                const categoryName = $(this).data('category-name') || $(this).find('span').first().text() ||
+                    '';
 
                 if (!categoryId) {
                     return true;
@@ -1800,28 +1896,29 @@
             });
 
             // Sidebar click: intercept product-opening links (those carrying ?open=...) to keep same page
-            $(document).on('click', '.category-sidebar a.category-link, .category-sidebar a.category-name', function(e) {
-                // allow open-in-new-tab behaviors
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-                    return true;
-                }
+            $(document).on('click', '.category-sidebar a.category-link, .category-sidebar a.category-name',
+                function(e) {
+                    // allow open-in-new-tab behaviors
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                        return true;
+                    }
 
-                const href = $(this).attr('href') || '';
-                // Only intercept links that explicitly ask to open products inline.
-                // Plain /category-level2/{id} (without open=) should navigate normally.
-                if (!href.includes('open=')) {
-                    return true;
-                }
+                    const href = $(this).attr('href') || '';
+                    // Only intercept links that explicitly ask to open products inline.
+                    // Plain /category-level2/{id} (without open=) should navigate normally.
+                    if (!href.includes('open=')) {
+                        return true;
+                    }
 
-                const $li = $(this).closest('li[data-category-id]');
-                const categoryId = $li.data('category-id');
-                const categoryName = $(this).find('span').first().text() || $(this).text().trim();
+                    const $li = $(this).closest('li[data-category-id]');
+                    const categoryId = $li.data('category-id');
+                    const categoryName = $(this).find('span').first().text() || $(this).text().trim();
 
-                if (!categoryId) return true;
+                    if (!categoryId) return true;
 
-                e.preventDefault();
-                openCategoryProducts(categoryId, categoryName, 1);
-            });
+                    e.preventDefault();
+                    openCategoryProducts(categoryId, categoryName, 1);
+                });
 
             // Pagination inside inline products
             $(document).on('click', '#pagination .page-btn', function(e) {
@@ -1867,15 +1964,18 @@
                     success: function(data) {
                         if (data && data.status === 1) {
                             if (data.cart_count !== undefined) {
-                                const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                                const c = (data.cart_count === undefined || data.cart_count ===
+                                    null) ? 0 : data.cart_count;
                                 $('.cart-count').html(c).attr('data-count', c);
                             }
                             if (typeof flashHeaderCartSuccess === 'function') {
                                 flashHeaderCartSuccess();
                             }
                             try {
-                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
-                                    AIZ.plugins.notify('success', (activeCategoryName || '') + " {{ translate('added to inquiry') }}");
+                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ
+                                    .plugins.notify === 'function') {
+                                    AIZ.plugins.notify('success', (activeCategoryName || '') +
+                                        " {{ translate('added to inquiry') }}");
                                 }
                             } catch (err) {}
                         }
@@ -1949,62 +2049,67 @@
             });
         });
     </script>
-    <script>// Add category to Inquiry (Ajax) - prevent navigation
-document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.js-add-category');
-    if (!btn) return;
+    <script>
+        // Add category to Inquiry (Ajax) - prevent navigation
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.js-add-category');
+            if (!btn) return;
 
-    // stop the <a> click and any handlers that open category products
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
+            // stop the <a> click and any handlers that open category products
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
 
-    if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
+            if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
 
-    const categoryId = btn.getAttribute('data-id');
-    const categoryName = btn.getAttribute('data-name') || '';
+            const categoryId = btn.getAttribute('data-id');
+            const categoryName = btn.getAttribute('data-name') || '';
 
-    btn.dataset.loading = "1";
+            btn.dataset.loading = "1";
 
-    $.ajax({
-        type: "POST",
-        url: "{{ route('cart.addCategoryToCart') }}",
-        data: {
-            _token: "{{ csrf_token() }}",
-            category_id: categoryId
-        },
-        success: function(data) {
-            if (data && data.status === 1) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cart.addCategoryToCart') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status === 1) {
 
-                if (data.cart_count !== undefined) {
-                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
-                    $('.cart-count').html(c).attr('data-count', c);
+                        if (data.cart_count !== undefined) {
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 :
+                                data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
+                        }
+
+                        // mark as added
+                        btn.classList.add('added');
+                        btn.setAttribute('disabled', 'disabled');
+
+                        if (data.message === 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName +
+                                " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName +
+                                " {{ translate('added to inquiry') }}");
+                        }
+
+                    } else {
+                        AIZ.plugins.notify('danger', (data && data.message) ? data.message :
+                            "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function() {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                },
+                complete: function() {
+                    btn.dataset.loading = "0";
                 }
-                if (typeof flashHeaderCartSuccess === 'function') {
-                    flashHeaderCartSuccess();
-                }
-
-                // mark as added
-                btn.classList.add('added');
-                btn.setAttribute('disabled', 'disabled');
-
-                if (data.message === 'Category already in cart') {
-                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-                } else {
-                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
-                }
-
-            } else {
-                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
-            }
-        },
-        error: function() {
-            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-        },
-        complete: function() {
-            btn.dataset.loading = "0";
-        }
-    });
-}, true);
-</script>
+            });
+        }, true);
+    </script>
 @endsection

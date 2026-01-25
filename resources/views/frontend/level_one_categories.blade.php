@@ -1,5 +1,7 @@
 @extends('frontend.layouts.app')
 
+@section('meta_title', 'Level One Categories')
+
 @php
     use App\Models\Category;
 
@@ -26,83 +28,129 @@
 @endphp
 
 <style>
-    .add-inquiry-btn .icon-check{ display:none; }
-.add-inquiry-btn.added .icon-plus{ display:none; }
-.add-inquiry-btn.added .icon-check{
-    display:block;
-    color:#fff;
-    font-size:18px;
-    font-weight:700;
-}
-.add-inquiry-btn.added .icon-check::before{ content:"✓"; }
+    .add-inquiry-btn .icon-check {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-plus {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-check {
+        display: block;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .add-inquiry-btn.added .icon-check::before {
+        content: "✓";
+    }
 
     /* ===== Add to Inquiry button on cards ===== */
-.add-inquiry-wrap{
-    position:absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 6; /* أعلى من overlay */
-}
+    .add-inquiry-wrap {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 6;
+    }
 
-.add-inquiry-btn{
-    width: 40px;
-    height: 40px;
-    background: #0891B2;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
+    .add-inquiry-btn {
+        width: 40px;
+        height: 40px;
+        background: #0891B2;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+        transition: all .3s ease;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 0;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .add-inquiry-btn .icon {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1;
+        pointer-events: none;
+        flex-shrink: 0;
+        transition: all .3s ease;
+    }
 
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-    transition: transform .18s cubic-bezier(.2,.8,.2,1),
-                box-shadow .18s ease,
-                background .18s ease;
-}
+    .add-inquiry-btn .btn-text {
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        font-size: 13px;
+        font-weight: 600;
+        margin-left: 0;
+        color: #fff;
+        transition: all .3s ease;
+    }
 
-.add-inquiry-btn .icon{
-    color:#fff;
-    font-size:22px;
-    font-weight:700;
-    line-height:1;
-    pointer-events:none;
-}
+    /* Hover – expand button */
+    .add-inquiry-btn:hover {
+        width: auto;
+        padding: 0 16px;
+        background: #0E7490;
+        transform: scale(1.05);
+        box-shadow: 0 8px 22px rgba(8, 145, 178, .45), 0 0 0 4px rgba(8, 145, 178, .25);
+    }
 
-/* يبان بوضوح انه button */
-.add-inquiry-btn:hover{
-    background:#0E7490;
-    transform: scale(1.08);
-    box-shadow:
-        0 8px 22px rgba(8,145,178,.45),
-        0 0 0 4px rgba(8,145,178,.25);
-}
+    .add-inquiry-btn:hover .btn-text {
+        max-width: 150px;
+        opacity: 1;
+        margin-left: 8px;
+    }
 
-.add-inquiry-btn:active{
-    transform: scale(0.95);
-}
+    .add-inquiry-btn:hover .icon {
+        transform: scale(1.1);
+    }
 
-/* Added state */
-.add-inquiry-btn.added{
-    background:#16a34a;
-    cursor: default;
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-}
+    .add-inquiry-btn:active {
+        transform: scale(0.95);
+    }
 
-.add-inquiry-btn.added .icon{
-    font-size:18px;
-}
+    /* Added state */
+    .add-inquiry-btn.added {
+        background: #16a34a;
+        cursor: default;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+        width: 40px;
+        padding: 0;
+    }
 
-.add-inquiry-btn.added .icon::before{
-    content:"✓";
-}
+    .add-inquiry-btn.added:hover {
+        width: 40px;
+        padding: 0;
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
 
-/* لو اتعمل disable */
-.add-inquiry-btn:disabled{
-    opacity:.9;
-    cursor: not-allowed;
-}
+    .add-inquiry-btn.added .btn-text {
+        max-width: 0;
+        opacity: 0;
+        margin-left: 0;
+    }
+
+    .add-inquiry-btn.added .icon {
+        font-size: 18px;
+    }
+
+    .add-inquiry-btn.added .icon::before {
+        content: "✓";
+    }
+
+    /* لو اتعمل disable */
+    .add-inquiry-btn:disabled {
+        opacity: .9;
+        cursor: not-allowed;
+    }
 
     .category-page {
         background: #f8f9fa;
@@ -313,17 +361,17 @@
         padding-left: 0;
     }
 
-    .main-category-children .parent-category-list.main-level0 > li {
+    .main-category-children .parent-category-list.main-level0>li {
         margin-bottom: 14px;
     }
 
-    .main-category-children .parent-category-list.main-level0 > li:last-child {
+    .main-category-children .parent-category-list.main-level0>li:last-child {
         margin-bottom: 0;
     }
 
     /* Roomier rows specifically for main-level0 items */
-    .main-category-children .parent-category-list.main-level0 > li > .category-header,
-    .main-category-children .parent-category-list.main-level0 > li > a.category-link {
+    .main-category-children .parent-category-list.main-level0>li>.category-header,
+    .main-category-children .parent-category-list.main-level0>li>a.category-link {
         padding: 16px 18px;
     }
 
@@ -522,7 +570,7 @@
     }
 
     /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
-    .category-cards-grid > [class*="col-"] {
+    .category-cards-grid>[class*="col-"] {
         margin-bottom: 28px;
     }
 
@@ -581,7 +629,7 @@
         color: rgba(255, 255, 255, 0.9);
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
         max-width: 320px;
-        white-space: normal;       /* allow wrapping */
+        white-space: normal;
         overflow: visible;
         text-overflow: clip;
         word-break: break-word;
@@ -593,6 +641,7 @@
         text-decoration: none;
         cursor: pointer;
     }
+
     .category-card .category-subline a.category-subline-link:hover {
         text-decoration: underline;
         color: #fff;
@@ -805,6 +854,11 @@
 
         .col-md-6 {
             width: 50%;
+        }
+
+        /* Mobile: Always show buttons */
+        .add-inquiry-wrap {
+            opacity: 1;
         }
     }
 
@@ -1038,8 +1092,7 @@
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <h1>
-                    <span class="explore">Explore</span>
-                    {{ $heroCategory?->getTranslation('name') ?? 'Categories' }}
+                    <span class="explore">Explore</span>{{ $heroCategory?->getTranslation('name') ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -1230,25 +1283,27 @@
                                                 <div class="cart-icon">
                                                     <i class="fas fa-shopping-basket"></i>
                                                 </div>
-<div class="add-inquiry-wrap">
-    <button type="button"
-            class="add-inquiry-btn js-add-category"
-            data-id="{{ $subCategory->id }}"
-            data-name="{{ $subCategory->getTranslation('name') }}"
-            title="Add to Inquiry">
-        <span class="icon icon-plus">+</span>
-<span class="icon icon-check"></span>
-
-    </button>
-</div>
+                                                <div class="add-inquiry-wrap">
+                                                    <button type="button" class="add-inquiry-btn js-add-category"
+                                                        data-id="{{ $subCategory->id }}"
+                                                        data-name="{{ $subCategory->getTranslation('name') }}"
+                                                        title="Add to Inquiry">
+                                                        <span class="icon icon-plus">+</span>
+                                                        <span class="icon icon-check"></span>
+                                                        <span class="btn-text">Add to Inquiry</span>
+                                                    </button>
+                                                </div>
 
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
                                                     @php
-                                                        $cardChildren = $subCategory->childrenCategories ?? ($subCategory->categories ?? collect());
-                                                        $cardChildren = $cardChildren instanceof \Illuminate\Support\Collection
-                                                            ? $cardChildren->take(4)
-                                                            : collect($cardChildren)->take(4);
+                                                        $cardChildren =
+                                                            $subCategory->childrenCategories ??
+                                                            ($subCategory->categories ?? collect());
+                                                        $cardChildren =
+                                                            $cardChildren instanceof \Illuminate\Support\Collection
+                                                                ? $cardChildren->take(4)
+                                                                : collect($cardChildren)->take(4);
                                                     @endphp
                                                     @if ($cardChildren->count() > 0)
                                                         <div class="category-subline">
@@ -1256,8 +1311,11 @@
                                                                 <a class="category-subline-link"
                                                                     href="{{ route('categories.level2', $child->id) }}"
                                                                     onclick="event.stopPropagation();">
-                                                                    {{ method_exists($child, 'getTranslation') ? $child->getTranslation('name') : ($child->name ?? '') }}
-                                                                </a>@if(!$loop->last)<span class="category-subline-sep"> / </span>@endif
+                                                                    {{ method_exists($child, 'getTranslation') ? $child->getTranslation('name') : $child->name ?? '' }}
+                                                                </a>
+                                                                @if (!$loop->last)
+                                                                    <span class="category-subline-sep"> / </span>
+                                                                @endif
                                                             @endforeach
                                                         </div>
                                                     @endif
@@ -1456,60 +1514,62 @@
 
 
         // Add category to Inquiry (Ajax) - prevent card navigation
-document.addEventListener('click', function(e){
-    const btn = e.target.closest('.js-add-category');
-    if(!btn) return;
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.js-add-category');
+            if (!btn) return;
 
-    e.preventDefault();
-    e.stopPropagation();   // يمنع onclick بتاع الكارد
-    e.stopImmediatePropagation();
+            e.preventDefault();
+            e.stopPropagation(); // يمنع onclick بتاع الكارد
+            e.stopImmediatePropagation();
 
-    if(btn.classList.contains('added') || btn.dataset.loading === "1") return;
+            if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
 
-    const categoryId = btn.getAttribute('data-id');
-    const categoryName = btn.getAttribute('data-name');
+            const categoryId = btn.getAttribute('data-id');
+            const categoryName = btn.getAttribute('data-name');
 
-    btn.dataset.loading = "1";
+            btn.dataset.loading = "1";
 
-    $.ajax({
-        type: "POST",
-        url: "{{ route('cart.addCategoryToCart') }}",
-        data: {
-            _token: "{{ csrf_token() }}",
-            category_id: categoryId
-        },
-        success: function (data) {
-            if (data && data.status === 1) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cart.addCategoryToCart') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status === 1) {
 
-                if (data.cart_count !== undefined) {
-                    const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
-                    $('.cart-count').html(c).attr('data-count', c);
+                        if (data.cart_count !== undefined) {
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 :
+                                data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
+                        }
+
+                        btn.classList.add('added');
+                        btn.setAttribute('disabled', 'disabled');
+
+                        if (data.message === 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName +
+                                " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName +
+                                " {{ translate('added to inquiry') }}");
+                        }
+
+                    } else {
+                        AIZ.plugins.notify('danger', (data && data.message) ? data.message :
+                            "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function() {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                },
+                complete: function() {
+                    btn.dataset.loading = "0";
                 }
-                if (typeof flashHeaderCartSuccess === 'function') {
-                    flashHeaderCartSuccess();
-                }
-
-                btn.classList.add('added');
-                btn.setAttribute('disabled', 'disabled');
-
-                if (data.message === 'Category already in cart') {
-                    AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-                } else {
-                    AIZ.plugins.notify('success', categoryName + " {{ translate('added to inquiry') }}");
-                }
-
-            } else {
-                AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
-            }
-        },
-        error: function () {
-            AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-        },
-        complete: function () {
-            btn.dataset.loading = "0";
-        }
-    });
-}, true);
-
+            });
+        }, true);
     </script>
-@endsection

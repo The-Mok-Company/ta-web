@@ -1,5 +1,8 @@
 @extends('frontend.layouts.app')
 
+@section('meta_title', 'Product Listing')
+
+
 @php
     $form_all_preorder_page = session('preorder_all_page');
     session()->forget('preorder_all_page');
@@ -146,8 +149,8 @@
         }
 
         /* =======================
-                                                                                                           CATEGORY SIDEBAR (LIKE IMAGE)
-                                                                                                        ======================= */
+                                                                                                               CATEGORY SIDEBAR (LIKE IMAGE)
+                                                                                                            ======================= */
 
         .category-list {
             list-style: none;
@@ -198,8 +201,8 @@
         }
 
         /* =======================
-                                                                                                           CHILDREN
-                                                                                                        ======================= */
+                                                                                                               CHILDREN
+                                                                                                            ======================= */
 
         .category-children {
             list-style: none;
@@ -229,8 +232,8 @@
         }
 
         /* =======================
-                                                                                                           SUB CHILD
-                                                                                                        ======================= */
+                                                                                                               SUB CHILD
+                                                                                                            ======================= */
 
         .category-children .category-children {
             padding-left: 12px;

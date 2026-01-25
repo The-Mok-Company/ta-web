@@ -138,23 +138,41 @@
         color: #fff;
 
         display: flex;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
+        gap: 0;
 
         z-index: 5;
         cursor: pointer;
 
         opacity: 0;
-        transform: scale(.96);
-        transition: opacity .2s ease, transform .2s ease, background .2s ease, box-shadow .2s ease;
+        transform: scale(.85);
+        transition: opacity .3s ease, transform .3s ease, background .3s ease, box-shadow .3s ease, width .3s ease, border-radius .3s ease, gap .3s ease;
         box-shadow: 0 2px 10px rgba(0, 0, 0, .20);
         overflow: hidden;
+        white-space: nowrap;
     }
 
     @media (hover:hover) and (pointer:fine) {
         .category-card-new:hover .category-add-btn {
             opacity: 1;
             transform: scale(1);
+        }
+
+        .category-card-new:hover .category-add-btn:hover {
+            width: auto;
+            padding: 0 16px;
+            border-radius: 25px;
+            background: #0E7490;
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+            gap: 6px;
+        }
+
+        .category-card-new:hover .category-add-btn:hover .btn-text {
+            opacity: 1;
+            max-width: 150px;
         }
     }
 
@@ -165,18 +183,22 @@
         }
     }
 
-    .category-card-new .category-add-btn:hover {
-        background: #0E7490;
-        transform: scale(1.08);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
-    }
-
     .category-card-new .category-add-btn:active {
-        transform: scale(.98);
+        transform: scale(.95);
     }
 
     .category-card-new .category-add-btn:focus-visible {
         box-shadow: 0 0 0 4px rgba(8, 145, 178, .25), 0 2px 10px rgba(0, 0, 0, .20);
+    }
+
+    .category-card-new .category-add-btn .btn-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        width: 25px;
+        height: 25px;
+        flex-shrink: 0;
     }
 
     .category-card-new .category-add-btn .btn-plus,
@@ -184,14 +206,25 @@
         position: absolute;
         transition: opacity .18s ease, transform .18s ease;
         pointer-events: none;
+        font-size: 25px;
+        line-height: 1;
     }
 
     .category-card-new .category-add-btn .btn-tick {
         font-size: 18px;
         font-weight: 900;
-        line-height: 1;
         opacity: 0;
         transform: scale(.85);
+    }
+
+    .category-card-new .category-add-btn .btn-text {
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        max-width: 0;
+        overflow: hidden;
+        transition: opacity .3s ease, max-width .3s ease;
+        flex-shrink: 0;
     }
 
     .category-card-new .category-add-btn.added .btn-tick {
@@ -241,6 +274,10 @@
         .category-card-new {
             flex: 0 0 calc(50% - 10px);
             height: clamp(180px, 35vw, 220px);
+        }
+
+        .category-card-new .category-add-btn .btn-text {
+            display: none;
         }
     }
 
@@ -332,8 +369,11 @@
                         <button type="button" class="category-add-btn js-add-category" data-id="{{ $category->id }}"
                             data-name="{{ $categoryName }}" title="{{ translate('Add to Inquiry') }}"
                             aria-label="Add to Inquiry">
-                            <span class="btn-plus" style="font-size: 25px;">+</span>
-                            <span class="btn-tick">✓</span>
+                            <div class="btn-icon-wrapper">
+                                <span class="btn-plus">+</span>
+                                <span class="btn-tick">✓</span>
+                            </div>
+                            <span class="btn-text">{{ translate('Add to Inquiry') }}</span>
                         </button>
 
                         <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
@@ -466,4 +506,3 @@
         }
     });
 </script>
-
