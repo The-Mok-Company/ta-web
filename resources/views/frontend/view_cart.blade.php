@@ -1252,12 +1252,17 @@
                     qty = (isNaN(parsed) || parsed < 1) ? 1 : parsed;
                 }
 
+                // note for this item
+                var noteEl = document.getElementById('note-' + cartId);
+                var itemNote = noteEl ? noteEl.value.trim() : '';
+
                 items.push({
                     cart_id: String(cartId),
                     type: String(type || ''),
                     product_id: productId ? parseInt(productId, 10) : null,
                     category_id: categoryId ? parseInt(categoryId, 10) : null,
-                    quantity: qty
+                    quantity: qty,
+                    note: itemNote
                 });
             });
 

@@ -14,6 +14,7 @@ class Inquiry extends Model
         'user_id',
         'admin_id',
         'note',
+        'user_note',
         'status',
         'products_total',
         'categories_total',

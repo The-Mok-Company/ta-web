@@ -17,6 +17,7 @@ class InquiryItem extends Model
         'quantity',
         'unit',
         'note',
+        'user_note',
     ];
 
     public function inquiry()
