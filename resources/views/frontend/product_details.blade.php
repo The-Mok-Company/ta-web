@@ -348,23 +348,14 @@
                         </div>
 
                         @if ($detailedProduct->auction_product)
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')
                         @else
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')
@@ -457,9 +448,6 @@
         <section class="mb-4">
             <div class="container" >
                 @if ($detailedProduct->auction_product)
-                    <!-- Reviews & Ratings -->
-                    @include('frontend.product_details.review_section')
-
                     <!-- Description, Video, Downloads -->
                     @include('frontend.product_details.description')
 
@@ -478,14 +466,8 @@
                         <!-- Right side -->
                         <div class="col-lg-9">
 
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')
