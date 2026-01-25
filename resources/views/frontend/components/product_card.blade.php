@@ -212,65 +212,74 @@
             flex-direction: column;
             gap: clamp(6px, 1vw, 8px);
             opacity: 0;
-            transform: translateX(10px);
-            transition: all .3s ease;
+            transition: opacity .25s ease;
         }
         .product-card:hover .featured-action-icons {
             opacity: 1;
-            transform: translateX(0);
         }
         .product-card .featured-action-btn {
             width: clamp(32px, 4vw, 36px);
             height: clamp(32px, 4vw, 36px);
-            border-radius: 50px;
+            border-radius: 50%;
             border: none;
             background: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all .3s ease;
+            transition: box-shadow .2s ease, background .2s ease, color .2s ease;
             box-shadow: 0 2px 6px rgba(0,0,0,.1);
             color: #6c757d;
             position: relative;
-            overflow: hidden;
-            white-space: nowrap;
+            flex-shrink: 0;
+            overflow: visible; /* allow hover label */
         }
         .product-card .featured-action-btn svg {
             width: clamp(14px, 2vw, 16px);
             height: clamp(14px, 2vw, 16px);
             flex-shrink: 0;
-            transition: all .3s ease;
         }
         .product-card .featured-action-btn .btn-text {
-            max-width: 0;
+            position: absolute;
+            top: 50%;
+            right: calc(100% + 8px);
+            transform: translateY(-50%) translateX(6px);
             opacity: 0;
-            overflow: hidden;
-            font-size: clamp(11px, 1.5vw, 13px);
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 12px;
             font-weight: 600;
-            margin-left: 0;
-            transition: all .3s ease;
+            line-height: 1;
+            white-space: nowrap;
+            pointer-events: none; /* avoid hover flicker */
+            transition: opacity .18s ease, transform .18s ease;
+            background: #111;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,.14);
         }
-        .product-card .featured-action-btn:hover {
-            width: auto;
-            padding: 0 clamp(12px, 2vw, 16px);
-            border-radius: 50px;
-        }
-        .product-card .featured-action-btn:hover .btn-text {
-            max-width: 150px;
+        .product-card .featured-action-btn:hover .btn-text,
+        .product-card .featured-action-btn:focus-visible .btn-text {
             opacity: 1;
-            margin-left: clamp(6px, 1vw, 8px);
+            transform: translateY(-50%) translateX(0);
         }
 
         .product-card .featured-inquiry-btn {
             background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(33, 150, 243, 0.25);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
         }
         .product-card .featured-inquiry-btn:hover {
             background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
+        }
+        .product-card .featured-inquiry-btn .btn-text {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #ffffff;
             box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
-            transform: scale(1.05);
+        }
+        .product-card .featured-inquiry-btn:hover .btn-text,
+        .product-card .featured-inquiry-btn:focus-visible .btn-text {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
         }
         .product-card .featured-inquiry-btn .icon-check { display: none; }
         .product-card .featured-inquiry-btn.is-added .icon-default { display: none; }
@@ -314,7 +323,7 @@
         .product-card .featured-badge-wholesale { background: #495057; color: #fff; }
 
         @media (max-width: 768px) {
-            .product-card .featured-action-icons { opacity: 1; transform: translateX(0); }
+            .product-card .featured-action-icons { opacity: 1; }
         }
     </style>
 

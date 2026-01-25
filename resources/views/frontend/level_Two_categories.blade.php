@@ -70,7 +70,7 @@
     .add-inquiry-btn {
         width: 40px;
         height: 40px;
-        background: #0891B2;
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         border-radius: 50px;
         border: none;
         cursor: pointer;
@@ -109,7 +109,7 @@
     .add-inquiry-btn:hover {
         width: auto;
         padding: 0 16px;
-        background: #0E7490;
+        background: #5FB3F6;
         transform: scale(1.05);
         box-shadow: 0 8px 22px rgba(8, 145, 178, .45), 0 0 0 4px rgba(8, 145, 178, .25);
     }
@@ -1179,7 +1179,7 @@
         padding: 0 14px;
         border-radius: 8px;
         border: none;
-        background: #0891B2;
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         color: #fff;
         font-size: 13px;
         font-weight: 600;
@@ -1192,7 +1192,7 @@
     }
 
     .btn-add-inquiry:hover {
-        background: #0E7490;
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         transform: translateY(-1px);
         box-shadow: 0 8px 22px rgba(8, 145, 178, .25);
     }

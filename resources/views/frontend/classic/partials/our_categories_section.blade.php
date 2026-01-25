@@ -133,7 +133,7 @@
         height: clamp(36px, 5vw, 42px);
         border-radius: 50%;
 
-        background: #0891B2;
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         border: none;
         color: #fff;
 
@@ -164,7 +164,7 @@
             width: auto;
             padding: 0 16px;
             border-radius: 25px;
-            background: #0E7490;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             transform: scale(1.05);
             box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
             gap: 6px;

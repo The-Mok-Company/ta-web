@@ -5,8 +5,8 @@
 
     <style>
         :root {
-            --primary-color: #0891B2;
-            --primary-hover: #0E7490;
+            --primary-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
+            --primary-hover: #5FB3F6;
         }
 
         /* ✅ IMPORTANT: do NOT target all .container.py-4 globally (it breaks other sections) */
@@ -52,7 +52,7 @@
             height: 40px;
             border-radius: 50%;
             border: 0;
-            background: #0891B2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: #fff;
             font-weight: 700;
             font-size: 18px;
@@ -63,7 +63,7 @@
         }
 
         .qty-btn:hover {
-            background: #0E7490;
+            background: #5FB3F6;
             transform: scale(1.05);
         }
 
@@ -87,7 +87,7 @@
         }
 
         .note-input:focus {
-            border-color: #0891B2;
+            border-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             box-shadow: 0 0 0 3px rgba(8, 145, 178, .1);
         }
 
@@ -122,7 +122,7 @@
         }
 
         .pill.bg-primary {
-            background: #0891B2 !important;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); !important;
         }
 
         .avatar {
@@ -144,14 +144,14 @@
             height: 56px;
             border-radius: 14px;
             font-weight: 700;
-            background: #0891B2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             border: 0;
             font-size: 16px;
             transition: all 0.3s ease;
         }
 
         .request-btn:hover {
-            background: #0E7490;
+            background: #5FB3F6;
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(8, 145, 178, .3);
         }
@@ -168,7 +168,7 @@
         }
 
         .product-category {
-            color: #0891B2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             font-weight: 600;
             font-size: 13px;
         }
@@ -207,14 +207,14 @@
         }
 
         .edit-link {
-            color: #0891B2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             font-weight: 700;
             font-size: 13px;
             text-decoration: none;
         }
 
         .edit-link:hover {
-            color: #0E7490;
+            color: #5FB3F6;
             text-decoration: underline;
         }
 
@@ -393,7 +393,7 @@
         }
 
         .header-icon.main {
-            background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+            background: linear-gradient(135deg, linear-gradient(135deg, #1976D2 0%, #1565C0 100%); 0%, #5FB3F6 100%);
         }
 
         .header-icon.sub {
@@ -503,7 +503,7 @@
         }
 
         .main-bullet {
-            background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+            background: linear-gradient(135deg, linear-gradient(135deg, #1976D2 0%, #1565C0 100%); 0%, #5FB3F6 100%);
             box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
         }
 

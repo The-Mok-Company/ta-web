@@ -178,7 +178,7 @@
         .inquiry-details .products-count {
             font-size: 12px;
             font-weight: 500;
-            color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             margin: 0 0 8px 0;
         }
 
@@ -218,12 +218,12 @@
         }
 
         .btn-price {
-            background-color: #0891b2;
+            background-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
         }
 
         .btn-price:hover {
-            background-color: #0e7490;
+            background-color: #5FB3F6;
         }
 
         .btn-status.ongoing {

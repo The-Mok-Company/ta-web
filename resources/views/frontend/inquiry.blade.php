@@ -266,12 +266,12 @@
         }
 
         .tab.active {
-            color: #0891b2;
-            border-bottom-color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
+            border-bottom-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         .tab:hover {
-            color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         /* Main Content */
@@ -344,7 +344,7 @@
 
         .item-category {
             font-size: 12px;
-            color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             margin: 0 0 8px 0;
         }
 
@@ -446,7 +446,7 @@
 
         /* Admin Message */
         .admin-message {
-            background: #0891b2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
             align-self: flex-start;
         }
@@ -551,7 +551,7 @@
 
         .chat-input:focus {
             outline: none;
-            border-color: #0891b2;
+            border-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         .chat-input::placeholder {
@@ -562,7 +562,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #0891b2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             border: none;
             color: white;
             cursor: pointer;
@@ -574,7 +574,7 @@
         }
 
         .send-button:hover {
-            background: #0e7490;
+            background: #5FB3F6;
             transform: scale(1.05);
         }
 
@@ -686,22 +686,22 @@
         }
 
         .btn-price {
-            background-color: #0891b2;
+            background-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
             margin-top: 0;
         }
 
-        .btn-price:hover { background-color: #0e7490; }
+        .btn-price:hover { background-color: #5FB3F6; }
 
         .btn-accept {
             width: 100%;
-            background-color: #0891b2;
+            background-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
             padding: 12px;
             font-size: 14px;
         }
 
-        .btn-accept:hover { background-color: #0e7490; }
+        .btn-accept:hover { background-color: #5FB3F6; }
 
         /* Responsive */
         @media (max-width: 1024px) {
