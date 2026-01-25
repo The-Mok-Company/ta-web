@@ -76,6 +76,18 @@
         @endphp
 
         <style>
+            /* Product gallery hover zoom (reduce intensity) */
+            .product-gallery .img-zoom img,
+            .product-gallery-carousel .img-zoom img {
+                transform: none !important;
+                transition: transform 0.25s ease !important;
+                will-change: transform;
+            }
+            .product-gallery .img-zoom:hover img,
+            .product-gallery-carousel .img-zoom:hover img {
+                transform: scale(1.03) !important; /* subtle */
+            }
+
             /* Sidebar styles (aligned with category pages) */
             .category-sidebar {
                 background: #fff;
