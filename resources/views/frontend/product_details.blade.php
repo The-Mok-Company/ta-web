@@ -88,6 +88,35 @@
                 transform: scale(1.03) !important; /* subtle */
             }
 
+            /* Match category-page "Add to Inquiry" action button */
+            .btn-add-inquiry {
+                height: 40px;
+                padding: 0 14px;
+                border-radius: 8px;
+                border: none;
+                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+                color: #fff;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+                white-space: nowrap;
+            }
+            .btn-add-inquiry:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 22px rgba(33, 150, 243, 0.28);
+            }
+            .btn-add-inquiry:disabled {
+                opacity: .8;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
+
             /* Sidebar styles (aligned with category pages) */
             .category-sidebar {
                 background: #fff;

@@ -317,7 +317,7 @@
                                     }
                                 @endphp
                                 <button type="button"
-                                    class="btn btn-primary add-to-cart fw-600 min-w-150px w-75 rounded-1 text-white hov-opacity-90"
+                                    class="btn-add-inquiry add-to-cart min-w-150px w-75"
                                     data-product-id="{{ $detailedProduct->id }}"
                                     data-has-variants="{{ $detailHasVariants ? 1 : 0 }}"
                                     data-min-qty="{{ (int) $detailedProduct->min_qty }}"
@@ -357,7 +357,7 @@
                     <div class="row no-gutters mb-3">
                         <div class="col-sm-9">
                             <button type="button"
-                                class="btn btn-primary add-to-cart fw-600 min-w-150px w-100 rounded-1 text-white hov-opacity-90"
+                                class="btn-add-inquiry add-to-cart min-w-150px w-100"
                                 data-product-id="{{ $detailedProduct->id }}"
                                 data-has-variants="0"
                                 data-min-qty="1"

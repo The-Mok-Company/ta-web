@@ -791,7 +791,8 @@
                         $('.input-number').prop('max', data.max_limit);
                         if(parseInt(data.in_stock) == 0 && data.digital  == 0){
                            $('.buy-now').addClass('d-none');
-                           $('.add-to-cart').addClass('d-none');
+                           // Keep "Add to Inquiry" visible even if out of stock
+                           $('.add-to-cart').not('.btn-add-inquiry').addClass('d-none');
                            $('.out-of-stock').removeClass('d-none');
                         }
                         else{
@@ -928,6 +929,7 @@
 
                 if (btn && btn.classList && btn.classList.contains('is-loading')) return;
                 if (btn && btn.classList) btn.classList.add('is-loading');
+                if (btn && typeof btn.disabled !== 'undefined') btn.disabled = true; // match category-page behavior
 
                 // Prepare payload
                 let payload = null;
@@ -937,6 +939,7 @@
 
                     if (typeof checkAddToCartValidity === 'function' && !checkAddToCartValidity()) {
                         if (btn && btn.classList) btn.classList.remove('is-loading');
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
                         try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('warning', "{{ translate('Please choose all the options') }}"); } catch (e) {}
                         return;
                     }
@@ -970,6 +973,7 @@
                             btn.classList.add('is-added');
                             window.setTimeout(() => btn.classList.remove('is-added'), 1200);
                         }
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
 
                         try {
                             if (data?.status === 0 && data?.message && typeof AIZ !== 'undefined' && AIZ.plugins?.notify) {
@@ -981,6 +985,7 @@
                     },
                     error: function () {
                         if (btn && btn.classList) btn.classList.remove('is-loading');
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
                         try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}"); } catch (e) {}
                     }
                 });
