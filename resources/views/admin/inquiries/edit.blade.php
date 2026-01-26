@@ -17,6 +17,10 @@
         color: white;
         border-radius: 12px 12px 0 0 !important;
         padding: 1rem 1.5rem;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
     }
     .inquiry-card .card-header.products-header {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -140,6 +144,7 @@
         justify-content: center;
         transition: all 0.2s;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 2;
     }
     .delete-btn:hover {
         background: #e53e3e;
@@ -147,33 +152,23 @@
         transform: scale(1.1);
     }
     .undo-btn {
-        background: #48bb78;
-        color: white;
+        background: #48bb78 !important;
+        color: white !important;
     }
     .undo-btn:hover {
-        background: #38a169;
-        color: white;
+        background: #38a169 !important;
+        color: white !important;
     }
     .quantity-input {
-        width: 80px;
+        width: 90px;
         text-align: center;
         font-weight: 600;
         border-radius: 8px;
     }
     .unit-input {
-        width: 100px;
+        width: 120px;
         border-radius: 8px;
     }
-    .status-badge {
-        padding: 8px 16px;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 13px;
-    }
-    .status-pending { background: #fef3c7; color: #92400e; }
-    .status-processing { background: #dbeafe; color: #1e40af; }
-    .status-completed { background: #d1fae5; color: #065f46; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
     .summary-card {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         color: white;
@@ -266,6 +261,21 @@
         color: #0369a1;
         margin-bottom: 3px;
     }
+
+    .btn-add-mini{
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .btn-add-mini:hover{
+        background: rgba(255,255,255,0.28);
+        color:#fff;
+    }
 </style>
 
 <div class="aiz-titlebar text-left mt-2 mb-3">
@@ -292,10 +302,12 @@
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
+
             <!-- Inquiry Info Card -->
             <div class="card inquiry-card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="las la-info-circle mr-2"></i>{{ translate('Inquiry Information') }}</h5>
+                    <div></div>
                 </div>
                 <div class="card-body p-4">
                     <div class="row">
@@ -315,6 +327,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="text-muted small">{{ translate('Status') }}</label>
                             <select name="status" class="form-control mt-1" style="border-radius: 8px;">
@@ -324,6 +337,7 @@
                                 <option value="cancelled" {{ $inquiry->status == 'cancelled' ? 'selected' : '' }}>{{ translate('Cancelled') }}</option>
                             </select>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="text-muted small">{{ translate('Created') }}</label>
                             <div class="mt-1">
@@ -333,6 +347,7 @@
                                 {{ $inquiry->created_at->format('h:i A') }}
                             </div>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="text-muted small">{{ translate('Last Updated') }}</label>
                             <div class="mt-1">
@@ -340,6 +355,7 @@
                                 {{ $inquiry->updated_at->diffForHumans() }}
                             </div>
                         </div>
+
                         @if($inquiry->user_note)
                             <div class="col-12 mb-3">
                                 <div class="user-note-card">
@@ -348,6 +364,7 @@
                                 </div>
                             </div>
                         @endif
+
                         <div class="col-12">
                             <label class="text-muted small">{{ translate('Admin Note') }}</label>
                             <textarea name="note" class="form-control mt-1" rows="2" style="border-radius: 8px;" placeholder="{{ translate('Add internal notes about this inquiry...') }}">{{ $inquiry->note }}</textarea>
@@ -365,20 +382,34 @@
                             {{ $inquiry->items->where('type', 'product')->count() }}
                         </span>
                     </h5>
+
+                    <button type="button" class="btn-add-mini" id="btn-add-product">
+                        <i class="las la-plus"></i> {{ translate('Add Product') }}
+                    </button>
                 </div>
+
                 <div class="card-body p-4" id="products-container">
                     @php $productIndex = 0; @endphp
+
                     @forelse($inquiry->items->where('type', 'product') as $item)
+                        @php
+                            // ✅ fallback للعرض فقط: لو price null -> unit_price
+                            $displayPrice = $item->price;
+                            if (is_null($displayPrice) || (float)$displayPrice <= 0) {
+                                $displayPrice = optional($item->product)->unit_price ?? 0;
+                            }
+                        @endphp
+
                         <div class="item-card product-item" data-item-id="{{ $item->id }}">
                             <span class="item-number">{{ ++$productIndex }}</span>
                             <button type="button" class="delete-btn" onclick="toggleDelete(this)" title="{{ translate('Delete') }}">
                                 <i class="las la-times"></i>
                             </button>
 
-                            <input type="hidden" name="items[{{ $loop->parent->index ?? $item->id }}][id]" value="{{ $item->id }}">
-                            <input type="hidden" name="items[{{ $loop->parent->index ?? $item->id }}][type]" value="product">
-                            <input type="hidden" name="items[{{ $loop->parent->index ?? $item->id }}][product_id]" value="{{ $item->product_id }}">
-                            <input type="hidden" name="items[{{ $loop->parent->index ?? $item->id }}][_delete]" value="0" class="delete-flag">
+                            <input type="hidden" name="items[{{ $item->id }}][id]" value="{{ $item->id }}">
+                            <input type="hidden" name="items[{{ $item->id }}][type]" value="product">
+                            <input type="hidden" name="items[{{ $item->id }}][product_id]" value="{{ $item->product_id }}">
+                            <input type="hidden" name="items[{{ $item->id }}][_delete]" value="0" class="delete-flag">
 
                             <div class="d-flex">
                                 <!-- Product Image -->
@@ -388,9 +419,7 @@
                                              alt="{{ $item->product->name }}"
                                              onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                     @else
-                                        <div class="no-image">
-                                            <i class="las la-image"></i>
-                                        </div>
+                                        <div class="no-image"><i class="las la-image"></i></div>
                                     @endif
                                 </div>
 
@@ -401,12 +430,17 @@
                                     </div>
 
                                     <div class="item-meta mb-2">
-                                        @if($item->product)
-                                            <span class="item-meta-badge">
-                                                <i class="las la-tag"></i>
-                                                {{ number_format($item->product->unit_price ?? 0, 2) }} {{ translate('EGP') }}
-                                            </span>
-                                        @endif
+                                        <span class="item-meta-badge">
+                                            <i class="las la-money-bill"></i>
+                                            {{ translate('Price') }}:
+                                            <strong class="item-price-text">{{ number_format((float)($displayPrice ?? 0), 2) }}</strong> {{ translate('EGP') }}
+                                        </span>
+
+                                        <span class="item-meta-badge" style="background:#e6fffa;">
+                                            <i class="las la-calculator"></i>
+                                            {{ translate('Line Total') }}:
+                                            <strong class="item-line-total">0.00</strong> {{ translate('EGP') }}
+                                        </span>
                                     </div>
 
                                     @if($item->user_note)
@@ -419,18 +453,39 @@
                                     <div class="row align-items-center">
                                         <div class="col-auto">
                                             <label class="small text-muted mb-1">{{ translate('Qty') }}</label>
-                                            <input type="number" name="items[{{ $loop->parent->index ?? $item->id }}][quantity]"
-                                                   class="form-control quantity-input" value="{{ $item->quantity }}" min="0.01" step="0.01">
+                                            <input type="number"
+                                                   name="items[{{ $item->id }}][quantity]"
+                                                   class="form-control quantity-input item-qty"
+                                                   value="{{ $item->quantity }}"
+                                                   min="0.01" step="0.01">
                                         </div>
+
                                         <div class="col-auto">
                                             <label class="small text-muted mb-1">{{ translate('Unit') }}</label>
-                                            <input type="text" name="items[{{ $loop->parent->index ?? $item->id }}][unit]"
-                                                   class="form-control unit-input" value="{{ $item->unit }}" placeholder="{{ translate('pcs, kg...') }}">
+                                            <input type="text"
+                                                   name="items[{{ $item->id }}][unit]"
+                                                   class="form-control unit-input"
+                                                   value="{{ $item->unit }}"
+                                                   placeholder="{{ translate('pcs, kg...') }}">
                                         </div>
+
+                                        <div class="col-auto">
+                                            <label class="small text-muted mb-1">{{ translate('Price') }}</label>
+                                            <input type="number"
+                                                   name="items[{{ $item->id }}][price]"
+                                                   class="form-control unit-input item-price"
+                                                   value="{{ (float)($displayPrice ?? 0) }}"
+                                                   data-default-price="{{ (float)($displayPrice ?? 0) }}"
+                                                   min="0" step="0.01">
+                                        </div>
+
                                         <div class="col">
                                             <label class="small text-muted mb-1">{{ translate('Admin Note') }}</label>
-                                            <input type="text" name="items[{{ $loop->parent->index ?? $item->id }}][note]"
-                                                   class="item-note-input" value="{{ $item->note }}" placeholder="{{ translate('Add note for this item...') }}">
+                                            <input type="text"
+                                                   name="items[{{ $item->id }}][note]"
+                                                   class="item-note-input"
+                                                   value="{{ $item->note }}"
+                                                   placeholder="{{ translate('Add note for this item...') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -454,10 +509,23 @@
                             {{ $inquiry->items->where('type', 'category')->count() }}
                         </span>
                     </h5>
+
+                    <button type="button" class="btn-add-mini" id="btn-add-category">
+                        <i class="las la-plus"></i> {{ translate('Add Category') }}
+                    </button>
                 </div>
+
                 <div class="card-body p-4" id="categories-container">
                     @php $categoryIndex = 0; @endphp
+
                     @forelse($inquiry->items->where('type', 'category') as $item)
+                        @php
+                            $displayPrice = $item->price;
+                            if (is_null($displayPrice) || (float)$displayPrice <= 0) {
+                                $displayPrice = optional($item->category)->unit_price ?? 0;
+                            }
+                        @endphp
+
                         <div class="item-card category-item" data-item-id="{{ $item->id }}">
                             <span class="item-number">{{ ++$categoryIndex }}</span>
                             <button type="button" class="delete-btn" onclick="toggleDelete(this)" title="{{ translate('Delete') }}">
@@ -477,9 +545,7 @@
                                              alt="{{ $item->category->name }}"
                                              onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                     @else
-                                        <div class="no-image">
-                                            <i class="las la-folder"></i>
-                                        </div>
+                                        <div class="no-image"><i class="las la-folder"></i></div>
                                     @endif
                                 </div>
 
@@ -487,6 +553,20 @@
                                 <div class="flex-grow-1">
                                     <div class="item-name">
                                         {{ $item->category ? $item->category->name : translate('Unknown Category') }}
+                                    </div>
+
+                                    <div class="item-meta mb-2">
+                                        <span class="item-meta-badge">
+                                            <i class="las la-money-bill"></i>
+                                            {{ translate('Price') }}:
+                                            <strong class="item-price-text">{{ number_format((float)($displayPrice ?? 0), 2) }}</strong> {{ translate('EGP') }}
+                                        </span>
+
+                                        <span class="item-meta-badge" style="background:#e6fffa;">
+                                            <i class="las la-calculator"></i>
+                                            {{ translate('Line Total') }}:
+                                            <strong class="item-line-total">0.00</strong> {{ translate('EGP') }}
+                                        </span>
                                     </div>
 
                                     @if($item->user_note)
@@ -499,18 +579,39 @@
                                     <div class="row align-items-center">
                                         <div class="col-auto">
                                             <label class="small text-muted mb-1">{{ translate('Qty') }}</label>
-                                            <input type="number" name="items[cat_{{ $item->id }}][quantity]"
-                                                   class="form-control quantity-input" value="{{ $item->quantity }}" min="0.01" step="0.01">
+                                            <input type="number"
+                                                   name="items[cat_{{ $item->id }}][quantity]"
+                                                   class="form-control quantity-input item-qty"
+                                                   value="{{ $item->quantity }}"
+                                                   min="0.01" step="0.01">
                                         </div>
+
                                         <div class="col-auto">
                                             <label class="small text-muted mb-1">{{ translate('Unit') }}</label>
-                                            <input type="text" name="items[cat_{{ $item->id }}][unit]"
-                                                   class="form-control unit-input" value="{{ $item->unit }}" placeholder="{{ translate('pcs, kg...') }}">
+                                            <input type="text"
+                                                   name="items[cat_{{ $item->id }}][unit]"
+                                                   class="form-control unit-input"
+                                                   value="{{ $item->unit }}"
+                                                   placeholder="{{ translate('pcs, kg...') }}">
                                         </div>
+
+                                        <div class="col-auto">
+                                            <label class="small text-muted mb-1">{{ translate('Price') }}</label>
+                                            <input type="number"
+                                                   name="items[cat_{{ $item->id }}][price]"
+                                                   class="form-control unit-input item-price"
+                                                   value="{{ (float)($displayPrice ?? 0) }}"
+                                                   data-default-price="{{ (float)($displayPrice ?? 0) }}"
+                                                   min="0" step="0.01">
+                                        </div>
+
                                         <div class="col">
                                             <label class="small text-muted mb-1">{{ translate('Admin Note') }}</label>
-                                            <input type="text" name="items[cat_{{ $item->id }}][note]"
-                                                   class="item-note-input" value="{{ $item->note }}" placeholder="{{ translate('Add note for this item...') }}">
+                                            <input type="text"
+                                                   name="items[cat_{{ $item->id }}][note]"
+                                                   class="item-note-input"
+                                                   value="{{ $item->note }}"
+                                                   placeholder="{{ translate('Add note for this item...') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -524,50 +625,48 @@
                     @endforelse
                 </div>
             </div>
+
         </div>
 
         <!-- Sidebar -->
         <div class="col-lg-4">
+
             <!-- Fees Card -->
             <div class="card inquiry-card mb-4">
                 <div class="card-header fees-header">
                     <h5 class="mb-0"><i class="las la-calculator mr-2"></i>{{ translate('Fees & Adjustments') }}</h5>
+                    <div></div>
                 </div>
                 <div class="card-body p-4">
                     <div class="fee-input-group">
                         <label><i class="las la-percent mr-1"></i>{{ translate('Tax') }}</label>
                         <div class="input-group">
                             <input type="number" name="tax" id="tax" class="form-control calc-input" value="{{ $inquiry->tax }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group">
                         <label><i class="las la-truck mr-1"></i>{{ translate('Delivery') }}</label>
                         <div class="input-group">
                             <input type="number" name="delivery" id="delivery" class="form-control calc-input" value="{{ $inquiry->delivery }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group">
                         <label><i class="las la-plus-circle mr-1"></i>{{ translate('Extra Fees') }}</label>
                         <div class="input-group">
                             <input type="number" name="extra_fees" id="extra_fees" class="form-control calc-input" value="{{ $inquiry->extra_fees }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group" style="background: #fff5f5;">
                         <label><i class="las la-minus-circle mr-1 text-danger"></i>{{ translate('Discount') }}</label>
                         <div class="input-group">
                             <input type="number" name="discount" id="discount" class="form-control calc-input" value="{{ $inquiry->discount }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
                 </div>
@@ -577,42 +676,38 @@
             <div class="card inquiry-card mb-4">
                 <div class="card-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
                     <h5 class="mb-0"><i class="las la-coins mr-2"></i>{{ translate('Totals') }}</h5>
+                    <div></div>
                 </div>
                 <div class="card-body p-4">
                     <div class="fee-input-group">
                         <label><i class="las la-box mr-1"></i>{{ translate('Products Total') }}</label>
                         <div class="input-group">
-                            <input type="number" name="products_total" id="products_total" class="form-control calc-input" value="{{ $inquiry->products_total }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <input type="number" name="products_total" id="products_total" class="form-control" value="{{ $inquiry->products_total }}" readonly>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group">
                         <label><i class="las la-folder mr-1"></i>{{ translate('Categories Total') }}</label>
                         <div class="input-group">
-                            <input type="number" name="categories_total" id="categories_total" class="form-control calc-input" value="{{ $inquiry->categories_total }}" min="0" step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <input type="number" name="categories_total" id="categories_total" class="form-control" value="{{ $inquiry->categories_total }}" readonly>
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group" style="background: #e6fffa;">
                         <label><i class="las la-calculator mr-1"></i>{{ translate('Subtotal') }} <small class="text-muted">({{ translate('Auto') }})</small></label>
                         <div class="input-group">
-                            <input type="number" name="subtotal" id="subtotal" class="form-control" value="{{ $inquiry->subtotal }}" min="0" step="0.01" readonly style="background: #e6fffa; font-weight: 600;">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <input type="number" name="subtotal" id="subtotal" class="form-control" value="{{ $inquiry->subtotal }}" readonly style="background: #e6fffa; font-weight: 600;">
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
+
                     <div class="fee-input-group" style="background: #f0fff4; border: 2px solid #38ef7d;">
                         <label><i class="las la-money-bill-wave mr-1 text-success"></i>{{ translate('Total') }} <small class="text-muted">({{ translate('Auto') }})</small></label>
                         <div class="input-group">
-                            <input type="number" name="total" id="total" class="form-control font-weight-bold" value="{{ $inquiry->total }}" min="0" step="0.01" readonly style="font-size: 1.1rem; background: #f0fff4;">
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ translate('EGP') }}</span>
-                            </div>
+                            <input type="number" name="total" id="total" class="form-control font-weight-bold" value="{{ $inquiry->total }}" readonly style="font-size: 1.1rem; background: #f0fff4;">
+                            <div class="input-group-append"><span class="input-group-text">{{ translate('EGP') }}</span></div>
                         </div>
                     </div>
                 </div>
@@ -676,28 +771,202 @@
                     </a>
                 </div>
             </div>
+
         </div>
     </div>
 </form>
+
+{{-- ===== JSON for New Items ===== --}}
+<script>
+    window.INQ_PRODUCTS = @json($products->map(function($p){
+        return ['id'=>$p->id,'name'=>$p->name,'unit_price'=>(float)$p->unit_price];
+    })->values());
+
+    window.INQ_CATEGORIES = @json($categories->map(function($c){
+        return ['id'=>$c->id,'name'=>$c->name,'level'=>$c->level];
+    })->values());
+</script>
+
+{{-- ===== Templates for New Items ===== --}}
+<script type="text/template" id="tpl-new-product">
+    <div class="item-card product-item" data-item-id="NEW">
+        <span class="item-number">#</span>
+        <button type="button" class="delete-btn" onclick="toggleDelete(this)" title="{{ translate('Delete') }}">
+            <i class="las la-times"></i>
+        </button>
+
+        <input type="hidden" name="items[__KEY__][id]" value="">
+        <input type="hidden" name="items[__KEY__][type]" value="product">
+        <input type="hidden" name="items[__KEY__][_delete]" value="0" class="delete-flag">
+        <input type="hidden" name="items[__KEY__][product_id]" value="" class="new-product-id">
+
+        <div class="d-flex">
+            <div class="item-image mr-3">
+                <div class="no-image"><i class="las la-image"></i></div>
+            </div>
+
+            <div class="flex-grow-1">
+                <div class="item-name">
+                    <select class="form-control form-control-sm new-product-select" style="border-radius:10px;" required>
+                        <option value="">{{ translate('Select Product') }}</option>
+                    </select>
+                </div>
+
+                <div class="item-meta mb-2">
+                    <span class="item-meta-badge">
+                        <i class="las la-money-bill"></i>
+                        {{ translate('Price') }}:
+                        <strong class="item-price-text">0.00</strong> {{ translate('EGP') }}
+                    </span>
+
+                    <span class="item-meta-badge" style="background:#e6fffa;">
+                        <i class="las la-calculator"></i>
+                        {{ translate('Line Total') }}:
+                        <strong class="item-line-total">0.00</strong> {{ translate('EGP') }}
+                    </span>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Qty') }}</label>
+                        <input type="number"
+                               name="items[__KEY__][quantity]"
+                               class="form-control quantity-input item-qty"
+                               value="1"
+                               min="0.01" step="0.01" required>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Unit') }}</label>
+                        <input type="text"
+                               name="items[__KEY__][unit]"
+                               class="form-control unit-input"
+                               value=""
+                               placeholder="{{ translate('pcs, kg...') }}">
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Price') }}</label>
+                        <input type="number"
+                               name="items[__KEY__][price]"
+                               class="form-control unit-input item-price"
+                               value="0"
+                               data-default-price="0"
+                               min="0" step="0.01">
+                    </div>
+
+                    <div class="col">
+                        <label class="small text-muted mb-1">{{ translate('Admin Note') }}</label>
+                        <input type="text"
+                               name="items[__KEY__][note]"
+                               class="item-note-input"
+                               value=""
+                               placeholder="{{ translate('Add note for this item...') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="tpl-new-category">
+    <div class="item-card category-item" data-item-id="NEW">
+        <span class="item-number">#</span>
+        <button type="button" class="delete-btn" onclick="toggleDelete(this)" title="{{ translate('Delete') }}">
+            <i class="las la-times"></i>
+        </button>
+
+        <input type="hidden" name="items[__KEY__][id]" value="">
+        <input type="hidden" name="items[__KEY__][type]" value="category">
+        <input type="hidden" name="items[__KEY__][_delete]" value="0" class="delete-flag">
+        <input type="hidden" name="items[__KEY__][category_id]" value="" class="new-category-id">
+
+        <div class="d-flex">
+            <div class="item-image mr-3">
+                <div class="no-image"><i class="las la-folder"></i></div>
+            </div>
+
+            <div class="flex-grow-1">
+                <div class="item-name">
+                    <select class="form-control form-control-sm new-category-select" style="border-radius:10px;" required>
+                        <option value="">{{ translate('Select Category') }}</option>
+                    </select>
+                </div>
+
+                <div class="item-meta mb-2">
+                    <span class="item-meta-badge">
+                        <i class="las la-money-bill"></i>
+                        {{ translate('Price') }}:
+                        <strong class="item-price-text">0.00</strong> {{ translate('EGP') }}
+                    </span>
+
+                    <span class="item-meta-badge" style="background:#e6fffa;">
+                        <i class="las la-calculator"></i>
+                        {{ translate('Line Total') }}:
+                        <strong class="item-line-total">0.00</strong> {{ translate('EGP') }}
+                    </span>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Qty') }}</label>
+                        <input type="number"
+                               name="items[__KEY__][quantity]"
+                               class="form-control quantity-input item-qty"
+                               value="1"
+                               min="0.01" step="0.01" required>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Unit') }}</label>
+                        <input type="text"
+                               name="items[__KEY__][unit]"
+                               class="form-control unit-input"
+                               value=""
+                               placeholder="{{ translate('pcs, kg...') }}">
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="small text-muted mb-1">{{ translate('Price') }}</label>
+                        <input type="number"
+                               name="items[__KEY__][price]"
+                               class="form-control unit-input item-price"
+                               value="0"
+                               data-default-price="0"
+                               min="0" step="0.01">
+                    </div>
+
+                    <div class="col">
+                        <label class="small text-muted mb-1">{{ translate('Admin Note') }}</label>
+                        <input type="text"
+                               name="items[__KEY__][note]"
+                               class="item-note-input"
+                               value=""
+                               placeholder="{{ translate('Add note for this item...') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
 
 @endsection
 
 @section('script')
 <script type="text/javascript">
+
     function toggleDelete(btn) {
         var card = $(btn).closest('.item-card');
         var deleteFlag = card.find('.delete-flag');
         var icon = $(btn).find('i');
 
         if (deleteFlag.val() === '0') {
-            // Mark for deletion
             deleteFlag.val('1');
             card.addClass('marked-delete');
             icon.removeClass('la-times').addClass('la-undo');
             $(btn).addClass('undo-btn');
             $(btn).attr('title', '{{ translate("Undo") }}');
         } else {
-            // Undo deletion
             deleteFlag.val('0');
             card.removeClass('marked-delete');
             icon.removeClass('la-undo').addClass('la-times');
@@ -706,6 +975,8 @@
         }
 
         updateCounts();
+        renumberItems();
+        calculateTotals();
     }
 
     function updateCounts() {
@@ -715,7 +986,6 @@
         $('#products-count').text(activeProducts);
         $('#categories-count').text(activeCategories);
 
-        // Show/hide empty messages
         if (activeProducts === 0) {
             if ($('#no-products').length === 0) {
                 $('#products-container').append('<div class="section-empty" id="no-products"><i class="las la-box"></i><p>{{ translate("No products in this inquiry") }}</p></div>');
@@ -735,27 +1005,67 @@
         }
     }
 
-    // ============ Auto Calculate Totals ============
+    function renumberItems() {
+        $('#products-container .item-card').each(function(i){
+            $(this).find('.item-number').text(i+1);
+        });
+        $('#categories-container .item-card').each(function(i){
+            $(this).find('.item-number').text(i+1);
+        });
+    }
+
+    // ====== Auto Totals from Items ======
+    function recalcCard(card) {
+        if (card.hasClass('marked-delete')) {
+            card.find('.item-line-total').text('0.00');
+            return 0;
+        }
+
+        var qty = parseFloat(card.find('input[name$="[quantity]"]').val()) || 0;
+
+        var priceInput = card.find('input.item-price');
+        var price = parseFloat(priceInput.val());
+
+        // ✅ لو السعر فاضي/NaN -> خده من default-price (unit_price)
+        if (isNaN(price) || price === null) {
+            price = parseFloat(priceInput.data('default-price')) || 0;
+            priceInput.val(price.toFixed(2));
+        }
+
+        card.find('.item-price-text').text(price.toFixed(2));
+
+        var lineTotal = qty * price;
+        card.find('.item-line-total').text(lineTotal.toFixed(2));
+
+        return lineTotal;
+    }
+
+    function calcSectionTotal(containerSelector) {
+        var sum = 0;
+        $(containerSelector + ' .item-card').each(function () {
+            sum += recalcCard($(this));
+        });
+        return sum;
+    }
+
     function calculateTotals() {
-        // Get values (default to 0 if empty)
-        var productsTotal = parseFloat($('#products_total').val()) || 0;
-        var categoriesTotal = parseFloat($('#categories_total').val()) || 0;
+        var productsTotal = calcSectionTotal('#products-container');
+        var categoriesTotal = calcSectionTotal('#categories-container');
+
+        $('#products_total').val(productsTotal.toFixed(2));
+        $('#categories_total').val(categoriesTotal.toFixed(2));
+
         var tax = parseFloat($('#tax').val()) || 0;
         var delivery = parseFloat($('#delivery').val()) || 0;
         var extraFees = parseFloat($('#extra_fees').val()) || 0;
         var discount = parseFloat($('#discount').val()) || 0;
 
-        // Calculate Subtotal = Products Total + Categories Total
         var subtotal = productsTotal + categoriesTotal;
-
-        // Calculate Total = Subtotal + Tax + Delivery + Extra Fees - Discount
         var total = subtotal + tax + delivery + extraFees - discount;
 
-        // Update the readonly fields
         $('#subtotal').val(subtotal.toFixed(2));
         $('#total').val(total.toFixed(2));
 
-        // Update the preview card as well
         updatePreviewCard(productsTotal, categoriesTotal, subtotal, tax, delivery, extraFees, discount, total);
     }
 
@@ -770,26 +1080,109 @@
         $('#preview-total').text(total.toFixed(2));
     }
 
-    $(document).ready(function() {
-        updateCounts();
+    // ===== Add New Items =====
+    let newItemCounter = 0;
+    function nextNewKey(prefix){
+        newItemCounter++;
+        return prefix + '_' + Date.now() + '_' + newItemCounter;
+    }
 
-        // Listen for changes on all calc-input fields
-        $('.calc-input').on('input change', function() {
+    function fillProductOptions($select){
+        window.INQ_PRODUCTS.forEach(function(p){
+            $select.append(
+                `<option value="${p.id}" data-price="${p.unit_price}">${p.name} — ${Number(p.unit_price).toFixed(2)} EGP</option>`
+            );
+        });
+    }
+
+    function fillCategoryOptions($select){
+        // ترتيب بالـ level ثم الاسم (لو حابب)
+        let cats = (window.INQ_CATEGORIES || []).slice().sort((a,b)=>{
+            if ((a.level||0) !== (b.level||0)) return (a.level||0)-(b.level||0);
+            return (a.name||'').localeCompare(b.name||'');
+        });
+
+        cats.forEach(function(c){
+            $select.append(`<option value="${c.id}">${c.name}</option>`);
+        });
+    }
+
+    function addNewProductCard(){
+        const key = nextNewKey('new');
+        let html = $('#tpl-new-product').html().split('__KEY__').join(key);
+        $('#products-container').append(html);
+
+        const $card = $('#products-container .item-card').last();
+        const $select = $card.find('.new-product-select');
+
+        fillProductOptions($select);
+
+        $select.on('change', function(){
+            const pid = $(this).val();
+            const price = parseFloat($(this).find(':selected').data('price')) || 0;
+
+            $card.find('.new-product-id').val(pid);
+
+            const $priceInput = $card.find('input.item-price');
+            $priceInput.data('default-price', price);
+            $priceInput.val(price.toFixed(2));
+
+            updateCounts();
+            renumberItems();
             calculateTotals();
         });
 
-        // Calculate on page load
+        $('#no-products').hide();
+        updateCounts();
+        renumberItems();
+        calculateTotals();
+    }
+
+    function addNewCategoryCard(){
+        const key = nextNewKey('new');
+        let html = $('#tpl-new-category').html().split('__KEY__').join(key);
+        $('#categories-container').append(html);
+
+        const $card = $('#categories-container .item-card').last();
+        const $select = $card.find('.new-category-select');
+
+        fillCategoryOptions($select);
+
+        $select.on('change', function(){
+            const cid = $(this).val();
+            $card.find('.new-category-id').val(cid);
+            updateCounts();
+            renumberItems();
+            calculateTotals();
+        });
+
+        $('#no-categories').hide();
+        updateCounts();
+        renumberItems();
+        calculateTotals();
+    }
+
+    $(document).ready(function () {
+        updateCounts();
+        renumberItems();
         calculateTotals();
 
-        // Animate cards on load
-        $('.item-card').each(function(index) {
-            $(this).css({
-                'opacity': '0',
-                'transform': 'translateY(20px)'
-            }).delay(index * 50).animate({
-                'opacity': '1'
-            }, 300).css('transform', 'translateY(0)');
+        $('#btn-add-product').on('click', function(){ addNewProductCard(); });
+        $('#btn-add-category').on('click', function(){ addNewCategoryCard(); });
+
+        // ✅ any change in qty/price or fees updates totals instantly
+        $(document).on('input change', '.item-price, input[name$="[quantity]"], .calc-input', function () {
+            calculateTotals();
+        });
+
+        // Animate cards
+        $('.item-card').each(function (index) {
+            $(this).css({ 'opacity': '0', 'transform': 'translateY(20px)' })
+                .delay(index * 50)
+                .animate({ 'opacity': '1' }, 300)
+                .css('transform', 'translateY(0)');
         });
     });
+
 </script>
 @endsection

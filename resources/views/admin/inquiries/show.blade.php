@@ -424,6 +424,16 @@
             <div class="card-body p-4">
                 @php $productIndex = 0; @endphp
                 @forelse($inquiry->items->where('type', 'product') as $item)
+
+                    @php
+                        // ✅ Price source:
+                        // 1) saved item price (if stored)
+                        // 2) fallback to product unit_price
+                        $unitPrice = (float)($item->price ?? ($item->product->unit_price ?? 0));
+                        $qty = (float)($item->quantity ?? 0);
+                        $lineTotal = $unitPrice * $qty;
+                    @endphp
+
                     <div class="item-card product-item">
                         <span class="item-number">{{ ++$productIndex }}</span>
 
@@ -450,24 +460,31 @@
                                 <div class="item-meta">
                                     <span class="item-meta-badge">
                                         <i class="las la-sort-amount-up"></i>
-                                        {{ translate('Qty') }}: <strong>{{ $item->quantity }}</strong>
+                                        {{ translate('Qty') }}: <strong>{{ $qty }}</strong>
                                     </span>
+
                                     @if($item->unit)
                                         <span class="item-meta-badge">
                                             <i class="las la-balance-scale"></i>
                                             {{ $item->unit }}
                                         </span>
                                     @endif
-                                    @if($item->product)
-                                        <span class="item-meta-badge">
-                                            <i class="las la-tag"></i>
-                                            {{ number_format($item->product->unit_price ?? 0, 2) }} {{ translate('EGP') }}
-                                        </span>
-                                        <span class="item-meta-badge" style="background: #d1fae5; color: #065f46;">
-                                            <i class="las la-calculator"></i>
-                                            {{ translate('Total') }}: {{ number_format(($item->product->unit_price ?? 0) * $item->quantity, 2) }} {{ translate('EGP') }}
-                                        </span>
-                                    @endif
+
+                                    <!-- ✅ Unit Price -->
+                                    <span class="item-meta-badge">
+                                        <i class="las la-tag"></i>
+                                        {{ translate('Unit Price') }}:
+                                        <strong>{{ number_format($unitPrice, 2) }}</strong>
+                                        {{ translate('EGP') }}
+                                    </span>
+
+                                    <!-- ✅ Line Total -->
+                                    <span class="item-meta-badge" style="background: #d1fae5; color: #065f46;">
+                                        <i class="las la-calculator"></i>
+                                        {{ translate('Total') }}:
+                                        <strong>{{ number_format($lineTotal, 2) }}</strong>
+                                        {{ translate('EGP') }}
+                                    </span>
                                 </div>
 
                                 @if($item->user_note)
@@ -508,6 +525,14 @@
             <div class="card-body p-4">
                 @php $categoryIndex = 0; @endphp
                 @forelse($inquiry->items->where('type', 'category') as $item)
+
+                    @php
+                        // ✅ Category unit price is stored on item.price (no product fallback)
+                        $catUnitPrice = (float)($item->price ?? 0);
+                        $catQty = (float)($item->quantity ?? 0);
+                        $catLineTotal = $catUnitPrice * $catQty;
+                    @endphp
+
                     <div class="item-card category-item">
                         <span class="item-number">{{ ++$categoryIndex }}</span>
 
@@ -515,7 +540,7 @@
                             <!-- Category Image -->
                             <div class="item-image mr-3">
                                 @if($item->category && $item->category->banner)
-                                    <img src="{{ $item->category->banner ? uploaded_asset($item->category->banner) : static_asset('assets/img/placeholder.jpg') }}"
+                                    <img src="{{ uploaded_asset($item->category->banner) }}"
                                          alt="{{ $item->category->name }}"
                                          onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                 @else
@@ -534,14 +559,31 @@
                                 <div class="item-meta">
                                     <span class="item-meta-badge">
                                         <i class="las la-sort-amount-up"></i>
-                                        {{ translate('Qty') }}: <strong>{{ $item->quantity }}</strong>
+                                        {{ translate('Qty') }}: <strong>{{ $catQty }}</strong>
                                     </span>
+
                                     @if($item->unit)
                                         <span class="item-meta-badge">
                                             <i class="las la-balance-scale"></i>
                                             {{ $item->unit }}
                                         </span>
                                     @endif
+
+                                    <!-- ✅ Unit Price (Category) -->
+                                    <span class="item-meta-badge">
+                                        <i class="las la-tag"></i>
+                                        {{ translate('Unit Price') }}:
+                                        <strong>{{ number_format($catUnitPrice, 2) }}</strong>
+                                        {{ translate('EGP') }}
+                                    </span>
+
+                                    <!-- ✅ Line Total (Category) -->
+                                    <span class="item-meta-badge" style="background: #d1fae5; color: #065f46;">
+                                        <i class="las la-calculator"></i>
+                                        {{ translate('Total') }}:
+                                        <strong>{{ number_format($catLineTotal, 2) }}</strong>
+                                        {{ translate('EGP') }}
+                                    </span>
                                 </div>
 
                                 @if($item->user_note)

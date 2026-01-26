@@ -9,7 +9,7 @@ class InquiryUpdateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     public function rules(): array
@@ -44,6 +44,8 @@ class InquiryUpdateRequest extends FormRequest
             'items.*.unit'     => ['nullable', 'string', 'max:50'],
             'items.*.note'     => ['nullable', 'string', 'max:1000'],
             'items.*._delete'  => ['nullable', 'boolean'],
+            'items.*.price' => ['nullable', 'numeric', 'min:0'],
+
         ];
     }
 
