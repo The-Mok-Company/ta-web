@@ -55,13 +55,14 @@
 
     <!-- Favicon -->
     @php
-        $site_icon = asset(get_setting('site_icon'));
+        $siteIconSetting = get_setting('site_icon'); // e.g. "uploads/all/xxx.png"
+        $siteIconUrl = $siteIconSetting ? asset($siteIconSetting) : asset('assets/Vector.svg');
+        $isSvgIcon = \Illuminate\Support\Str::endsWith(strtolower($siteIconUrl), '.svg');
     @endphp
 
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/logo.png') }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo.png') }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/logo.png') }}">
-<link rel="shortcut icon" href="{{ asset('assets/img/logo.png') }}">
+    <link rel="icon" href="{{ $siteIconUrl }}" @if($isSvgIcon) type="image/svg+xml" @endif>
+    <link rel="shortcut icon" href="{{ $siteIconUrl }}" @if($isSvgIcon) type="image/svg+xml" @endif>
+    <link rel="apple-touch-icon" href="{{ $siteIconUrl }}">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
