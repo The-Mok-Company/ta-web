@@ -88,33 +88,47 @@
                 transform: scale(1.03) !important; /* subtle */
             }
 
-            /* Match category-page "Add to Inquiry" action button */
-            .btn-add-inquiry {
-                height: 40px;
-                padding: 0 14px;
-                border-radius: 8px;
-                border: none;
-                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
-                color: #fff;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                cursor: pointer;
-                transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-                white-space: nowrap;
+            /* Match category-page "Add to Inquiry" button exactly - override any conflicting styles */
+            button.btn-add-inquiry,
+            .btn-add-inquiry,
+            .btn-add-inquiry.add-to-cart,
+            .product-quantity .btn-add-inquiry,
+            form#option-choice-form .btn-add-inquiry {
+                height: 40px !important;
+                padding: 0 14px !important;
+                border-radius: 8px !important;
+                border: none !important;
+                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+                color: #fff !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                cursor: pointer !important;
+                transition: transform .18s ease, box-shadow .18s ease, background .18s ease !important;
+                white-space: nowrap !important;
+                box-shadow: none !important;
             }
-            .btn-add-inquiry:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 10px 22px rgba(33, 150, 243, 0.28);
+            button.btn-add-inquiry:hover,
+            .btn-add-inquiry:hover,
+            .btn-add-inquiry.add-to-cart:hover,
+            .product-quantity .btn-add-inquiry:hover,
+            form#option-choice-form .btn-add-inquiry:hover {
+                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 8px 22px rgba(8, 145, 178, .25) !important;
+                color: #fff !important;
             }
-            .btn-add-inquiry:disabled {
-                opacity: .8;
-                cursor: not-allowed;
-                transform: none;
-                box-shadow: none;
+            button.btn-add-inquiry:disabled,
+            .btn-add-inquiry:disabled,
+            .btn-add-inquiry.add-to-cart:disabled,
+            .product-quantity .btn-add-inquiry:disabled,
+            form#option-choice-form .btn-add-inquiry:disabled {
+                opacity: .8 !important;
+                cursor: not-allowed !important;
+                transform: none !important;
+                box-shadow: none !important;
             }
 
             /* Sidebar styles (aligned with category pages) */

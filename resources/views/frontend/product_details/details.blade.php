@@ -317,19 +317,12 @@
                                     }
                                 @endphp
                                 <button type="button"
-                                    class="btn-add-inquiry add-to-cart min-w-150px w-75"
+                                    class="btn-add-inquiry min-w-150px w-75"
                                     data-product-id="{{ $detailedProduct->id }}"
                                     data-has-variants="{{ $detailHasVariants ? 1 : 0 }}"
                                     data-min-qty="{{ (int) $detailedProduct->min_qty }}"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                        onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);"
-                                    @else
-                                        onclick="showLoginModal()"
-                                    @endif>
+                                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
                                     <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
-                                </button>
-                                <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
-                                    <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
                                 </button>
                             @endif
                         </div>
@@ -357,15 +350,11 @@
                     <div class="row no-gutters mb-3">
                         <div class="col-sm-9">
                             <button type="button"
-                                class="btn-add-inquiry add-to-cart min-w-150px w-100"
+                                class="btn-add-inquiry min-w-150px w-100"
                                 data-product-id="{{ $detailedProduct->id }}"
                                 data-has-variants="0"
                                 data-min-qty="1"
-                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1)
-                                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);"
-                                @else
-                                    onclick="showLoginModal()"
-                                @endif>
+                                onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
                                 <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
                             </button>
                         </div>
