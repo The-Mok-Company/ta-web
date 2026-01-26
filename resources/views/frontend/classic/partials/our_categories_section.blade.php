@@ -118,6 +118,7 @@
 
     /* ===========================
        Category Add Button (+ -> ✓)
+       Matches featured-inquiry-btn: colors, circle, hover tooltip
     =========================== */
 
     .category-card-new {
@@ -129,50 +130,37 @@
         top: clamp(12px, 2vw, 20px);
         right: clamp(12px, 2vw, 20px);
 
-        width: clamp(36px, 5vw, 42px);
-        height: clamp(36px, 5vw, 42px);
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
 
-        background: #0891B2;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
         border: none;
         color: #fff;
 
         display: flex;
-        flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 0;
 
         z-index: 5;
         cursor: pointer;
+        overflow: visible;
 
         opacity: 0;
         transform: scale(.85);
-        transition: opacity .3s ease, transform .3s ease, background .3s ease, box-shadow .3s ease, width .3s ease, border-radius .3s ease, gap .3s ease;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, .20);
-        overflow: hidden;
-        white-space: nowrap;
+        transition: opacity .3s ease, transform .3s ease, box-shadow .2s ease, background .2s ease;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
+    }
+
+    .category-card-new .category-add-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+        box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
     }
 
     @media (hover:hover) and (pointer:fine) {
         .category-card-new:hover .category-add-btn {
             opacity: 1;
             transform: scale(1);
-        }
-
-        .category-card-new:hover .category-add-btn:hover {
-            width: auto;
-            padding: 0 16px;
-            border-radius: 25px;
-            background: #0E7490;
-            transform: scale(1.05);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
-            gap: 6px;
-        }
-
-        .category-card-new:hover .category-add-btn:hover .btn-text {
-            opacity: 1;
-            max-width: 150px;
         }
     }
 
@@ -183,12 +171,8 @@
         }
     }
 
-    .category-card-new .category-add-btn:active {
-        transform: scale(.95);
-    }
-
     .category-card-new .category-add-btn:focus-visible {
-        box-shadow: 0 0 0 4px rgba(8, 145, 178, .25), 0 2px 10px rgba(0, 0, 0, .20);
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.4);
     }
 
     .category-card-new .category-add-btn .btn-icon-wrapper {
@@ -196,8 +180,8 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        width: 25px;
-        height: 25px;
+        width: 20px;
+        height: 20px;
         flex-shrink: 0;
     }
 
@@ -206,25 +190,47 @@
         position: absolute;
         transition: opacity .18s ease, transform .18s ease;
         pointer-events: none;
-        font-size: 25px;
+        font-size: 18px;
+        font-weight: 700;
         line-height: 1;
     }
 
     .category-card-new .category-add-btn .btn-tick {
-        font-size: 18px;
-        font-weight: 900;
+        font-size: 16px;
         opacity: 0;
         transform: scale(.85);
     }
 
     .category-card-new .category-add-btn .btn-text {
-        font-size: 13px;
-        font-weight: 600;
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%) translateX(6px);
         opacity: 0;
-        max-width: 0;
-        overflow: hidden;
-        transition: opacity .3s ease, max-width .3s ease;
-        flex-shrink: 0;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+    }
+
+    .category-card-new .category-add-btn:hover .btn-text,
+    .category-card-new .category-add-btn:focus-visible .btn-text {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    }
+
+    .category-card-new .category-add-btn.added .btn-text,
+    .category-card-new .category-add-btn.added:hover .btn-text {
+        opacity: 0;
+        visibility: hidden;
     }
 
     .category-card-new .category-add-btn.added .btn-tick {
@@ -244,13 +250,7 @@
         background: #16a34a;
         opacity: 1 !important;
         pointer-events: none;
-        animation: inquiryPulse .35s ease-out 1;
-    }
-
-    @keyframes inquiryPulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.12); }
-        100% { transform: scale(1); }
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     }
 
     .category-card-new .category-add-btn.added .btn-plus {

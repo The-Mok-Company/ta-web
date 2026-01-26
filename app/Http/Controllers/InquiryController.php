@@ -134,7 +134,8 @@ class InquiryController extends Controller
             $inquiry = Inquiry::create([
                 'user_id'          => $user->id,
                 'admin_id'         => null,
-                'note'             => $note,
+                'user_note'        => $note,  // User's note (read-only for admin)
+                'note'             => null,   // Admin's note (editable by admin)
                 'status'           => 'pending',
 
                 'products_total'   => $productsTotal,
@@ -157,9 +158,8 @@ class InquiryController extends Controller
                     'category_id' => $it['type'] === 'category' ? $it['category_id'] : null,
                     'quantity'    => $it['quantity'],
                     'unit'        => null,
-                    'note'        => $it['note'],
-
-
+                    'user_note'   => $it['note'],  // User's note (read-only for admin)
+                    'note'        => null,         // Admin's note (editable by admin)
                 ]);
             }
 
@@ -190,18 +190,37 @@ class InquiryController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if ($inquiry->status !== 'ongoing') {
+        // User can only accept when status is 'processing'
+        if ($inquiry->status !== 'processing') {
             return redirect()->back()->with('error', 'Offer not ready yet');
         }
 
         $inquiry->update([
-            'status' => 'accepted',
+            'status' => 'completed',
         ]);
 
         return redirect()
-            ->route('inquiries.show', $inquiry->id)
+            ->route('cart.inquiry')
             ->with('success', 'Offer accepted successfully');
     }
 
+    public function cancelOffer($id)
+    {
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
+        // User can only cancel when status is 'processing'
+        if ($inquiry->status !== 'processing') {
+            return redirect()->back()->with('error', 'Cannot cancel this inquiry');
+        }
+
+        $inquiry->update([
+            'status' => 'cancelled',
+        ]);
+
+        return redirect()
+            ->route('cart.inquiry')
+            ->with('success', 'Inquiry cancelled successfully');
+    }
 }

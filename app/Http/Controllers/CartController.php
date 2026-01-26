@@ -406,13 +406,16 @@ public function updateQuantity(Request $request)
 
     public function inquiry(Request $request)
     {
-
-     $user = Auth::user();
+        $user = Auth::user();
 
         $inquiries = Inquiry::where('user_id', $user->id)
-            ->with(['items.product', 'items.category'])
+            ->with([
+                'items.product:id,name,unit_price,thumbnail_img',
+                'items.category:id,name,banner'
+            ])
             ->orderBy('id', 'desc')
             ->get();
+
         return view('frontend.inquiry', compact('inquiries'));
     }
     

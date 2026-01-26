@@ -3,7 +3,9 @@
 @section('content')
     <div class="inquiry-details-container">
 
-        @forelse($inquiries as $inquiry)
+        <h1 class="page-title">My Inquiries</h1>
+
+        @forelse($inquiries as $index => $inquiry)
             @php
                 $status = $inquiry->status ?? 'pending';
 
@@ -11,25 +13,62 @@
                     ? $inquiry->code
                     : ('INQ-' . str_pad($inquiry->id, 6, '0', STR_PAD_LEFT));
 
-                $badgeClass = ($status === 'ongoing') ? 'ongoing' : (($status === 'accepted') ? 'accepted' : 'pending');
-                $badgeLabel = ($status === 'ongoing') ? 'Ongoing' : (($status === 'accepted') ? 'Accepted' : 'Pending');
+                // Badge styling based on status
+                $badgeClass = match($status) {
+                    'processing' => 'processing',
+                    'completed' => 'completed',
+                    'cancelled' => 'cancelled',
+                    default => 'pending'
+                };
+                $badgeLabel = match($status) {
+                    'processing' => 'Awaiting Your Response',
+                    'completed' => 'Completed',
+                    'cancelled' => 'Cancelled',
+                    default => 'Pending'
+                };
 
                 $itemsTabId = "itemsTab-{$inquiry->id}";
                 $convTabId  = "conversationsTab-{$inquiry->id}";
                 $itemsId    = "itemsContent-{$inquiry->id}";
                 $convId     = "conversationsContent-{$inquiry->id}";
+
+                $itemsCount = $inquiry->items->count();
+                $isFirst = ($index === 0);
             @endphp
 
-            <!-- Header -->
-            <div class="inquiry-details-header">
-                <h1>Inquiry #{{ $inquiryNumber }}</h1>
-            </div>
+            <!-- Accordion Item -->
+            <div class="inquiry-accordion {{ $isFirst ? 'open' : '' }}" data-inquiry-id="{{ $inquiry->id }}">
+                <!-- Accordion Header (Clickable) -->
+                <div class="accordion-header" onclick="toggleAccordion({{ $inquiry->id }})">
+                    <div class="accordion-header-left">
+                        <span class="accordion-icon">
+                            <i class="las la-chevron-down"></i>
+                        </span>
+                        <div class="accordion-title-info">
+                            <h3 class="accordion-title">Inquiry #{{ $inquiryNumber }}</h3>
+                            <span class="accordion-meta">
+                                <i class="las la-box"></i> {{ $itemsCount }} {{ $itemsCount === 1 ? 'item' : 'items' }}
+                                <span class="meta-separator">•</span>
+                                <i class="las la-calendar"></i> {{ optional($inquiry->created_at)->format('d M Y') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="accordion-header-right">
+                        <span class="status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+                        @if($inquiry->total > 0)
+                            <span class="accordion-total">{{ number_format($inquiry->total, 0) }} EGP</span>
+                        @endif
+                    </div>
+                </div>
 
-            <!-- Tabs -->
-            <div class="tabs-container">
-                <div class="tab active" id="{{ $itemsTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $itemsId }}">Items</div>
-                <div class="tab" id="{{ $convTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $convId }}">Updates</div>
-            </div>
+                <!-- Accordion Content -->
+                <div class="accordion-content" id="accordion-content-{{ $inquiry->id }}" style="{{ $isFirst ? '' : 'display: none;' }}">
+
+                    <!-- Tabs -->
+                    <div class="tabs-container">
+                        <div class="tab active" id="{{ $itemsTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $itemsId }}">Items</div>
+                        <div class="tab" id="{{ $convTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $convId }}">Updates</div>
+                    </div>
 
             <!-- Main Content -->
             <div class="main-content">
@@ -38,86 +77,156 @@
 
                     <!-- Items Section -->
                     <div class="items-section" id="{{ $itemsId }}">
-                        @forelse($inquiry->items as $item)
-                            @php
-                                $isProduct  = ($item->type === 'product');
-                                $isCategory = ($item->type === 'category');
 
-                                $title = $isProduct
-                                    ? ($item->product->name ?? 'Product')
-                                    : ($item->category->name ?? 'Category');
+                        @php
+                            $products = $inquiry->items->where('type', 'product');
+                            $categories = $inquiry->items->where('type', 'category');
+                        @endphp
 
-                                $categoryName = '';
-                                if ($isProduct && $item->product && method_exists($item->product, 'category') && $item->product->category) {
-                                    $categoryName = $item->product->category->name ?? '';
-                                }
+                        {{-- Products Section --}}
+                        @if($products->count() > 0)
+                            <div class="items-group">
+                                <h4 class="items-group-title">
+                                    <i class="las la-box"></i> Products
+                                    <span class="items-count">{{ $products->count() }}</span>
+                                </h4>
+                                <div class="items-grid">
+                                    @foreach($products as $item)
+                                        @php
+                                            $title = $item->product->name ?? 'Product';
+                                            $qty = (int)($item->quantity ?? 1);
 
-                                $desc = '';
-                                if ($isProduct && $item->product) {
-                                    $desc = $item->product->description ?? '';
-                                } elseif ($isCategory && $item->category) {
-                                    $desc = $item->category->description ?? '';
-                                }
+                                            $img = static_asset('assets/img/placeholder.jpg');
+                                            if ($item->product && !empty($item->product->thumbnail_img)) {
+                                                $img = uploaded_asset($item->product->thumbnail_img);
+                                            }
 
-                                $qty = (int)($item->quantity ?? 1);
+                                            $price = null;
+                                            if (isset($item->price) && is_numeric($item->price)) {
+                                                $price = (float)$item->price;
+                                            } elseif ($item->product && isset($item->product->unit_price) && is_numeric($item->product->unit_price)) {
+                                                $price = (float)$item->product->unit_price;
+                                            }
 
-                                // image
-                                $img = 'https://via.placeholder.com/70';
-                                if ($isProduct && $item->product) {
-                                    if (!empty($item->product->thumbnail_img)) $img = asset($item->product->thumbnail_img);
-                                    elseif (!empty($item->product->image)) $img = asset($item->product->image);
-                                }
+                                            $waiting = ($status === 'pending') || (!$price || $price <= 0);
+                                        @endphp
 
-                                $price = null;
-                                if (isset($item->price) && is_numeric($item->price)) {
-                                    $price = (float)$item->price;
-                                } elseif ($isProduct && $item->product && isset($item->product->unit_price) && is_numeric($item->product->unit_price)) {
-                                    $price = (float)$item->product->unit_price;
-                                }
+                                        <div class="item-card product-card">
+                                            <div class="item-image-wrapper">
+                                                <div class="item-image">
+                                                    <img src="{{ $img }}" alt="{{ $title }}">
+                                                </div>
+                                                <span class="qty-badge">{{ $qty }}</span>
+                                            </div>
 
-                                $waiting = ($status === 'pending') || (!$price || $price <= 0);
-                            @endphp
+                                            <div class="item-details">
+                                                <h3 class="item-title">{{ $title }}</h3>
 
-                            <div class="item-card">
-                                <div class="item-image">
-                                    <img src="{{ $img }}" alt="Product Image">
-                                </div>
+                                                {{-- Item Notes --}}
+                                                @if($item->user_note)
+                                                    <div class="item-user-note">
+                                                        <span class="note-label"><i class="las la-user"></i> Your Note</span>
+                                                        <p class="note-text">{{ $item->user_note }}</p>
+                                                    </div>
+                                                @endif
 
-                                <div class="item-details">
-                                    <div class="item-header">
-                                        <div class="item-weight">{{ $qty }} Qty</div>
-                                        <h3 class="item-title">{{ $title }}</h3>
-                                    </div>
+                                                @if($item->note)
+                                                    <div class="item-admin-note">
+                                                        <span class="note-label"><i class="las la-user-shield"></i> Admin Note</span>
+                                                        <p class="note-text">{{ $item->note }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
 
-                                    @if($categoryName)
-                                        <p class="item-category">{{ $categoryName }}</p>
-                                    @elseif($isCategory)
-                                        <p class="item-category">Category</p>
-                                    @endif
-
-                                    @if(!empty($desc))
-                                        <p class="item-description">
-                                            {!! nl2br(e(\Illuminate\Support\Str::limit(strip_tags($desc), 180))) !!}
-                                        </p>
-                                    @endif
-                                </div>
-
-                                <button class="btn btn-price" type="button">
-                                    @if($waiting)
-                                        Price&nbsp;&nbsp;&nbsp; Waiting for offer
-                                    @else
-                                        Price&nbsp;&nbsp;&nbsp;{{ number_format($price, 0) }} EGP
-                                    @endif
-                                </button>
-                            </div>
-                        @empty
-                            <div class="item-card">
-                                <div class="item-details">
-                                    <h3 class="item-title">No items</h3>
-                                    <p class="item-description">This inquiry has no items.</p>
+                                            <div class="item-price">
+                                                @if($waiting)
+                                                    <span class="price-waiting">Waiting for offer</span>
+                                                @else
+                                                    <span class="price-value">{{ number_format($price, 0) }} EGP</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
-                        @endforelse
+                        @endif
+
+                        {{-- Categories Section --}}
+                        @if($categories->count() > 0)
+                            <div class="items-group">
+                                <h4 class="items-group-title">
+                                    <i class="las la-folder"></i> Categories
+                                    <span class="items-count">{{ $categories->count() }}</span>
+                                </h4>
+                                <div class="items-grid">
+                                    @foreach($categories as $item)
+                                        @php
+                                            $title = $item->category->name ?? 'Category';
+                                            $qty = (int)($item->quantity ?? 1);
+
+                                            $img = static_asset('assets/img/placeholder.jpg');
+                                            if ($item->category && !empty($item->category->banner)) {
+                                                $img = uploaded_asset($item->category->banner);
+                                            }
+
+                                            $price = null;
+                                            if (isset($item->price) && is_numeric($item->price)) {
+                                                $price = (float)$item->price;
+                                            }
+
+                                            $waiting = ($status === 'pending') || (!$price || $price <= 0);
+                                        @endphp
+
+                                        <div class="item-card category-card">
+                                            <div class="item-image-wrapper">
+                                                <div class="item-image category-image">
+                                                    <img src="{{ $img }}" alt="{{ $title }}">
+                                                </div>
+                                                @if($qty > 1)
+                                                    <span class="qty-badge">{{ $qty }}</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="item-details">
+                                                <h3 class="item-title">{{ $title }}</h3>
+                                                <span class="item-type-badge">Category Request</span>
+
+                                                {{-- Item Notes --}}
+                                                @if($item->user_note)
+                                                    <div class="item-user-note">
+                                                        <span class="note-label"><i class="las la-user"></i> Your Note</span>
+                                                        <p class="note-text">{{ $item->user_note }}</p>
+                                                    </div>
+                                                @endif
+
+                                                @if($item->note)
+                                                    <div class="item-admin-note">
+                                                        <span class="note-label"><i class="las la-user-shield"></i> Admin Note</span>
+                                                        <p class="note-text">{{ $item->note }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="item-price">
+                                                @if($waiting)
+                                                    <span class="price-waiting">Waiting for offer</span>
+                                                @else
+                                                    <span class="price-value">{{ number_format($price, 0) }} EGP</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($products->count() === 0 && $categories->count() === 0)
+                            <div class="no-items-message">
+                                <i class="las la-inbox"></i>
+                                <p>No items in this inquiry</p>
+                            </div>
+                        @endif
+
                     </div>
 
                     <!-- Conversations Section -->
@@ -171,6 +280,21 @@
                             <span class="status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
                         </div>
 
+                        {{-- Inquiry Notes --}}
+                        @if($inquiry->user_note)
+                            <div class="inquiry-user-note">
+                                <span class="note-label"><i class="las la-user"></i> Your Note</span>
+                                <p class="note-text">{{ $inquiry->user_note }}</p>
+                            </div>
+                        @endif
+
+                        @if($inquiry->note)
+                            <div class="inquiry-admin-note">
+                                <span class="note-label"><i class="las la-user-shield"></i> Admin Note</span>
+                                <p class="note-text">{{ $inquiry->note }}</p>
+                            </div>
+                        @endif
+
                         <div class="summary-details">
                             <div class="summary-row">
                                 <span class="row-label">Available products Price</span>
@@ -199,28 +323,50 @@
                             <span class="total-value">{{ number_format((float)($inquiry->total ?? 0), 0) }} EGP</span>
                         </div>
 
-                        @if(($inquiry->status ?? '') === 'ongoing')
-                            <form method="POST" action="{{ route('inquiries.accept', $inquiry->id) }}">
-                                @csrf
-                                <button class="btn btn-accept" type="submit">Accept Offer</button>
-                            </form>
+                        @if($status === 'processing')
+                            {{-- Show Accept & Cancel buttons when admin sets status to processing --}}
+                            <div class="action-buttons">
+                                <form method="POST" action="{{ route('inquiries.accept', $inquiry->id) }}" style="flex: 1;">
+                                    @csrf
+                                    <button class="btn btn-accept" type="submit">
+                                        <i class="las la-check-circle"></i> Accept Offer
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('inquiries.cancel', $inquiry->id) }}" style="flex: 1;">
+                                    @csrf
+                                    <button class="btn btn-cancel" type="submit" onclick="return confirm('Are you sure you want to cancel this inquiry?')">
+                                        <i class="las la-times-circle"></i> Cancel
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif($status === 'completed')
+                            <button class="btn btn-completed" type="button" disabled>
+                                <i class="las la-check"></i> Completed
+                            </button>
+                        @elseif($status === 'cancelled')
+                            <button class="btn btn-cancelled" type="button" disabled>
+                                <i class="las la-ban"></i> Cancelled
+                            </button>
                         @else
+                            {{-- Pending status --}}
                             <button class="btn btn-accept" type="button" disabled>
-                                @if(($inquiry->status ?? 'pending') === 'pending')
-                                    Waiting for offer
-                                @else
-                                    {{ ucfirst($inquiry->status ?? 'pending') }}
-                                @endif
+                                <i class="las la-clock"></i> Waiting for offer
                             </button>
                         @endif
                     </div>
                 </div>
             </div>
 
-            <hr style="border-color:#e5e7eb; margin:32px 0;">
+                </div><!-- End accordion-content -->
+            </div><!-- End inquiry-accordion -->
         @empty
-            <div class="inquiry-details-header">
-                <h1>No Inquiries</h1>
+            <div class="no-inquiries">
+                <i class="las la-inbox"></i>
+                <h2>No Inquiries Yet</h2>
+                <p>You haven't created any inquiries yet.</p>
+                <a href="{{ route('cart') }}" class="btn btn-primary">
+                    <i class="las la-shopping-cart"></i> Go to Cart
+                </a>
             </div>
         @endforelse
     </div>
@@ -228,22 +374,192 @@
     <style>
         /* Container */
         .inquiry-details-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 48px 16px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 48px 40px;
             margin-top: 100px;
         }
 
-        /* Header */
-        .inquiry-details-header {
-            margin-bottom: 30px;
-        }
-
-        .inquiry-details-header h1 {
-            font-size: 36px;
+        /* Page Title */
+        .page-title {
+            font-size: 32px;
             font-weight: bold;
             color: #111827;
+            margin: 0 0 30px 0;
+        }
+
+        /* Accordion */
+        .inquiry-accordion {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .inquiry-accordion:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .inquiry-accordion.open {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            background: #f9fafb;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .inquiry-accordion.open .accordion-header {
+            background: white;
+            border-bottom-color: #e5e7eb;
+        }
+
+        .accordion-header:hover {
+            background: #f3f4f6;
+        }
+
+        .accordion-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .accordion-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-icon i {
+            font-size: 18px;
+            color: #6b7280;
+            transition: transform 0.3s ease;
+        }
+
+        .inquiry-accordion.open .accordion-icon {
+            background: #1976D2;
+        }
+
+        .inquiry-accordion.open .accordion-icon i {
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .accordion-title-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .accordion-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
             margin: 0;
+        }
+
+        .accordion-meta {
+            font-size: 13px;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .accordion-meta i {
+            font-size: 14px;
+        }
+
+        .meta-separator {
+            color: #d1d5db;
+        }
+
+        .accordion-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .accordion-total {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .accordion-content {
+            padding: 24px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* No Inquiries */
+        .no-inquiries {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .no-inquiries i {
+            font-size: 64px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .no-inquiries h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+
+        .no-inquiries p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0 0 24px 0;
+        }
+
+        .no-inquiries .btn-primary {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .no-inquiries .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
 
         /* Tabs */
@@ -266,12 +582,12 @@
         }
 
         .tab.active {
-            color: #0891b2;
-            border-bottom-color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
+            border-bottom-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         .tab:hover {
-            color: #0891b2;
+            color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         /* Main Content */
@@ -290,26 +606,90 @@
         .items-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
+        }
+
+        /* Items Group */
+        .items-group {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .items-group-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .items-group-title i {
+            font-size: 20px;
+            color: #1976D2;
+        }
+
+        .items-count {
+            background: #1976D2;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        /* Items Grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
 
         /* Item Card */
         .item-card {
             background: white;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 16px;
             display: flex;
-            align-items: flex-start;
-            gap: 16px;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .product-card {
+            border-left: 4px solid #1976D2;
+        }
+
+        .category-card {
+            border-left: 4px solid #f59e0b;
+        }
+
+        /* Image Wrapper with Badge */
+        .item-image-wrapper {
+            position: relative;
+            display: inline-block;
         }
 
         .item-image {
-            width: 70px;
-            height: 70px;
-            border-radius: 6px;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
             overflow: hidden;
             flex-shrink: 0;
+        }
+
+        .category-image {
+            width: 100px;
+            height: 70px;
+            border-radius: 8px;
         }
 
         .item-image img {
@@ -318,41 +698,191 @@
             object-fit: cover;
         }
 
+        /* Quantity Badge */
+        .qty-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+            border: 2px solid white;
+        }
+
+        .category-card .qty-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        }
+
         .item-details {
             flex: 1;
-        }
-
-        .item-header {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-
-        .item-weight {
-            font-size: 13px;
-            font-weight: 600;
-            color: #111827;
         }
 
         .item-title {
             font-size: 15px;
             font-weight: 600;
             color: #111827;
-            margin: 0;
+            margin: 0 0 6px 0;
+            line-height: 1.4;
         }
 
-        .item-category {
-            font-size: 12px;
-            color: #0891b2;
-            margin: 0 0 8px 0;
-        }
-
-        .item-description {
+        .item-type-badge {
+            display: inline-block;
             font-size: 11px;
+            font-weight: 500;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Item Price */
+        .item-price {
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        .price-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .price-waiting {
+            font-size: 13px;
+            font-weight: 500;
             color: #6b7280;
-            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* No Items Message */
+        .no-items-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .no-items-message i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .no-items-message p {
             margin: 0;
+            font-size: 14px;
+        }
+
+        /* Item Notes */
+        .item-user-note,
+        .item-admin-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .item-user-note {
+            background-color: #e0f2fe;
+            border-left: 3px solid #0ea5e9;
+        }
+
+        .item-admin-note {
+            background-color: #fef3c7;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .item-user-note .note-label,
+        .item-admin-note .note-label {
+            font-weight: 600;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .item-user-note .note-label {
+            color: #0369a1;
+        }
+
+        .item-admin-note .note-label {
+            color: #b45309;
+        }
+
+        .item-user-note .note-text,
+        .item-admin-note .note-text {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .item-user-note .note-text {
+            color: #0c4a6e;
+        }
+
+        .item-admin-note .note-text {
+            color: #78350f;
+        }
+
+        /* Inquiry Notes (in summary) */
+        .inquiry-user-note,
+        .inquiry-admin-note {
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .inquiry-user-note {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .inquiry-admin-note {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .inquiry-user-note .note-label,
+        .inquiry-admin-note .note-label {
+            font-weight: 600;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .inquiry-user-note .note-label {
+            color: #0369a1;
+        }
+
+        .inquiry-admin-note .note-label {
+            color: #b45309;
+        }
+
+        .inquiry-user-note .note-text,
+        .inquiry-admin-note .note-text {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .inquiry-user-note .note-text {
+            color: #0c4a6e;
+        }
+
+        .inquiry-admin-note .note-text {
+            color: #78350f;
         }
 
         /* Chat Container */
@@ -446,7 +976,7 @@
 
         /* Admin Message */
         .admin-message {
-            background: #0891b2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
             align-self: flex-start;
         }
@@ -551,7 +1081,7 @@
 
         .chat-input:focus {
             outline: none;
-            border-color: #0891b2;
+            border-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
         }
 
         .chat-input::placeholder {
@@ -562,7 +1092,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #0891b2;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             border: none;
             color: white;
             cursor: pointer;
@@ -574,7 +1104,7 @@
         }
 
         .send-button:hover {
-            background: #0e7490;
+            background: #5FB3F6;
             transform: scale(1.05);
         }
 
@@ -636,9 +1166,10 @@
             font-weight: 500;
         }
 
-        .status-badge.ongoing { background-color: #ef4444; color: white; }
-        .status-badge.pending { background-color: #f59e0b; color: white; } /* ✅ جديد */
-        .status-badge.accepted { background-color: #10b981; color: white; } /* ✅ جديد */
+        .status-badge.pending { background-color: #f59e0b; color: white; }
+        .status-badge.processing { background-color: #3b82f6; color: white; }
+        .status-badge.completed { background-color: #10b981; color: white; }
+        .status-badge.cancelled { background-color: #ef4444; color: white; }
 
         .summary-details {
             display: flex;
@@ -686,22 +1217,96 @@
         }
 
         .btn-price {
-            background-color: #0891b2;
+            background-color: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
             color: white;
             margin-top: 0;
         }
 
-        .btn-price:hover { background-color: #0e7490; }
+        .btn-price:hover { background-color: #5FB3F6; }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-buttons form {
+            flex: 1;
+        }
 
         .btn-accept {
             width: 100%;
-            background-color: #0891b2;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 12px;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-accept:hover { background-color: #0e7490; }
+        .btn-accept:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-accept:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-cancel {
+            width: 100%;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-completed {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 20px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-cancelled {
+            width: 100%;
+            background: #9ca3af;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 20px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
         /* Responsive */
         @media (max-width: 1024px) {
@@ -709,19 +1314,100 @@
             .summary-section { width: 100%; }
             .tab { padding: 12px 80px; }
             .conversation-message { max-width: 85%; }
+
+            .accordion-header {
+                padding: 16px 20px;
+            }
+
+            .accordion-header-right {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 8px;
+            }
         }
 
         @media (max-width: 768px) {
+            .inquiry-details-container {
+                padding: 24px 16px;
+            }
+
             .tab { padding: 12px 40px; }
             .chat-container { height: 500px; }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .accordion-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .accordion-header-right {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .accordion-title {
+                font-size: 14px;
+            }
+
+            .accordion-meta {
+                font-size: 12px;
+            }
+
+            .accordion-content {
+                padding: 16px;
+            }
+
+            .accordion-total {
+                font-size: 14px;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .items-group {
+                padding: 16px;
+            }
+
+            .item-card {
+                padding: 14px;
+            }
         }
     </style>
 
     <script>
+        // Toggle Accordion
+        function toggleAccordion(inquiryId) {
+            const accordion = document.querySelector('.inquiry-accordion[data-inquiry-id="' + inquiryId + '"]');
+            const content = document.getElementById('accordion-content-' + inquiryId);
+
+            if (!accordion || !content) return;
+
+            const isOpen = accordion.classList.contains('open');
+
+            if (isOpen) {
+                // Close
+                accordion.classList.remove('open');
+                content.style.display = 'none';
+            } else {
+                // Open
+                accordion.classList.add('open');
+                content.style.display = 'block';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
 
+            // Tabs switching
             document.querySelectorAll('.tabs-container .tab').forEach(function(tab) {
-                tab.addEventListener('click', function() {
+                tab.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent accordion toggle when clicking tabs
+
                     const inquiryId = tab.getAttribute('data-inquiry');
                     const targetId  = tab.getAttribute('data-target');
 

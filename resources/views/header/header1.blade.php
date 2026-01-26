@@ -200,7 +200,8 @@
         text-decoration: none;
     }
 
-    .icon-btn svg {
+    .icon-btn svg,
+    .icon-btn img.cart-icon-svg {
         width: 20px;
         height: 20px;
         display: block;
@@ -213,7 +214,12 @@
     }
 
     .header-cart-btn .cart-icon-svg {
-        transition: opacity 0.18s ease, transform 0.18s ease;
+        transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+    }
+
+    /* When cart icon is an <img>, mimic currentColor hover */
+    .icon-btn:hover img.cart-icon-svg {
+        filter: brightness(0) invert(1);
     }
 
     .header-cart-btn .cart-success-check {
@@ -661,6 +667,7 @@
     #logo-iconstyle {
         max-height: 40px;
         max-width: 200px;
+        margin-bottom: 4px;
         object-fit: contain;
         margin-bottom:3px;
     }
@@ -669,7 +676,7 @@
         #logo-iconstyle {
             max-height: 20px;
             max-width: 150px;
-            margin-top: 5px;
+            /* margin-top: 5px; */
         }
     }
 
@@ -909,10 +916,12 @@
             <!-- Cart -->
             <div class="icon-btn header-cart-btn" style="position: relative;">
                 <a href="{{ route('cart') }}" aria-label="{{ translate('Cart') }}">
-                    <svg class="cart-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                    <img
+                        class="cart-icon-svg"
+                        src="{{ asset('assets/Vectorr.svg') }}"
+                        alt="{{ translate('Cart') }}"
+                        loading="lazy"
+                    />
                 </a>
                 <span class="cart-success-check" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -936,7 +945,7 @@
                     <div class="header-dropdown icon-dropdown">
                         <div class="dropdown-header">{{ Auth::user()->name }}</div>
 
-                        <a href="{{ route('inquiries.index') }}" class="dropdown-item">
+                        <a href="{{ route('cart.inquiry') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
@@ -967,7 +976,7 @@
                     </div>
                 @else
                     <div class="header-dropdown icon-dropdown">
-                        <a href="{{ route('cart') }}" class="dropdown-item">
+                        <a href="{{ route('cart.inquiry') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />

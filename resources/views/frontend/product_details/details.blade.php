@@ -1,24 +1,10 @@
 <div class="text-left">
     <!-- Product Name -->
-    <h2 class="mb-4 fs-16 fw-700 text-dark">
+    <h2 class="mb-4 fs-24 fw-800" style="color:#000;">
         {{ $detailedProduct->getTranslation('name') }}
     </h2>
 
     <div class="row align-items-center mb-3">
-        <!-- Review -->
-        @if ($detailedProduct->auction_product != 1)
-            <div class="col-12">
-                @php
-                    $total = 0;
-                    $total += $detailedProduct->reviews->where('status', 1)->count();
-                @endphp
-                <span class="rating rating-mr-2">
-                    {{ renderStarRating($detailedProduct->rating) }}
-                </span>
-                <span class="ml-1 opacity-50 fs-13">({{ $total }}
-                    {{ translate('reviews') }})</span>
-            </div>
-        @endif
         <!-- Estimate Shipping Time -->
         @if ($detailedProduct->est_shipping_days)
             <div class="col-auto fs-13 mt-1">
@@ -59,26 +45,7 @@
                 </a>
             </div>
         @endif
-        <div class="col mb-3">
-            @if ($detailedProduct->auction_product != 1)
-                <div class="d-flex">
-                    <!-- Add to wishlist button -->
-                    <a href="javascript:void(0)" onclick="addToWishList({{ $detailedProduct->id }})"
-                        class="mr-3 fs-13 text-dark opacity-60 has-transitiuon hov-opacity-100">
-                        <i class="la la-heart-o mr-1"></i>
-                        {{ translate('Add to Wishlist') }}
-                    </a>
-                    <!-- Add to compare button -->
-                    <a href="javascript:void(0)" onclick="addToCompare({{ $detailedProduct->id }})"
-                        class="fs-13 text-dark opacity-60 has-transitiuon hov-opacity-100">
-                        <i class="las la-sync mr-1"></i>
-                        {{ translate('Add to Compare') }}
-                    </a>
-                </div>
-            @endif
-        </div>
     </div>
-
 
     <!-- Brand Logo & Name -->
     @if ($detailedProduct->brand != null)
@@ -105,99 +72,6 @@
             </span>
         </div>
     @endif
-
-    <!-- Seller Info -->
-    <div class="d-flex flex-wrap align-items-center">
-        <div class="d-flex align-items-center mr-4">
-            <!-- Shop Name -->
-            @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
-                <span class="text-secondary fs-13 fw-400 mr-4 w-80px">{{ translate('Sold by') }}</span>
-                <a href="{{ route('shop.visit', $detailedProduct->user->shop->slug) }}"
-                    class="text-reset hov-text-primary fs-13 fw-700">{{ $detailedProduct->user->shop->name }}</a>
-            @else
-                <p class="mb-0 fs-13 fw-700">{{ translate('Inhouse product') }}</p>
-            @endif
-        </div>
-        <div class="w-100 d-sm-none"></div>
-        <!-- Messase to seller -->
-        @if (get_setting('conversation_system') == 1)
-            <div class="">
-                <button
-                    class="btn btn-sm btn-soft-secondary-base btn-outline-secondary-base hov-svg-white hov-text-white rounded-4"
-                    onclick="show_chat_modal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
-                        class="mr-2 has-transition">
-                        <g id="Group_23918" data-name="Group 23918" transform="translate(1053.151 256.688)">
-                            <path id="Path_3012" data-name="Path 3012"
-                                d="M134.849,88.312h-8a2,2,0,0,0-2,2v5a2,2,0,0,0,2,2v3l2.4-3h5.6a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2m1,7a1,1,0,0,1-1,1h-8a1,1,0,0,1-1-1v-5a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1Z"
-                                transform="translate(-1178 -341)"
-                                fill="{{ get_setting('secondary_base_color', '#ffc519') }}" />
-                            <path id="Path_3013" data-name="Path 3013"
-                                d="M134.849,81.312h8a1,1,0,0,1,1,1v5a1,1,0,0,1-1,1h-.5a.5.5,0,0,0,0,1h.5a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2h-8a2,2,0,0,0-2,2v.5a.5.5,0,0,0,1,0v-.5a1,1,0,0,1,1-1"
-                                transform="translate(-1182 -337)"
-                                fill="{{ get_setting('secondary_base_color', '#ffc519') }}" />
-                            <path id="Path_3014" data-name="Path 3014"
-                                d="M131.349,93.312h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1"
-                                transform="translate(-1181 -343.5)"
-                                fill="{{ get_setting('secondary_base_color', '#ffc519') }}" />
-                            <path id="Path_3015" data-name="Path 3015"
-                                d="M131.349,99.312h5a.5.5,0,1,1,0,1h-5a.5.5,0,1,1,0-1"
-                                transform="translate(-1181 -346.5)"
-                                fill="{{ get_setting('secondary_base_color', '#ffc519') }}" />
-                        </g>
-                    </svg>
-
-                    {{ translate('Message Seller') }}
-                </button>
-            </div>
-        @endif
-        @if (get_setting('whatsapp_order') == 1)
-            @php
-                $storeName = env('APP_NAME');
-                $productTitle = $detailedProduct->getTranslation('name');
-                $productUrl = URL::to('/product') . '/' . $detailedProduct->slug;
-                $template = get_setting('order_messege_template');
-                $message = str_replace(
-                    ['[[storeName]]', '[[productTitle]]', '[[productUrl]]'],
-                    [$storeName, $productTitle, $productUrl],
-                    $template,
-                );
-
-                $whatsappNumber = preg_replace('/[^0-9]/', '', env('WHATSAPP_NUMBER'));
-                $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . urlencode($message);
-            @endphp
-            @if (
-                ($detailedProduct->added_by == 'seller' && get_setting('whatsapp_order_seller_prods') == 1) ||
-                    $detailedProduct->added_by == 'admin')
-                <div class="ml-2">
-                    <a class="btn btn-sm btn-soft-whatsapp-base hov-svg-white hov-text-white rounded-4"
-                        href="{{ $whatsappUrl }}" target="_blank">
-                        <i class="lab la-whatsapp mr-1"></i>{{ translate('Order Via WhatsApp') }}
-                    </a>
-                </div>
-            @endif
-        @endif
-
-
-        <!-- Size guide -->
-        @php
-            $sizeChartId =
-                $detailedProduct->main_category && $detailedProduct->main_category->sizeChart
-                    ? $detailedProduct->main_category->sizeChart->id
-                    : 0;
-            $sizeChartName =
-                $detailedProduct->main_category && $detailedProduct->main_category->sizeChart
-                    ? $detailedProduct->main_category->sizeChart->name
-                    : null;
-        @endphp
-        @if ($sizeChartId != 0)
-            <div class=" ml-4">
-                <a href="javascript:void(1);"
-                    onclick='showSizeChartDetail({{ $sizeChartId }}, "{{ $sizeChartName }}")'
-                    class="animate-underline-primary">{{ translate('Show size guide') }}</a>
-            </div>
-        @endif
-    </div>
 
     @if (get_setting('show_custom_product_visitors') == 1)
         <div id="live-product-viewing-visitors"
@@ -376,7 +250,7 @@
                 <!-- Total Price -->
 
 
-                <!-- Quantity + Add to cart -->
+                <!-- Quantity -->
                 <div class="row no-gutters mb-3">
                     <div class="col-sm-5 d-flex">
                         <div class="fs-13 fw-400 text-secondary">{{ translate('Quantity') }}</div>
@@ -397,16 +271,13 @@
                         </div>
 
                     </div>
-                    <!-- Add to cart & Buy now Buttons -->
-                    <div class="col-sm-4">
-
-                    </div>
+                    <div class="col-sm-4"></div>
                     <div class="col-sm-3"></div>
                 </div>
 
 
-                <div class="row  no-gutters mb-3">
-                    <!-- Add to cart & Buy now Buttons -->
+                <div class="row no-gutters mb-3">
+                    <!-- Quantity and Add to Inquiry -->
                     <div class="col-sm-9">
                         <div class="product-quantity d-flex align-items-center">
                             <div class="row no-gutters align-items-center aiz-plus-minus mr-3" style="width: 130px;">
@@ -435,32 +306,23 @@
                                     <i class="la la-share"></i> {{ translate($detailedProduct->external_link_btn) }}
                                 </a>
                             @else
+                                @php
+                                    $detailHasVariants = false;
+                                    try {
+                                        $detailColors = is_string($detailedProduct->colors ?? null) ? json_decode($detailedProduct->colors, true) : ($detailedProduct->colors ?? []);
+                                        $detailChoice = is_string($detailedProduct->choice_options ?? null) ? json_decode($detailedProduct->choice_options, true) : ($detailedProduct->choice_options ?? []);
+                                        $detailHasVariants = (is_array($detailColors) && count($detailColors) > 0) || (is_array($detailChoice) && count($detailChoice) > 0);
+                                    } catch (\Throwable $e) {
+                                        $detailHasVariants = false;
+                                    }
+                                @endphp
                                 <button type="button"
-                                    class="btn bg-soft-primary add-to-cart fw-600 min-w-150px w-75 rounded-1  text-primary hov-bg-primary hov-text-light"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
-                                    <i class="las la-shopping-bag"></i> {{ translate('Add to cart') }}
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="col-sm-3"></div>
-                </div>
-                <div class="row no-gutters">
-                    <div class="col-sm-9">
-                        <div class="product-quantity d-flex align-items-center">
-                            @if (
-                                (get_setting('product_external_link_for_seller') == 1 &&
-                                    $detailedProduct->added_by == 'seller' &&
-                                    $detailedProduct->external_link != null) ||
-                                    ($detailedProduct->added_by != 'seller' && $detailedProduct->external_link != null))
-                            @else
-                                <button type="button"
-                                    class="btn btn-dark buy-now fw-600 add-to-cart min-w-150px rounded-1 w-100"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
-                                    <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
-                                </button>
-                                <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
-                                    <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
+                                    class="btn-add-inquiry min-w-150px w-75"
+                                    data-product-id="{{ $detailedProduct->id }}"
+                                    data-has-variants="{{ $detailHasVariants ? 1 : 0 }}"
+                                    data-min-qty="{{ (int) $detailedProduct->min_qty }}"
+                                    onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
+                                    <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
                                 </button>
                             @endif
                         </div>
@@ -488,20 +350,12 @@
                     <div class="row no-gutters mb-3">
                         <div class="col-sm-9">
                             <button type="button"
-                                class="btn bg-soft-primary add-to-cart fw-600 min-w-150px w-100 rounded-1 text-primary hov-bg-primary hov-text-light"
-                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
-                                <i class="las la-shopping-bag"></i> {{ translate('Add to cart') }}
-                            </button>
-                        </div>
-                        <div class="col-sm-3"></div>
-                    </div>
-                    <div class="row no-gutters mb-3">
-                        <div class="col-sm-9">
-                            <button type="button"
-                                class="btn btn-dark buy-now fw-600 add-to-cart min-w-150px rounded-1 w-100"
-                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
-
-                                <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
+                                class="btn-add-inquiry min-w-150px w-100"
+                                data-product-id="{{ $detailedProduct->id }}"
+                                data-has-variants="0"
+                                data-min-qty="1"
+                                onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
+                                <i class="las la-plus"></i> {{ translate('Add to Inquiry') }}
                             </button>
                         </div>
                         <div class="col-sm-3"></div>

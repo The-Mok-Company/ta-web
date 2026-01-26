@@ -1135,7 +1135,7 @@
         <div class="container">
             <div class="section-header">
                 <div class="header-left">
-                    <h2>Featured Products</h2>
+                    <h2>{{ translate('Hot products') }}</h2>
                     <div class="nav-buttons">
                         <button class="nav-btn" id="productsPrevBtn">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"

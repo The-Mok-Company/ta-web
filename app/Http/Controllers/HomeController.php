@@ -440,6 +440,17 @@ class HomeController extends Controller
 
     public function product(Request $request, $slug)
     {
+        // Redirect to clean URL when ?category_id= is present (strip from address bar)
+        if ($request->has('category_id')) {
+            $query = $request->query();
+            unset($query['category_id']);
+            $url = route('product', $slug);
+            if (!empty($query)) {
+                $url .= '?' . http_build_query($query);
+            }
+            return redirect($url, 302);
+        }
+
         if (!Auth::check()) {
             session(['link' => url()->current()]);
         }

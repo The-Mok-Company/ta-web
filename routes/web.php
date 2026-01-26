@@ -72,9 +72,11 @@ use App\Models\User;
 
 Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
     ->name('inquiry.requestOffer');
-      Route::post('/inquiries/{id}/accept', [InquiryController::class, 'acceptOffer'])
-        ->name('inquiries.accept');
-    Route::get('/inquiries/{id}', [InquiryController::class, 'show'])->name('inquiries.show');
+Route::post('/inquiries/{id}/accept', [InquiryController::class, 'acceptOffer'])
+    ->name('inquiries.accept');
+Route::post('/inquiries/{id}/cancel', [InquiryController::class, 'cancelOffer'])
+    ->name('inquiries.cancel');
+Route::get('/inquiries/{id}', [InquiryController::class, 'show'])->name('inquiries.show');
 
 Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
 Route::get('/search/initial', [HomeController::class, 'initialSearch'])->name('search.initial');
@@ -564,3 +566,8 @@ Route::controller(PageController::class)->group(function () {
 Route::controller(ContactController::class)->group(function () {
     Route::post('/contact', 'contact')->name('contact');
 });
+Route::prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('inquiries', \App\Http\Controllers\Admin\InquiryController::class);
+    });

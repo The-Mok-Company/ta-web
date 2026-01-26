@@ -1,19 +1,10 @@
 @php
     /** @var \App\Models\Product $product */
-
-    // Keep category context (for category sidebar / inline modal flows)
     $productUrl = route('product', $product->slug);
     if ($product->auction_product == 1) {
         $productUrl = route('auction-product', $product->slug);
     }
-    if (isset($category_id) && !empty($category_id)) {
-        $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . http_build_query(['category_id' => $category_id]);
-    }
-
     $productModalUrl = route('product.modal', $product->slug);
-    if (isset($category_id) && !empty($category_id)) {
-        $productModalUrl .= '?' . http_build_query(['category_id' => $category_id]);
-    }
 @endphp
 
 @include('frontend.components.product_card', [
@@ -35,20 +26,11 @@
 
 @php
     /** @var \App\Models\Product $product */
-
-    // Keep category context (for category sidebar / inline modal flows)
     $productUrl = route('product', $product->slug);
     if ($product->auction_product == 1) {
         $productUrl = route('auction-product', $product->slug);
     }
-    if (isset($category_id) && !empty($category_id)) {
-        $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . http_build_query(['category_id' => $category_id]);
-    }
-
     $productModalUrl = route('product.modal', $product->slug);
-    if (isset($category_id) && !empty($category_id)) {
-        $productModalUrl .= '?' . http_build_query(['category_id' => $category_id]);
-    }
 @endphp
 
 @include('frontend.components.product_card', [
@@ -72,18 +54,7 @@
         if ($product->auction_product == 1) {
             $product_url = route('auction-product', $product->slug);
         }
-
-        // Keep category context (for category sidebar / inline modal flows)
-        if (isset($category_id) && !empty($category_id)) {
-            $product_url .= (str_contains($product_url, '?') ? '&' : '?') . http_build_query([
-                'category_id' => $category_id,
-            ]);
-        }
-
         $product_modal_url = route('product.modal', $product->slug);
-        if (isset($category_id) && !empty($category_id)) {
-            $product_modal_url .= '?' . http_build_query(['category_id' => $category_id]);
-        }
     @endphp
 
     <!-- Image Container -->
