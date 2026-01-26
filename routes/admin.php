@@ -665,7 +665,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::post('/settings/contact-us/update', [ContactUsController::class, 'update'])
         ->name('settings.contact-us.update');
 
-            Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('messages.index');
+
+            Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact.messages.index');
+
     Route::post('/contact-messages/{id}/toggle-status', [ContactMessageController::class, 'toggleStatus'])->name('admin.contact.messages.toggle-status');
 
     // product Queries show on Admin panel
