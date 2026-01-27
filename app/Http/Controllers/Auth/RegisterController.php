@@ -76,11 +76,19 @@ class RegisterController extends Controller
     {
         // dd($data);
         if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $user = User::create([
+            $userData = [
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-            ]);
+            ];
+
+            // Save phone if provided (when OTP is not activated)
+            if (!empty($data['phone'])) {
+                $cleanPhone = preg_replace('/\D+/', '', $data['phone']);
+                $userData['phone'] = '+20' . $cleanPhone;
+            }
+
+            $user = User::create($userData);
         }
         else {
             if (addon_is_activated('otp_system')){

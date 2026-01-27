@@ -15,16 +15,16 @@
         justify-content: center;
         background: #ffffff; /* Mobile: no background */
     }
-/* Hide scrollbar (keep scrolling) */
-.auth-card-inner{
-    -ms-overflow-style: none;  /* IE/Edge */
-    scrollbar-width: none;     /* Firefox */
-}
-.auth-card-inner::-webkit-scrollbar{
-    width: 0;
-    height: 0;
-    display: none;             /* Chrome/Safari */
-}
+    /* Hide scrollbar (keep scrolling) */
+    .auth-card-inner{
+        -ms-overflow-style: none;  /* IE/Edge */
+        scrollbar-width: none;     /* Firefox */
+    }
+    .auth-card-inner::-webkit-scrollbar{
+        width: 0;
+        height: 0;
+        display: none;             /* Chrome/Safari */
+    }
 
     /* Desktop / Tablet background */
     @media (min-width: 768px){
@@ -58,7 +58,7 @@
     .auth-center{
         position: relative;
         z-index: 2;
-        width: min(720px, 100%); /* register ممكن يحتاج عرض أكبر */
+        width: min(720px, 100%);
     }
 
     .auth-card{
@@ -148,6 +148,11 @@
                                                 </button>
                                             @endif
                                         </div>
+                                        @if ($errors->has('phone'))
+                                            <span class="invalid-feedback d-block" role="alert">
+                                                <strong>{{ $errors->first('phone') }}</strong>
+                                            </span>
+                                        @endif
                                     </div>
 
                                     <input type="hidden" id="country_code" name="country_code" value="{{ old('country_code', 'US') }}">
@@ -198,12 +203,14 @@
                                 </div>
 
                             @else
+                                {{-- ✅ Email (بدون OTP) --}}
                                 <div class="form-group email-phone-div" id="emailOrPhoneDiv">
                                     <label for="email" class="fs-12 fw-700 text-soft-dark">{{ translate('Email') }}</label>
                                     <div class="input-group">
                                         <input type="email"
                                                class="form-control rounded-0 {{ $errors->has('email') ? ' is-invalid' : '' }}"
                                                name="email" id="signinSrEmail"
+                                               value="{{ old('email', $email ?? '') }}"
                                                placeholder="{{ translate('Email Address') }}">
                                         @if(get_setting('customer_registration_verify') == '1')
                                             <button class="btn btn-primary ml-2" type="button" id="sendOtpBtn" onclick="sendVerificationCode()">
@@ -214,6 +221,21 @@
                                     @if ($errors->has('email'))
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $errors->first('email') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+
+                                {{-- ✅ NEW: Phone field (بدون OTP) --}}
+                                <div class="form-group">
+                                    <label for="phone" class="fs-12 fw-700 text-soft-dark">{{ translate('Phone') }}</label>
+                                    <input type="text"
+                                           class="form-control rounded-0{{ $errors->has('phone') ? ' is-invalid' : '' }}"
+                                           name="phone" id="phone"
+                                           value="{{ old('phone', $phone ?? '') }}"
+                                           placeholder="01XXXXXXXXX">
+                                    @if ($errors->has('phone'))
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('phone') }}</strong>
                                         </span>
                                     @endif
                                 </div>
