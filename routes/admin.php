@@ -112,6 +112,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/categories/destroy/{id}', 'destroy')->name('categories.destroy');
         Route::post('/categories/featured', 'updateFeatured')->name('categories.featured');
         Route::post('/categories/hot', 'updateHot')->name('categories.hot');
+        Route::post('/categories/published', 'updatePublished')->name('categories.published');
         Route::post('/categories/categoriesByType', 'categoriesByType')->name('categories.categories-by-type');
 
         //category-wise commission

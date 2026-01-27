@@ -33,6 +33,8 @@
                     {{ translate('Featured') }}</th>
                 <th class="hide-md text-uppercase fs-12 fw-700 text-secondary">
                     {{ translate('Hot Category') }}</th>
+                <th class="hide-md text-uppercase fs-12 fw-700 text-secondary">
+                    {{ translate('Published') }}</th>
                 @if (get_setting('seller_commission_type') == 'category_based')
                     <th class="hide-md text-uppercase fs-12 fw-700 text-secondary">{{ translate('Commission') }}</th>
                 @endif
@@ -138,6 +140,19 @@
                                 <label class="aiz-switch aiz-switch-success mb-0">
                                     <input type="checkbox" onchange="update_hot(this)"
                                         value="{{ $category->id }}" <?php if ($category->hot_category == 1) {
+                                            echo 'checked';
+                                        } ?>>
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="hide-md" data-label="Published">
+                        <div class="row gutters-5 w-80px w-md-80px mw-80">
+                            <div class="col">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="update_published(this)"
+                                        value="{{ $category->id }}" <?php if ($category->is_published == 1) {
                                             echo 'checked';
                                         } ?>>
                                     <span></span>

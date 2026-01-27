@@ -265,6 +265,16 @@ class CategoryController extends Controller
         return 1;
     }
 
+    public function updatePublished(Request $request)
+    {
+        $category = Category::findOrFail($request->id);
+        $category->is_published = $request->status;
+        $category->save();
+        Cache::forget('featured_categories');
+        Cache::forget('hot_categories');
+        return 1;
+    }
+
     public function categoriesByType(Request $request)
     {
         $categories = Category::where('parent_id', 0)
