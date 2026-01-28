@@ -53,7 +53,7 @@
                     <div class="form-group mb-3">
                         <label class="col-form-label">{{translate('Parent Category')}}</label>
                         <select class="select2 form-control aiz-selectpicker" name="parent_id" data-toggle="select2" data-placeholder="Choose ..."data-live-search="true" data-selected="{{ $category->parent_id }}">
-                            @include('backend.product.categories.categories_option_edit', ['categories' => $categories])
+                            @include('backend.product.categories.categories_option_edit', ['categories' => $categories, 'category' => $category])
                         </select>
                     </div>
                     <div class="form-group mb-3">

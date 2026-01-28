@@ -1,12 +1,25 @@
 @php
     use App\Models\Category;
     use App\Models\Product;
+    use Illuminate\Support\Str;
 
     $topHeaderTextColor = get_setting('top_header_text_color');
     $middleHeaderTextColor = get_setting('middle_header_text_color');
     $bottomHeaderTextColor = get_setting('bottom_header_text_color');
 
-    $categories = Category::where('level', 0)->with('childrenCategories')->get();
+    // Header menu is managed from Dashboard -> Website Settings -> Header
+    $headerMenuLabels = get_setting('header_menu_labels');
+    $headerMenuLinks = get_setting('header_menu_links');
+    $headerMenuLabelsArr = $headerMenuLabels ? json_decode($headerMenuLabels, true) : [];
+    $headerMenuLinksArr = $headerMenuLinks ? json_decode($headerMenuLinks, true) : [];
+    // First 7 links in main bar; extra links go in "More" dropdown
+    $headerMainNavCount = min(7, count($headerMenuLabelsArr));
+
+    // Dynamic Categories dropdown: main categories from DB (with children for sub-menus)
+    $headerMainCategories = \App\Models\Category::where('level', 0)
+        ->with(['childrenCategories', 'catIcon', 'coverImage'])
+        ->orderBy('order_level', 'desc')
+        ->get();
 
     // Cart count (works with DB/session cart via helper)
     // - Guest users: often stored in Session('cart')
@@ -40,9 +53,9 @@
     }
 
     .header-container {
-        max-width: 1200px;
-        width: 90%;
-        padding: 0 40px;
+        max-width: 1280px;
+        width: 92%;
+        padding: 0 32px 0 28px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -63,14 +76,14 @@
 
 
 
-    /* Logo */
+    /* Logo - extra right padding to separate from first nav link */
     .logo1 {
         display: flex;
         align-items: center;
         gap: 10px;
         text-decoration: none;
         color: white;
-        padding-right: 20px;
+        padding-right: 36px;
         margin-top: 0;
     }
 
@@ -104,13 +117,24 @@
         font-weight: 400;
     }
 
-    /* Navigation */
+    /* Navigation - stay on one row, no wrapping; left padding for space from logo */
     .nav {
         display: flex;
         align-items: center;
         gap: 36px;
         flex: 1;
         justify-content: center;
+        flex-wrap: nowrap;
+        min-width: 0;
+        padding-left: 8px;
+    }
+
+    /* 7 links: tighter gap and slightly smaller text so all stay on one row */
+    .nav.nav-max {
+        gap: 24px;
+    }
+    .nav.nav-max .nav-link {
+        font-size: 14px;
     }
 
     .nav-link {
@@ -120,6 +144,7 @@
         font-weight: 500;
         transition: color 0.2s;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .nav-link:hover {
@@ -440,6 +465,23 @@
         transform: translateX(-50%) translateY(0);
     }
 
+    /* Dynamic Categories dropdown */
+    .categories-dropdown {
+        min-width: 280px;
+        max-width: 320px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    .categories-dropdown .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .categories-dropdown .category-item-wrapper > .dropdown-item .sub-arrow {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
     .icon-dropdown {
         right: 0;
         left: auto;
@@ -688,20 +730,32 @@
         .nav {
             gap: 8px;
         }
+        .nav.nav-max {
+            gap: 5px;
+        }
+        .nav.nav-max .nav-link {
+            font-size: 13px;
+        }
     }
 
     @media (max-width: 1161px) and (min-width: 968px) {
         .header-container {
             width: 100%;
-            padding: 0 18px;
+            padding: 0 16px;
         }
 
         #logo-iconstyle {
-            max-width: 170px;
+            max-width: 160px;
         }
 
         .nav {
-            gap: 5px;
+            gap: 4px;
+        }
+        .nav.nav-max {
+            gap: 3px;
+        }
+        .nav.nav-max .nav-link {
+            font-size: 12px;
         }
     }
 </style>
@@ -729,139 +783,83 @@
             @endif
         </a>
 
-        <!-- Navigation -->
-        <nav class="nav" id="mainNav">
-            @if (get_setting('header_menu_labels') != null)
-                @foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
-                    @if ($value == 'All Categories')
-                        @if (isset($categories) && $categories->count() > 0)
-                            <div class="nav-dropdown">
-                                <button class="dropdown-btn">
-                                    {{ translate('categories') }}
-                                    <svg class="dropdown-arrow" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-
-                                <div class="header-dropdown">
-                                    <div class="dropdown-header">{{ translate('Main Categories') }}</div>
-
-                                    @foreach ($categories->take(10) as $category)
-                                        <div class="category-item-wrapper">
-                                            <a href="{{ route('products.category', $category->slug) }}"
-                                                class="dropdown-item">
-                                                @if ($category->icon)
-                                                    <img src="{{ uploaded_asset($category->icon) }}" width="20"
-                                                        height="20">
-                                                @endif
-
-                                                <span>{{ $category->getTranslation('name') }}</span>
-
-                                                @if ($category->childrenCategories->count() > 0)
-                                                    <svg class="sub-arrow" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M9 5l7 7-7 7" />
-                                                    </svg>
-                                                @endif
-                                            </a>
-
-                                            @if ($category->childrenCategories->count() > 0)
-                                                <div class="sub-dropdown">
-                                                    <div class="dropdown-header">{{ translate('Sub Categories') }}</div>
-
-                                                    @foreach ($category->childrenCategories as $subCategory)
-                                                        <div class="category-item-wrapper">
-                                                            <a href="{{ route('products.category', $subCategory->slug) }}"
-                                                                class="dropdown-item">
-                                                                <span>{{ $subCategory->getTranslation('name') }}</span>
-
-                                                                @if ($subCategory->childrenCategories->count() > 0)
-                                                                    <svg class="sub-arrow" fill="none"
-                                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M9 5l7 7-7 7" />
-                                                                    </svg>
-                                                                @endif
-                                                            </a>
-
-                                                            @if ($subCategory->childrenCategories->count() > 0)
-                                                                <div class="sub-dropdown level-2">
-                                                                    <div class="dropdown-header">
-                                                                        {{ translate('Product Group') }}</div>
-
-                                                                    @foreach ($subCategory->childrenCategories as $level2Category)
-                                                                        <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
-                                                                            class="dropdown-item">
-                                                                            <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                        </a>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
+        <!-- Navigation: first 7 in main bar; extra links in "More" dropdown -->
+        <nav class="nav {{ $headerMainNavCount >= 7 ? 'nav-max' : '' }}" id="mainNav">
+            @for ($i = 0; $i < $headerMainNavCount; $i++)
+                @php
+                    $label = $headerMenuLabelsArr[$i] ?? '';
+                    $link = $headerMenuLinksArr[$i] ?? '#';
+                    $link = $link ?: '#';
+                    $isActive = $link !== '#' && trim($link, '/') === trim(url()->current(), '/');
+                    $isCategoriesItem = (translate($label) === 'Categories' || trim($link, '/') === trim(route('categories.all'), '/'));
+                @endphp
+                @if ($isCategoriesItem)
+                    {{-- Dynamic Categories dropdown (from DB) --}}
+                    <div class="nav-dropdown nav-dropdown-categories" tabindex="0">
+                        <a href="{{ route('categories.all') }}" class="nav-link categories-trigger {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                            {{ translate('Categories') }}
+                        </a>
+                        <div class="header-dropdown categories-dropdown">
+                            <div class="dropdown-header">{{ translate('Main Categories') }}</div>
+                            @foreach ($headerMainCategories as $mainCat)
+                                @php
+                                    $hasChildren = $mainCat->childrenCategories && $mainCat->childrenCategories->count() > 0;
+                                @endphp
+                                <div class="category-item-wrapper {{ $hasChildren ? 'has-children' : '' }}">
+                                    <a href="{{ route('products.category', $mainCat->slug) }}" class="dropdown-item">
+                                        @if ($mainCat->catIcon && $mainCat->catIcon->file_name)
+                                            <img src="{{ my_asset($mainCat->catIcon->file_name) }}" alt="" width="20" height="20" style="object-fit: contain;">
+                                        @else
+                                            <span class="cat-icon-placeholder" style="width:20px;height:20px;display:inline-block;background:#eee;border-radius:4px;"></span>
+                                        @endif
+                                        <span>{{ $mainCat->getTranslation('name') }}</span>
+                                        @if ($hasChildren)
+                                            <svg class="sub-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                        @endif
+                                    </a>
+                                    @if ($hasChildren)
+                                        <div class="sub-dropdown">
+                                            @foreach ($mainCat->childrenCategories as $subCat)
+                                                <a href="{{ route('products.category', $subCat->slug) }}" class="dropdown-item">
+                                                    <span>{{ $subCat->getTranslation('name') }}</span>
+                                                </a>
+                                            @endforeach
                                         </div>
-                                    @endforeach
-
-                                    <div class="dropdown-footer">
-                                        <a href="{{ route('categories.all') }}">
-                                            {{ translate('View All Categories') }}
-                                        </a>
-                                    </div>
+                                    @endif
                                 </div>
-                            </div>
-                        @else
-                            <a href="{{ route('categories.all') }}" class="nav-link">
-                                {{ translate('All categories') }}
-                            </a>
-                        @endif
-                    @elseif ($value == 'Partners' || $value == 'Our Partners')
-                        <div class="nav-dropdown">
-                            <button class="dropdown-btn">
-                                {{ translate('Partners') }}
-                                <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div class="header-dropdown">
-                                <a href="{{ route('ourpartners') }}" class="dropdown-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        id="ourpartners">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                    </svg>
-                                    <span>{{ translate('Our Partners') }}</span>
-                                </a>
-                                <a href="{{ route('join_us') }}" class="dropdown-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <line x1="19" y1="8" x2="19" y2="14"></line>
-                                        <line x1="22" y1="11" x2="16" y2="11"></line>
-                                    </svg>
-                                    <span>{{ translate('Join Us') }}</span>
-                                </a>
+                            @endforeach
+                            <div class="dropdown-footer">
+                                <a href="{{ route('categories.all') }}">{{ translate('View All Categories') }}</a>
                             </div>
                         </div>
-                    @else
-                        @if (!in_array($value, ['Partners', 'Our Partners', 'Join Us']))
-                            <a href="{{ json_decode(get_setting('header_menu_links'), true)[$key] }}"
-                                class="nav-link">
-                                {{ translate($value) }}
+                    </div>
+                @else
+                    <a href="{{ $link }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                        {{ translate($label) }}
+                    </a>
+                @endif
+            @endfor
+            @if (count($headerMenuLabelsArr) > 7)
+                {{-- Extra links (8+) in "More" dropdown --}}
+                <div class="nav-dropdown" tabindex="0">
+                    <span class="nav-link dropdown-btn" style="cursor:pointer;">
+                        {{ translate('More') }}
+                        <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </span>
+                    <div class="header-dropdown">
+                        @for ($i = 7; $i < count($headerMenuLabelsArr); $i++)
+                            @php
+                                $label = $headerMenuLabelsArr[$i] ?? '';
+                                $link = $headerMenuLinksArr[$i] ?? '#';
+                                $link = $link ?: '#';
+                                $isActive = $link !== '#' && trim($link, '/') === trim(url()->current(), '/');
+                            @endphp
+                            <a href="{{ $link }}" class="dropdown-item {{ $isActive ? 'active' : '' }}">
+                                <span>{{ translate($label) }}</span>
                             </a>
-                        @endif
-                    @endif
-                @endforeach
+                        @endfor
+                    </div>
+                </div>
             @endif
         </nav>
 
@@ -1286,21 +1284,30 @@
     // Mobile dropdown handling
     document.addEventListener('DOMContentLoaded', function() {
         const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-
         dropdownBtns.forEach(btn => {
             btn.addEventListener('click', function(e) {
                 if (window.innerWidth <= 968) {
                     e.preventDefault();
                     const parent = this.closest('.nav-dropdown');
-
                     document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                        if (dropdown !== parent) {
-                            dropdown.classList.remove('active');
-                        }
+                        if (dropdown !== parent) dropdown.classList.remove('active');
                     });
-
                     parent.classList.toggle('active');
                     this.classList.toggle('active');
+                }
+            });
+        });
+
+        // Categories dynamic dropdown: on mobile, click trigger toggles dropdown instead of navigating
+        document.querySelectorAll('.nav-dropdown-categories .categories-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                if (window.innerWidth <= 968) {
+                    e.preventDefault();
+                    const parent = this.closest('.nav-dropdown');
+                    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                        if (dropdown !== parent) dropdown.classList.remove('active');
+                    });
+                    parent.classList.toggle('active');
                 }
             });
         });

@@ -115,58 +115,73 @@
 							</div>
 							<div class="border-top pt-3">
 								<!-- Header Nav Menus -->
-								<label class="">{{translate('Header Nav Menu')}}</label>
+								<label class="">{{ translate('Header Nav Menu') }}</label>
+								<small class="d-block text-muted mb-2">{{ translate('First 7 links show in the main bar; extra links appear under "More". Drag order or use arrows to reorder.') }}</small>
 								<div class="header-nav-menu">
 									<input type="hidden" name="types[]" value="header_menu_labels">
 									<input type="hidden" name="types[]" value="header_menu_links">
 									@if (get_setting('header_menu_labels') != null)
+										@php $menuLinks = json_decode(App\Models\BusinessSetting::where('type', 'header_menu_links')->first()->value, true) ?? []; @endphp
 										@foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
-											<div class="row gutters-5">
-												<div class="col-4">
-													<div class="form-group">
-														<input type="text" class="form-control" placeholder="{{translate('Label')}}"
-															name="header_menu_labels[]" value="{{ $value }}">
-													</div>
+											<div class="header-menu-row d-flex align-items-start gap-2 mb-2">
+												<div class="d-flex flex-column gap-1">
+													<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-menu-up" title="{{ translate('Move up') }}"><i class="las la-arrow-up"></i></button>
+													<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-menu-down" title="{{ translate('Move down') }}"><i class="las la-arrow-down"></i></button>
 												</div>
-												<div class="col">
-													<div class="form-group">
-														<input type="text" class="form-control"
-															placeholder="{{ translate('Link with') }} http:// {{ translate('or') }} https://"
-															name="header_menu_links[]"
-															value="{{ json_decode(App\Models\BusinessSetting::where('type', 'header_menu_links')->first()->value, true)[$key] }}">
+												<div class="row gutters-5 flex-grow-1 mb-0">
+													<div class="col-4">
+														<div class="form-group mb-0">
+															<input type="text" class="form-control" placeholder="{{ translate('Label') }}"
+																name="header_menu_labels[]" value="{{ $value }}">
+														</div>
 													</div>
-												</div>
-												<div class="col-auto">
-													<button type="button"
-														class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
-														data-toggle="remove-parent" data-parent=".row">
-														<i class="las la-times"></i>
-													</button>
+													<div class="col">
+														<div class="form-group mb-0">
+															<input type="text" class="form-control"
+																placeholder="{{ translate('Link with') }} http:// {{ translate('or') }} https://"
+																name="header_menu_links[]"
+																value="{{ $menuLinks[$key] ?? '' }}">
+														</div>
+													</div>
+													<div class="col-auto">
+														<button type="button"
+															class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+															data-toggle="remove-parent" data-parent=".header-menu-row">
+															<i class="las la-times"></i>
+														</button>
+													</div>
 												</div>
 											</div>
 										@endforeach
 									@endif
 								</div>
-								<button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
-									data-content='<div class="row gutters-5">
-										<div class="col-4">
-											<div class="form-group">
-												<input type="text" class="form-control" placeholder="{{translate('Label')}}" name="header_menu_labels[]">
+								@php $headerMenuCount = get_setting('header_menu_labels') ? count(json_decode(get_setting('header_menu_labels'), true)) : 0; @endphp
+								<div id="header-add-menu-btn-wrap" class="{{ $headerMenuCount >= 7 ? 'd-none' : '' }}">
+								<button type="button" class="btn btn-soft-secondary btn-sm header-add-menu-btn" data-toggle="add-more"
+									data-content='<div class="header-menu-row d-flex align-items-start gap-2 mb-2">
+										<div class="d-flex flex-column gap-1">
+											<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-menu-up" title="{{ translate("Move up") }}"><i class="las la-arrow-up"></i></button>
+											<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-menu-down" title="{{ translate("Move down") }}"><i class="las la-arrow-down"></i></button>
+										</div>
+										<div class="row gutters-5 flex-grow-1 mb-0">
+											<div class="col-4">
+												<div class="form-group mb-0">
+													<input type="text" class="form-control" placeholder="{{ translate("Label") }}" name="header_menu_labels[]">
+												</div>
+											</div>
+											<div class="col">
+												<div class="form-group mb-0">
+													<input type="text" class="form-control" placeholder="{{ translate("Link with") }} http:// {{ translate("or") }} https://" name="header_menu_links[]">
+												</div>
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".header-menu-row"><i class="las la-times"></i></button>
 											</div>
 										</div>
-										<div class="col">
-											<div class="form-group">
-												<input type="text" class="form-control" placeholder="{{ translate('Link with') }} http:// {{ translate('or') }} https://" name="header_menu_links[]">
-											</div>
-										</div>
-										<div class="col-auto">
-											<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-											<i class="las la-times"></i>
-										</button>
-											</div>
-										</div>' data-target=".header-nav-menu">
+									</div>' data-target=".header-nav-menu">
 									{{ translate('Add New') }}
 								</button>
+								</div>
 							</div>
 							<br>
 							<!-- Update Button -->
@@ -227,6 +242,34 @@
 
 			$('input[name="show_language_switcher"], input[name="show_currency_switcher"], input[name="header_stikcy"]').on('change', function () {
 				updateUI();
+			});
+
+			// Header menu: reorder links (move up / move down)
+			$(document).on('click', '.move-menu-up', function () {
+				var row = $(this).closest('.header-menu-row');
+				var prev = row.prev('.header-menu-row');
+				if (prev.length) row.insertBefore(prev);
+			});
+			$(document).on('click', '.move-menu-down', function () {
+				var row = $(this).closest('.header-menu-row');
+				var next = row.next('.header-menu-row');
+				if (next.length) row.insertAfter(next);
+			});
+
+			// Hide "Add New" when 7 or more links; show when fewer
+			function updateHeaderAddNewVisibility() {
+				var count = $('.header-nav-menu .header-menu-row').length;
+				$('#header-add-menu-btn-wrap').toggleClass('d-none', count >= 7);
+			}
+			updateHeaderAddNewVisibility();
+			$(document).on('click', '.header-add-menu-btn', function () {
+				setTimeout(updateHeaderAddNewVisibility, 50);
+			});
+			$(document).on('click', '[data-toggle="remove-parent"]', function () {
+				var parent = $(this).closest($(this).data('parent'));
+				if (parent.hasClass('header-menu-row') || parent.find('.header-menu-row').length) {
+					setTimeout(updateHeaderAddNewVisibility, 150);
+				}
 			});
 		});
 	</script>

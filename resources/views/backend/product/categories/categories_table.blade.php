@@ -79,9 +79,17 @@
 
                     <td class="hide-xs" data-label="Name">
                         <div class="row gutters-5 w-200px w-md-200px mw-200">
-                            <div class="col">
+                            <div class="col" style="padding-left: {{ ($category->level ?? 0) * 20 }}px;">
+                                @if(($category->level ?? 0) > 0)
+                                    <span class="text-muted fs-12 mr-1">{{ str_repeat('— ', $category->level) }}</span>
+                                @endif
                                 <span
                                     class="text-dark fs-14 fw-300" style="color: #212529 !important">{{ $category->getTranslation('name') }}</span>
+                                @if (($category->level ?? 0) == 0)
+                                    <span class="m-0 border border-primary bg-primary text-white fs-11 py-0 px-8px rounded-pill ml-1">{{ translate('Main') }}</span>
+                                @else
+                                    <span class="m-0 border border-secondary bg-secondary text-white fs-11 py-0 px-8px rounded-pill ml-1">{{ translate('Sub') }}</span>
+                                @endif
                                 @if ($category->digital == 1)
                                     <span class="m-0 border border-secondary  bg-secondary text-white fs-12 py-1 px-10px rounded-pill">{{TRANSLATE('Digital')}}</span>
                                 @endif
@@ -193,6 +201,17 @@
                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-xs">
                                     <div class="table-options">
                                         <!--Edit-->
+                                        @can('add_product_category')
+                                            <a href="{{ route('categories.create', ['parent_id' => $category->id]) }}"
+                                                class="d-flex align-items-center px-20px py-10px hov-bg-light hov-text-blue">
+                                                <span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                                        <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                    </svg>
+                                                </span>
+                                                <span class="fs-14 text-secondary fw-500 pl-10px">{{ translate('Add sub category') }}</span>
+                                            </a>
+                                        @endcan
                                         @can('edit_product_category')
                                             <a href="{{ route('categories.edit', ['id' => $category->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
                                                 class="d-flex align-items-center px-20px py-10px hov-bg-light hov-text-blue">

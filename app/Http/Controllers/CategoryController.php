@@ -51,8 +51,11 @@ class CategoryController extends Controller
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
             ->with('childrenCategories')
+            ->orderBy('order_level', 'desc')
+            ->orderBy('name')
             ->get();
-        return view('backend.product.categories.create', compact('categories'));
+        $selected_parent_id = request('parent_id');
+        return view('backend.product.categories.create', compact('categories', 'selected_parent_id'));
     }
 
     /**
@@ -280,9 +283,12 @@ class CategoryController extends Controller
         $categories = Category::where('parent_id', 0)
             ->where('digital', $request->digital)
             ->with('childrenCategories')
+            ->orderBy('order_level', 'desc')
+            ->orderBy('name')
             ->get();
+        $selected_parent_id = $request->get('selected_parent_id');
 
-        return view('backend.product.categories.categories_option', compact('categories'));
+        return view('backend.product.categories.categories_option', compact('categories', 'selected_parent_id'));
     }
 
     public function categoriesWiseProductDiscount(Request $request){
