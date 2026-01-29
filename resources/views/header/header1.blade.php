@@ -590,17 +590,17 @@
         min-width: 200px;
         opacity: 0;
         visibility: hidden;
-        transform: translateX(-8px);
-        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+        /* Sit flush next to the parent dropdown */
+        transform: translateX(0);
+        transition: opacity 0.2s ease, visibility 0.2s ease;
         z-index: 1100;
-        margin-left: 4px;
+        margin-left: 0;
         padding: 8px 0;
     }
 
     .category-item-wrapper:hover>.sub-dropdown {
         opacity: 1;
         visibility: visible;
-        transform: translateX(0);
     }
 
     .category-item-wrapper:hover>.dropdown-item {
