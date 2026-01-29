@@ -13,10 +13,18 @@ class MenuItemController extends Controller
     }
 
     /**
-     * Sync top-level menu items from Header Settings. Preserves all children; only creates/updates top-level rows.
+     * One-time bootstrap: import top-level menu items from Header Settings only when Menu Items is empty.
+     *
+     * Once Menu Items exists, it becomes the source of truth (so admin CRUD changes won't be recreated
+     * from old header_menu_labels/header_menu_links settings).
      */
     private function syncFromHeaderSettings(): void
     {
+        // If Menu Items already has any top-level items, don't auto-create/update from settings anymore.
+        if (MenuItem::whereNull('parent_id')->exists()) {
+            return;
+        }
+
         $labels = get_setting('header_menu_labels') ? json_decode(get_setting('header_menu_labels'), true) : [];
         $links  = get_setting('header_menu_links') ? json_decode(get_setting('header_menu_links'), true) : [];
         if (empty($labels) || !is_array($labels)) {
@@ -26,21 +34,12 @@ class MenuItemController extends Controller
         $order = 100;
         foreach ($labels as $i => $label) {
             $link = isset($links[$i]) ? (string) $links[$i] : '#';
-            $existing = MenuItem::whereNull('parent_id')
-                ->where('label', $label)
-                ->where('link', $link)
-                ->first();
-            if ($existing) {
-                $existing->sort_order = $order;
-                $existing->save();
-            } else {
-                MenuItem::create([
-                    'label'      => $label,
-                    'link'       => $link,
-                    'sort_order' => $order,
-                    'parent_id'  => null,
-                ]);
-            }
+            MenuItem::create([
+                'label'      => $label,
+                'link'       => $link,
+                'sort_order' => $order,
+                'parent_id'  => null,
+            ]);
             $order--;
         }
     }
