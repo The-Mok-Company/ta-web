@@ -7,19 +7,39 @@
     $middleHeaderTextColor = get_setting('middle_header_text_color');
     $bottomHeaderTextColor = get_setting('bottom_header_text_color');
 
-    // Header menu is managed from Dashboard -> Website Settings -> Header
-    $headerMenuLabels = get_setting('header_menu_labels');
-    $headerMenuLinks = get_setting('header_menu_links');
-    $headerMenuLabelsArr = $headerMenuLabels ? json_decode($headerMenuLabels, true) : [];
-    $headerMenuLinksArr = $headerMenuLinks ? json_decode($headerMenuLinks, true) : [];
-    // First 7 links in main bar; extra links go in "More" dropdown
-    $headerMainNavCount = min(7, count($headerMenuLabelsArr));
+    // Header menu: from Menu Items (with children for dropdowns) or from Website Settings -> Header
+    $headerNavItems = [];
+    if (\App\Models\MenuItem::count() > 0) {
+        $headerNavItems = \App\Models\MenuItem::whereNull('parent_id')
+            ->with('childrenWithNested')
+            ->orderBy('sort_order', 'desc')
+            ->orderBy('id')
+            ->get();
+    } else {
+        $headerMenuLabels = get_setting('header_menu_labels');
+        $headerMenuLinks = get_setting('header_menu_links');
+        $labels = $headerMenuLabels ? json_decode($headerMenuLabels, true) : [];
+        $links = $headerMenuLinks ? json_decode($headerMenuLinks, true) : [];
+        foreach ($labels as $i => $label) {
+            $headerNavItems[] = (object)['label' => $label, 'link' => $links[$i] ?? '#', 'children' => collect()];
+        }
+        $headerNavItems = collect($headerNavItems);
+    }
+    $headerMainNavCount = min(7, $headerNavItems->count());
 
-    // Dynamic Categories dropdown: main categories from DB (with children for sub-menus)
+    // Dynamic Categories dropdown: main categories from DB (order from Dashboard -> Header -> Categories Dropdown)
     $headerMainCategories = \App\Models\Category::where('level', 0)
         ->with(['childrenCategories', 'catIcon', 'coverImage'])
         ->orderBy('order_level', 'desc')
+        ->orderBy('name')
         ->get();
+    $headerCategoriesOrder = get_setting('header_categories_order') ? json_decode(get_setting('header_categories_order'), true) : null;
+    if (is_array($headerCategoriesOrder) && !empty($headerCategoriesOrder)) {
+        $headerMainCategories = $headerMainCategories->sortBy(function ($cat) use ($headerCategoriesOrder) {
+            $pos = array_search($cat->id, $headerCategoriesOrder);
+            return $pos !== false ? $pos : 9999;
+        })->values();
+    }
 
     // Cart count (works with DB/session cart via helper)
     // - Guest users: often stored in Session('cart')
@@ -117,7 +137,7 @@
         font-weight: 400;
     }
 
-    /* Navigation - stay on one row, no wrapping; left padding for space from logo */
+    /* Navigation - stay on one row, no wrapping; overflow visible so dropdowns show */
     .nav {
         display: flex;
         align-items: center;
@@ -127,6 +147,7 @@
         flex-wrap: nowrap;
         min-width: 0;
         padding-left: 8px;
+        overflow: visible;
     }
 
     /* 7 links: tighter gap and slightly smaller text so all stay on one row */
@@ -153,6 +174,7 @@
 
     .nav-dropdown {
         position: relative;
+        overflow: visible;
     }
 
     .dropdown-btn {
@@ -442,7 +464,7 @@
         color: #666;
     }
 
-    /* Dropdown Menu Styles */
+    /* Dropdown Menu Styles - above header pill */
     .header-dropdown {
         position: absolute;
         top: calc(100% + 10px);
@@ -456,7 +478,7 @@
         visibility: hidden;
         transform: translateX(-50%) translateY(-10px);
         transition: all 0.3s;
-        z-index: 1000;
+        z-index: 1050;
     }
 
     .nav-dropdown:hover .header-dropdown {
@@ -465,12 +487,17 @@
         transform: translateX(-50%) translateY(0);
     }
 
-    /* Dynamic Categories dropdown */
+    /* Dynamic Categories dropdown - overflow visible so sub-dropdowns (flyouts) are not clipped */
     .categories-dropdown {
         min-width: 280px;
         max-width: 320px;
         max-height: 70vh;
+        overflow: visible;
+    }
+    .categories-dropdown-scroll {
+        max-height: 70vh;
         overflow-y: auto;
+        overflow-x: visible;
     }
     .categories-dropdown .dropdown-item {
         display: flex;
@@ -555,18 +582,18 @@
 
     .sub-dropdown {
         position: absolute;
-        top: -64;
-        left: 95%;
+        top: 0;
+        left: 100%;
         background: white;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         min-width: 200px;
         opacity: 0;
         visibility: hidden;
-        transform: translateX(-10px);
-        transition: all 0.3s ease;
-        z-index: 1000;
-        margin-left: 10px;
+        transform: translateX(-8px);
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+        z-index: 1100;
+        margin-left: 4px;
         padding: 8px 0;
     }
 
@@ -783,45 +810,51 @@
             @endif
         </a>
 
-        <!-- Navigation: first 7 in main bar; extra links in "More" dropdown -->
-        <nav class="nav {{ $headerMainNavCount >= 7 ? 'nav-max' : '' }}" id="mainNav">
-            @for ($i = 0; $i < $headerMainNavCount; $i++)
+        <!-- Navigation: up to 7 items; Categories = special dropdown, items with children = custom dropdown. -->
+        <nav class="nav {{ $headerNavItems->count() >= 7 ? 'nav-max' : '' }}" id="mainNav">
+            @php
+                $categoriesRouteTrimmed = trim(route('categories.all'), '/');
+                $mainNavItems = $headerNavItems->take(7);
+            @endphp
+            @foreach ($mainNavItems as $navItem)
                 @php
-                    $label = $headerMenuLabelsArr[$i] ?? '';
-                    $link = $headerMenuLinksArr[$i] ?? '#';
+                    $label = is_object($navItem) ? $navItem->label : ($navItem['label'] ?? '');
+                    $link = is_object($navItem) ? ($navItem->link ?? '#') : ($navItem['link'] ?? '#');
                     $link = $link ?: '#';
+                    $children = is_object($navItem) && isset($navItem->children) ? $navItem->children : collect();
+                    if (is_object($navItem) && method_exists($navItem, 'getRelation') && $navItem->relationLoaded('childrenWithNested')) {
+                        $children = $navItem->childrenWithNested ?? $navItem->children ?? collect();
+                    }
+                    $hasChildren = $children && (is_countable($children) ? count($children) : $children->count()) > 0;
                     $isActive = $link !== '#' && trim($link, '/') === trim(url()->current(), '/');
-                    $isCategoriesItem = (translate($label) === 'Categories' || trim($link, '/') === trim(route('categories.all'), '/'));
+                    $isCategoriesItem = (translate($label) === 'Categories' || trim($link, '/') === $categoriesRouteTrimmed);
                 @endphp
-                @if ($isCategoriesItem)
-                    {{-- Dynamic Categories dropdown (from DB) --}}
+                @if ($isCategoriesItem && $hasChildren)
+                    {{-- Categories with MenuItem children: render custom dropdown like other parents --}}
                     <div class="nav-dropdown nav-dropdown-categories" tabindex="0">
-                        <a href="{{ route('categories.all') }}" class="nav-link categories-trigger {{ request()->routeIs('categories.*') ? 'active' : '' }}">
-                            {{ translate('Categories') }}
+                        <a href="{{ $link }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                            {{ translate($label) }}
+                            <svg class="dropdown-arrow ml-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </a>
                         <div class="header-dropdown categories-dropdown">
-                            <div class="dropdown-header">{{ translate('Main Categories') }}</div>
-                            @foreach ($headerMainCategories as $mainCat)
+                            <div class="dropdown-header">{{ translate($label) }}</div>
+                            @foreach ($children as $child)
                                 @php
-                                    $hasChildren = $mainCat->childrenCategories && $mainCat->childrenCategories->count() > 0;
+                                    $childChildren = method_exists($child, 'childrenWithNested') && $child->relationLoaded('childrenWithNested') ? ($child->childrenWithNested ?? $child->children ?? collect()) : (isset($child->children) ? $child->children : collect());
+                                    $childHasChildren = $childChildren && (is_countable($childChildren) ? count($childChildren) : $childChildren->count()) > 0;
                                 @endphp
-                                <div class="category-item-wrapper {{ $hasChildren ? 'has-children' : '' }}">
-                                    <a href="{{ route('products.category', $mainCat->slug) }}" class="dropdown-item">
-                                        @if ($mainCat->catIcon && $mainCat->catIcon->file_name)
-                                            <img src="{{ my_asset($mainCat->catIcon->file_name) }}" alt="" width="20" height="20" style="object-fit: contain;">
-                                        @else
-                                            <span class="cat-icon-placeholder" style="width:20px;height:20px;display:inline-block;background:#eee;border-radius:4px;"></span>
-                                        @endif
-                                        <span>{{ $mainCat->getTranslation('name') }}</span>
-                                        @if ($hasChildren)
+                                <div class="category-item-wrapper {{ $childHasChildren ? 'has-children' : '' }}">
+                                    <a href="{{ is_object($child) ? ($child->link ?? '#') : ($child['link'] ?? '#') }}" class="dropdown-item">
+                                        <span>{{ translate(is_object($child) ? $child->label : ($child['label'] ?? '')) }}</span>
+                                        @if ($childHasChildren)
                                             <svg class="sub-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                                         @endif
                                     </a>
-                                    @if ($hasChildren)
+                                    @if ($childHasChildren)
                                         <div class="sub-dropdown">
-                                            @foreach ($mainCat->childrenCategories as $subCat)
-                                                <a href="{{ route('products.category', $subCat->slug) }}" class="dropdown-item">
-                                                    <span>{{ $subCat->getTranslation('name') }}</span>
+                                            @foreach ($childChildren as $subChild)
+                                                <a href="{{ is_object($subChild) ? ($subChild->link ?? '#') : ($subChild['link'] ?? '#') }}" class="dropdown-item">
+                                                    <span>{{ translate(is_object($subChild) ? $subChild->label : ($subChild['label'] ?? '')) }}</span>
                                                 </a>
                                             @endforeach
                                         </div>
@@ -833,13 +866,106 @@
                             </div>
                         </div>
                     </div>
+                @elseif ($isCategoriesItem)
+                    {{-- Categories with no MenuItem children: dynamic categories from DB --}}
+                    <div class="nav-dropdown nav-dropdown-categories" tabindex="0">
+                        <a href="{{ route('categories.all') }}" class="nav-link categories-trigger {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                            {{ translate('Categories') }}
+                            <svg class="dropdown-arrow ml-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </a>
+                        <div class="header-dropdown categories-dropdown">
+                            <div class="dropdown-header">{{ translate('Main Categories') }}</div>
+                            @foreach ($headerMainCategories as $mainCat)
+                                @php
+                                    $catHasChildren = $mainCat->childrenCategories && $mainCat->childrenCategories->count() > 0;
+                                @endphp
+                                <div class="category-item-wrapper {{ $catHasChildren ? 'has-children' : '' }}">
+                                    <a href="{{ route('products.category', $mainCat->slug) }}" class="dropdown-item">
+                                        @if ($mainCat->catIcon && $mainCat->catIcon->file_name)
+                                            <img src="{{ my_asset($mainCat->catIcon->file_name) }}" alt="" width="20" height="20" style="object-fit: contain;">
+                                        @else
+                                            <span class="cat-icon-placeholder" style="width:20px;height:20px;display:inline-block;background:#eee;border-radius:4px;"></span>
+                                        @endif
+                                        <span>{{ $mainCat->getTranslation('name') }}</span>
+                                        @if ($catHasChildren)
+                                            <svg class="sub-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                        @endif
+                                    </a>
+                                    @if ($catHasChildren)
+                                        <div class="sub-dropdown">
+                                            @foreach ($mainCat->childrenCategories as $subCat)
+                                                @php
+                                                    // Note: Category::childrenCategories() eager-loads $subCat->categories (one more level).
+                                                    $subHasChildren = $subCat->categories && $subCat->categories->count() > 0;
+                                                @endphp
+                                                <div class="category-item-wrapper {{ $subHasChildren ? 'has-children' : '' }}">
+                                                    <a href="{{ route('products.category', $subCat->slug) }}" class="dropdown-item">
+                                                        <span>{{ $subCat->getTranslation('name') }}</span>
+                                                        @if ($subHasChildren)
+                                                            <svg class="sub-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                                        @endif
+                                                    </a>
+                                                    @if ($subHasChildren)
+                                                        <div class="sub-dropdown level-2">
+                                                            @foreach ($subCat->categories as $subSubCat)
+                                                                <a href="{{ route('products.category', $subSubCat->slug) }}" class="dropdown-item">
+                                                                    <span>{{ $subSubCat->getTranslation('name') }}</span>
+                                                                </a>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                            <div class="dropdown-footer">
+                                <a href="{{ route('categories.all') }}">{{ translate('View All Categories') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($hasChildren)
+                    {{-- Custom dropdown (e.g. Our Partners) with children --}}
+                    <div class="nav-dropdown nav-dropdown-custom" tabindex="0">
+                        <a href="{{ $link }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                            {{ translate($label) }}
+                            <svg class="dropdown-arrow ml-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </a>
+                        <div class="header-dropdown categories-dropdown">
+                            <div class="dropdown-header">{{ translate($label) }}</div>
+                            @foreach ($children as $child)
+                                @php
+                                    $childChildren = method_exists($child, 'childrenWithNested') && $child->relationLoaded('childrenWithNested') ? ($child->childrenWithNested ?? $child->children ?? collect()) : (isset($child->children) ? $child->children : collect());
+                                    $childHasChildren = $childChildren && (is_countable($childChildren) ? count($childChildren) : $childChildren->count()) > 0;
+                                @endphp
+                                <div class="category-item-wrapper {{ $childHasChildren ? 'has-children' : '' }}">
+                                    <a href="{{ is_object($child) ? ($child->link ?? '#') : ($child['link'] ?? '#') }}" class="dropdown-item">
+                                        <span>{{ translate(is_object($child) ? $child->label : ($child['label'] ?? '')) }}</span>
+                                        @if ($childHasChildren)
+                                            <svg class="sub-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                        @endif
+                                    </a>
+                                    @if ($childHasChildren)
+                                        <div class="sub-dropdown">
+                                            @foreach ($childChildren as $subChild)
+                                                <a href="{{ is_object($subChild) ? ($subChild->link ?? '#') : ($subChild['link'] ?? '#') }}" class="dropdown-item">
+                                                    <span>{{ translate(is_object($subChild) ? $subChild->label : ($subChild['label'] ?? '')) }}</span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 @else
                     <a href="{{ $link }}" class="nav-link {{ $isActive ? 'active' : '' }}">
                         {{ translate($label) }}
                     </a>
                 @endif
-            @endfor
-            @if (count($headerMenuLabelsArr) > 7)
+            @endforeach
+            @if ($headerNavItems->count() > 7)
                 {{-- Extra links (8+) in "More" dropdown --}}
                 <div class="nav-dropdown" tabindex="0">
                     <span class="nav-link dropdown-btn" style="cursor:pointer;">
@@ -847,17 +973,17 @@
                         <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                     </span>
                     <div class="header-dropdown">
-                        @for ($i = 7; $i < count($headerMenuLabelsArr); $i++)
+                        @foreach ($headerNavItems->slice(7) as $extraItem)
                             @php
-                                $label = $headerMenuLabelsArr[$i] ?? '';
-                                $link = $headerMenuLinksArr[$i] ?? '#';
+                                $label = is_object($extraItem) ? $extraItem->label : ($extraItem['label'] ?? '');
+                                $link = is_object($extraItem) ? ($extraItem->link ?? '#') : ($extraItem['link'] ?? '#');
                                 $link = $link ?: '#';
                                 $isActive = $link !== '#' && trim($link, '/') === trim(url()->current(), '/');
                             @endphp
                             <a href="{{ $link }}" class="dropdown-item {{ $isActive ? 'active' : '' }}">
                                 <span>{{ translate($label) }}</span>
                             </a>
-                        @endfor
+                        @endforeach
                     </div>
                 </div>
             @endif

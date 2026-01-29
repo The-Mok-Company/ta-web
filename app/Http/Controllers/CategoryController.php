@@ -347,21 +347,22 @@ class CategoryController extends Controller
     public function get_categories_by_filter(Request $request)
     {
         Log::info('Filter Category Request: ', $request->all());
-         $categories = Category::orderBy('order_level', 'desc');
-         $sort_search =null;
-         if($request->category_type=='physical_categories'){
-            $categories= $categories->where('digital',0);
-         }
-         else if($request->category_type=='digital_categories'){
-            $categories= $categories->where('digital',1);
+         $categories = Category::orderByRaw('COALESCE(level, 0) ASC')
+             ->orderBy('order_level', 'desc')
+             ->orderBy('id', 'asc');
+         $sort_search = null;
+         if ($request->category_type == 'physical_categories') {
+            $categories = $categories->where('digital', 0);
+         } elseif ($request->category_type == 'digital_categories') {
+            $categories = $categories->where('digital', 1);
          }
 
-        if ($request->search != null){
+        if ($request->search != null) {
             $sort_search = $request->search;
-            $categories = $categories->where('name', 'like', '%'.$sort_search.'%');
+            $categories = $categories->where('name', 'like', '%' . $sort_search . '%');
         }
 
-        $categories=$categories->paginate(15);
+        $categories = $categories->paginate(15);
         $view = view('backend.product.categories.categories_table',
             compact('categories', 'sort_search')
         )->render();

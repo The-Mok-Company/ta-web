@@ -1990,6 +1990,11 @@
                                 <span class="aiz-side-nav-text">{{ translate('Header Settings') }}</span>
                             </a>
                         </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('menu-items.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['menu-items.index', 'menu-items.dropdowns', 'menu-items.create', 'menu-items.edit']) }}">
+                                <span class="aiz-side-nav-text">{{ translate('Menu Items') }}</span>
+                            </a>
+                        </li>
                         @endcan
                         @canany(['view_top_banner'])
                         <li class="aiz-side-nav-item">

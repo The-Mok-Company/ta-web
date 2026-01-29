@@ -38,6 +38,7 @@ use App\Http\Controllers\DynamicPopupController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\FlashDealController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MeasurementPointsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NoteController;
@@ -425,6 +426,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/languages/app-translations/sync/{id}', 'sycnTranslations')->name('app-translations.sync');
     });
 
+
+    // Menu items (header nav) - CRUD like categories
+    Route::resource('menu-items', MenuItemController::class)->except(['show']);
+    Route::post('menu-items/import-from-header', [MenuItemController::class, 'importFromHeader'])->name('menu-items.import-from-header');
 
     // website setting
     Route::group(['prefix' => 'website'], function () {
