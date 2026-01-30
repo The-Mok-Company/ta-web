@@ -749,6 +749,97 @@
                     });
                 });
             });
+
+            // Real-time polling for new messages
+            var lastNoteIds = {};
+            @foreach($inquiries as $inq)
+                lastNoteIds[{{ $inq->id }}] = {{ $inq->notes->last()->id ?? 0 }};
+            @endforeach
+
+            function fetchNewNotesForInquiry(inquiryId) {
+                fetch('/inquiries/' + inquiryId + '/notes?last_id=' + (lastNoteIds[inquiryId] || 0), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.notes && data.notes.length > 0) {
+                        var container = document.getElementById('messagesContainer-' + inquiryId);
+                        if (!container) return;
+
+                        data.notes.forEach(function(note) {
+                            // Skip user's own messages
+                            if (note.sender_type === 'user') {
+                                lastNoteIds[inquiryId] = Math.max(lastNoteIds[inquiryId], note.id);
+                                return;
+                            }
+
+                            // Create message HTML for admin messages
+                            var messageHtml = `
+                                <div class="conversation-message admin-message" style="animation: slideIn 0.3s ease;">
+                                    <div class="message-header">
+                                        <span class="message-sender">
+                                            <i class="las la-user-shield"></i> ${note.user_name}
+                                        </span>
+                                    </div>
+                                    <p class="message-text">${note.message}</p>
+                                    <div class="message-footer">
+                                        <span class="message-time">${note.created_at}</span>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Insert before status messages or at the end
+                            var statusMessages = container.querySelectorAll('.status-message');
+                            if (statusMessages.length > 0) {
+                                statusMessages[0].insertAdjacentHTML('beforebegin', messageHtml);
+                            } else {
+                                container.insertAdjacentHTML('beforeend', messageHtml);
+                            }
+
+                            // Update last note id
+                            lastNoteIds[inquiryId] = Math.max(lastNoteIds[inquiryId], note.id);
+
+                            // Scroll to bottom
+                            container.scrollTop = container.scrollHeight;
+                        });
+                    }
+                })
+                .catch(error => console.error('Polling error:', error));
+            }
+
+            // Poll for all inquiries every 5 seconds
+            var pollingInterval = setInterval(function() {
+                @foreach($inquiries as $inq)
+                    @if(!in_array($inq->status, ['completed', 'cancelled']))
+                        fetchNewNotesForInquiry({{ $inq->id }});
+                    @endif
+                @endforeach
+            }, 5000);
+
+            // Stop polling when page is hidden
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    clearInterval(pollingInterval);
+                } else {
+                    pollingInterval = setInterval(function() {
+                        @foreach($inquiries as $inq)
+                            @if(!in_array($inq->status, ['completed', 'cancelled']))
+                                fetchNewNotesForInquiry({{ $inq->id }});
+                            @endif
+                        @endforeach
+                    }, 5000);
+                }
+            });
         });
     </script>
+    <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 @endsection

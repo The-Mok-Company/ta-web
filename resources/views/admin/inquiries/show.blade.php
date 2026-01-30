@@ -872,6 +872,80 @@
                 }
             });
         });
+
+        // Real-time polling for new messages
+        var lastNoteId = {{ $inquiry->notes->last()->id ?? 0 }};
+        var pollingInterval = null;
+
+        function fetchNewNotes() {
+            $.ajax({
+                url: '{{ route("admin.inquiries.getNotes", $inquiry->id) }}',
+                method: 'GET',
+                data: { last_id: lastNoteId },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.ok && data.notes && data.notes.length > 0) {
+                        data.notes.forEach(function(note) {
+                            // Skip if it's our own message (admin)
+                            if (note.sender_type === 'admin') {
+                                lastNoteId = Math.max(lastNoteId, note.id);
+                                return;
+                            }
+
+                            // Create message HTML for user messages
+                            var messageHtml = `
+                                <div class="conv-message user-msg mb-3" style="animation: slideIn 0.3s ease;">
+                                    <div class="msg-header mb-2">
+                                        <span class="msg-sender">
+                                            <i class="las la-user text-info mr-1"></i>
+                                            <strong>${note.user_name}</strong>
+                                            <span class="badge badge-info ml-1">{{ translate('Customer') }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="msg-body">${note.message}</div>
+                                    <div class="msg-footer mt-2 text-right">
+                                        <small class="text-muted">${note.created_at}</small>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Remove "No messages" placeholder if exists
+                            $('#conversationContainer .text-center.text-muted').remove();
+
+                            // Append new message
+                            $('#conversationContainer').append(messageHtml);
+
+                            // Update counter
+                            var badge = $('.card-header .badge');
+                            var count = parseInt(badge.text()) || 0;
+                            badge.text(count + 1);
+
+                            // Update last note id
+                            lastNoteId = Math.max(lastNoteId, note.id);
+
+                            // Scroll to bottom
+                            var container = document.getElementById('conversationContainer');
+                            container.scrollTop = container.scrollHeight;
+
+                            // Play notification sound or show notification
+                            AIZ.plugins.notify('info', '{{ translate("New message received") }}');
+                        });
+                    }
+                }
+            });
+        }
+
+        // Start polling every 5 seconds
+        pollingInterval = setInterval(fetchNewNotes, 5000);
+
+        // Stop polling when page is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(pollingInterval);
+            } else {
+                pollingInterval = setInterval(fetchNewNotes, 5000);
+            }
+        });
     });
 </script>
 <style>

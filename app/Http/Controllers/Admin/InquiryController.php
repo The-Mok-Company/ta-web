@@ -215,6 +215,30 @@ public function store(Request $request)
             ->with('success', 'Note added successfully.');
     }
 
+    public function getNotes(Inquiry $inquiry)
+    {
+        $lastId = request()->input('last_id', 0);
+
+        $notes = $inquiry->notes()
+            ->where('id', '>', $lastId)
+            ->with('user:id,name')
+            ->get()
+            ->map(function ($note) {
+                return [
+                    'id'          => $note->id,
+                    'message'     => $note->message,
+                    'sender_type' => $note->sender_type,
+                    'user_name'   => $note->user->name ?? 'Unknown',
+                    'created_at'  => $note->created_at->format('d M Y - H:i'),
+                ];
+            });
+
+        return response()->json([
+            'ok'    => true,
+            'notes' => $notes,
+        ]);
+    }
+
 public function edit(Inquiry $inquiry)
 {
     $inquiry->load(['user', 'items.product', 'items.category']);

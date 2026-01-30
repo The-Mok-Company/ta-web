@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd real-time conversation/notes system for inquiries\n\n- Create inquiry_notes table for storing conversation messages\n- Add InquiryNote model with user relationship\n- Implement addNote methods for both user and admin controllers\n- Add conversation UI in frontend inquiry page with AJAX submission\n- Add conversation section in admin inquiry show page\n- Enable real-time message display without page refresh\n- Show inquiry status messages \\(processing/completed/cancelled\\)\n- Disable messaging for completed or cancelled inquiries\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)"
+    ]
+  }
+}

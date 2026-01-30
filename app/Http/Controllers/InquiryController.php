@@ -262,4 +262,36 @@ class InquiryController extends Controller
             ],
         ]);
     }
+
+    public function getNotes($id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $lastId = request()->input('last_id', 0);
+
+        $notes = $inquiry->notes()
+            ->where('id', '>', $lastId)
+            ->with('user:id,name')
+            ->get()
+            ->map(function ($note) {
+                return [
+                    'id'          => $note->id,
+                    'message'     => $note->message,
+                    'sender_type' => $note->sender_type,
+                    'user_name'   => $note->user->name ?? 'Unknown',
+                    'created_at'  => $note->created_at->format('d M Y - H:i'),
+                ];
+            });
+
+        return response()->json([
+            'ok'    => true,
+            'notes' => $notes,
+        ]);
+    }
 }
