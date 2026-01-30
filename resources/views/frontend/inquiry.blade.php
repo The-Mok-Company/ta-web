@@ -67,7 +67,7 @@
                     <!-- Tabs -->
                     <div class="tabs-container">
                         <div class="tab active" id="{{ $itemsTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $itemsId }}">Items</div>
-                        <div class="tab" id="{{ $convTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $convId }}">Updates</div>
+                        <div class="tab" id="{{ $convTabId }}" data-inquiry="{{ $inquiry->id }}" data-target="{{ $convId }}">Chat</div>
                     </div>
 
                     <!-- Main Content -->
@@ -258,9 +258,11 @@
                                                             <i class="las la-user-shield"></i> {{ $note->user->name ?? 'Admin' }}
                                                         @endif
                                                     </span>
-                                                    <span class="message-time">{{ $note->created_at->format('d M Y - H:i') }}</span>
                                                 </div>
                                                 <p class="message-text">{{ $note->message }}</p>
+                                                <div class="message-footer">
+                                                    <span class="message-time">{{ $note->created_at->format('d M Y - H:i') }}</span>
+                                                </div>
                                             </div>
                                         @endforeach
 
@@ -544,12 +546,14 @@
 
         .user-message { background: #e0f2fe; border-left: 4px solid #0ea5e9; align-self: flex-end; }
         .admin-message { background: #fef3c7; border-left: 4px solid #f59e0b; align-self: flex-start; }
-        .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .message-header { margin-bottom: 8px; }
         .message-sender { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         .user-message .message-sender { color: #0369a1; }
         .admin-message .message-sender { color: #b45309; }
         .user-message .message-text { color: #0c4a6e; }
         .admin-message .message-text { color: #78350f; }
+        .message-footer { margin-top: 8px; text-align: right; }
+        .message-footer .message-time { font-size: 11px; color: #6b7280; }
 
         .status-message { align-self: center; max-width: 90%; text-align: center; }
         .status-message .message-content { display: flex; align-items: center; gap: 10px; justify-content: center; }
@@ -710,9 +714,11 @@
                                         <span class="message-sender">
                                             <i class="las la-user"></i> You
                                         </span>
-                                        <span class="message-time">${data.note.created_at}</span>
                                     </div>
                                     <p class="message-text">${data.note.message}</p>
+                                    <div class="message-footer">
+                                        <span class="message-time">${data.note.created_at}</span>
+                                    </div>
                                 </div>
                             `;
 

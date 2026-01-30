@@ -642,7 +642,7 @@
         <div class="card inquiry-card mb-4">
             <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
                 <h5 class="mb-0">
-                    <i class="las la-comments mr-2"></i>{{ translate('Conversation') }}
+                    <i class="las la-comments mr-2"></i>{{ translate('Chat') }}
                     <span class="badge badge-light text-dark ml-2">{{ $inquiry->notes->count() }}</span>
                 </h5>
             </div>
@@ -661,7 +661,7 @@
                     {{-- Display all notes --}}
                     @foreach($inquiry->notes as $note)
                         <div class="conv-message {{ $note->sender_type === 'admin' ? 'admin-msg' : 'user-msg' }} mb-3">
-                            <div class="msg-header d-flex justify-content-between align-items-center mb-2">
+                            <div class="msg-header mb-2">
                                 <span class="msg-sender">
                                     @if($note->sender_type === 'admin')
                                         <i class="las la-user-shield text-primary mr-1"></i>
@@ -673,10 +673,12 @@
                                         <span class="badge badge-info ml-1">{{ translate('Customer') }}</span>
                                     @endif
                                 </span>
-                                <small class="text-muted">{{ $note->created_at->format('d M Y - H:i') }}</small>
                             </div>
                             <div class="msg-body">
                                 {{ $note->message }}
+                            </div>
+                            <div class="msg-footer mt-2 text-right">
+                                <small class="text-muted">{{ $note->created_at->format('d M Y - H:i') }}</small>
                             </div>
                         </div>
                     @endforeach
@@ -821,15 +823,17 @@
                         // Create new message HTML
                         var messageHtml = `
                             <div class="conv-message admin-msg mb-3" style="animation: slideIn 0.3s ease;">
-                                <div class="msg-header d-flex justify-content-between align-items-center mb-2">
+                                <div class="msg-header mb-2">
                                     <span class="msg-sender">
                                         <i class="las la-user-shield text-primary mr-1"></i>
                                         <strong>${data.note.user_name}</strong>
                                         <span class="badge badge-primary ml-1">{{ translate('Admin') }}</span>
                                     </span>
-                                    <small class="text-muted">${data.note.created_at}</small>
                                 </div>
                                 <div class="msg-body">${data.note.message}</div>
+                                <div class="msg-footer mt-2 text-right">
+                                    <small class="text-muted">${data.note.created_at}</small>
+                                </div>
                             </div>
                         `;
 
