@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
 use App\Models\InquiryItem;
+use App\Models\InquiryNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -222,5 +223,43 @@ class InquiryController extends Controller
         return redirect()
             ->route('cart.inquiry')
             ->with('success', 'Inquiry cancelled successfully');
+    }
+
+    public function addNote(Request $request, $id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // User can only add notes when status is not completed or cancelled
+        if (in_array($inquiry->status, ['completed', 'cancelled'])) {
+            return response()->json(['message' => 'Cannot add notes to this inquiry'], 403);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:2000',
+        ]);
+
+        $note = InquiryNote::create([
+            'inquiry_id'  => $inquiry->id,
+            'user_id'     => Auth::id(),
+            'sender_type' => 'user',
+            'message'     => $request->input('message'),
+        ]);
+
+        return response()->json([
+            'ok'   => true,
+            'note' => [
+                'id'          => $note->id,
+                'message'     => $note->message,
+                'sender_type' => $note->sender_type,
+                'user_name'   => Auth::user()->name,
+                'created_at'  => $note->created_at->format('d M Y - H:i'),
+            ],
+        ]);
     }
 }

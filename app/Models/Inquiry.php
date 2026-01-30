@@ -77,4 +77,9 @@ class Inquiry extends Model
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
+
+    public function notes()
+    {
+        return $this->hasMany(InquiryNote::class)->orderBy('created_at', 'asc');
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\Inquiry;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\InquiryItem;
+use App\Models\InquiryNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -177,9 +178,41 @@ public function store(Request $request)
             'admin:id,name,email',
             'items.product:id,name,unit_price,thumbnail_img',
             'items.category:id,name,banner',
+            'notes.user:id,name',
         ]);
 
         return view('admin.inquiries.show', compact('inquiry'));
+    }
+
+    public function addNote(Request $request, Inquiry $inquiry)
+    {
+        $request->validate([
+            'message' => 'required|string|max:2000',
+        ]);
+
+        $note = InquiryNote::create([
+            'inquiry_id'  => $inquiry->id,
+            'user_id'     => auth()->id(),
+            'sender_type' => 'admin',
+            'message'     => $request->input('message'),
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'ok'   => true,
+                'note' => [
+                    'id'          => $note->id,
+                    'message'     => $note->message,
+                    'sender_type' => $note->sender_type,
+                    'user_name'   => auth()->user()->name,
+                    'created_at'  => $note->created_at->format('d M Y - H:i'),
+                ],
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.inquiries.show', $inquiry->id)
+            ->with('success', 'Note added successfully.');
     }
 
 public function edit(Inquiry $inquiry)

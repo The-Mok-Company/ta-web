@@ -76,6 +76,8 @@ Route::post('/inquiries/{id}/accept', [InquiryController::class, 'acceptOffer'])
     ->name('inquiries.accept');
 Route::post('/inquiries/{id}/cancel', [InquiryController::class, 'cancelOffer'])
     ->name('inquiries.cancel');
+Route::post('/inquiries/{id}/notes', [InquiryController::class, 'addNote'])
+    ->name('inquiries.addNote');
 Route::get('/inquiries/{id}', [InquiryController::class, 'show'])->name('inquiries.show');
 
 Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
@@ -570,4 +572,6 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
         Route::resource('inquiries', \App\Http\Controllers\Admin\InquiryController::class);
+        Route::post('inquiries/{inquiry}/notes', [\App\Http\Controllers\Admin\InquiryController::class, 'addNote'])
+            ->name('inquiries.addNote');
     });

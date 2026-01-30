@@ -411,7 +411,8 @@ public function updateQuantity(Request $request)
         $inquiries = Inquiry::where('user_id', $user->id)
             ->with([
                 'items.product:id,name,unit_price,thumbnail_img',
-                'items.category:id,name,banner'
+                'items.category:id,name,banner',
+                'notes.user:id,name'
             ])
             ->orderBy('id', 'desc')
             ->get();

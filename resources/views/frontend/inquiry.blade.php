@@ -236,28 +236,81 @@
                                 <div class="chat-container">
                                     <!-- Messages Container -->
                                     <div class="messages-container" id="messagesContainer-{{ $inquiry->id }}">
+                                        {{-- System message for inquiry creation --}}
                                         <div class="conversation-message system-message">
                                             <div class="message-content">
-                                                <p class="message-text">You Created inquiry order.</p>
+                                                <p class="message-text">You created this inquiry.</p>
                                                 <span class="message-time">{{ optional($inquiry->created_at)->format('d M Y - H:i') }}</span>
                                                 <svg class="checkmark-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                                     <path d="M13.5 4L6 11.5L2.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
                                             </div>
                                         </div>
+
+                                        {{-- Display all notes --}}
+                                        @foreach($inquiry->notes as $note)
+                                            <div class="conversation-message {{ $note->sender_type === 'user' ? 'user-message' : 'admin-message' }}">
+                                                <div class="message-header">
+                                                    <span class="message-sender">
+                                                        @if($note->sender_type === 'user')
+                                                            <i class="las la-user"></i> You
+                                                        @else
+                                                            <i class="las la-user-shield"></i> {{ $note->user->name ?? 'Admin' }}
+                                                        @endif
+                                                    </span>
+                                                    <span class="message-time">{{ $note->created_at->format('d M Y - H:i') }}</span>
+                                                </div>
+                                                <p class="message-text">{{ $note->message }}</p>
+                                            </div>
+                                        @endforeach
+
+                                        {{-- Show status message if not pending --}}
+                                        @if($status === 'processing')
+                                            <div class="conversation-message status-message processing-status">
+                                                <div class="message-content">
+                                                    <i class="las la-clock"></i>
+                                                    <p class="message-text">Awaiting your response - Please review the offer and accept or cancel.</p>
+                                                </div>
+                                            </div>
+                                        @elseif($status === 'completed')
+                                            <div class="conversation-message status-message completed-status">
+                                                <div class="message-content">
+                                                    <i class="las la-check-circle"></i>
+                                                    <p class="message-text">Inquiry completed successfully.</p>
+                                                </div>
+                                            </div>
+                                        @elseif($status === 'cancelled')
+                                            <div class="conversation-message status-message cancelled-status">
+                                                <div class="message-content">
+                                                    <i class="las la-times-circle"></i>
+                                                    <p class="message-text">Inquiry was cancelled.</p>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Chat Input -->
-                                    <div class="chat-input-container">
-                                        <div class="chat-input-wrapper">
-                                            <textarea class="chat-input" placeholder="Type your message here..." rows="1" disabled></textarea>
-                                            <button class="send-button" disabled>
-                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                                    <path d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                            </button>
+                                    @if(!in_array($status, ['completed', 'cancelled']))
+                                        <div class="chat-input-container">
+                                            <form class="chat-form" data-inquiry-id="{{ $inquiry->id }}">
+                                                @csrf
+                                                <div class="chat-input-wrapper">
+                                                    <textarea class="chat-input" name="message" placeholder="Type your message here..." rows="1" required></textarea>
+                                                    <button type="submit" class="send-button">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                            <path d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
-                                    </div>
+                                    @else
+                                        <div class="chat-input-container disabled">
+                                            <div class="chat-input-wrapper">
+                                                <span class="chat-disabled-message">This inquiry is {{ $status }}. No more messages can be sent.</span>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -489,6 +542,30 @@
         .send-button { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; flex-shrink: 0; }
         .send-button:disabled { background: #d1d5db; cursor: not-allowed; transform: none; }
 
+        .user-message { background: #e0f2fe; border-left: 4px solid #0ea5e9; align-self: flex-end; }
+        .admin-message { background: #fef3c7; border-left: 4px solid #f59e0b; align-self: flex-start; }
+        .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .message-sender { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .user-message .message-sender { color: #0369a1; }
+        .admin-message .message-sender { color: #b45309; }
+        .user-message .message-text { color: #0c4a6e; }
+        .admin-message .message-text { color: #78350f; }
+
+        .status-message { align-self: center; max-width: 90%; text-align: center; }
+        .status-message .message-content { display: flex; align-items: center; gap: 10px; justify-content: center; }
+        .status-message i { font-size: 20px; }
+        .processing-status { background: #dbeafe; border: 1px solid #3b82f6; }
+        .processing-status i, .processing-status .message-text { color: #1d4ed8; }
+        .completed-status { background: #d1fae5; border: 1px solid #10b981; }
+        .completed-status i, .completed-status .message-text { color: #047857; }
+        .cancelled-status { background: #fee2e2; border: 1px solid #ef4444; }
+        .cancelled-status i, .cancelled-status .message-text { color: #b91c1c; }
+
+        .chat-form { display: flex; width: 100%; }
+        .chat-form .chat-input-wrapper { width: 100%; }
+        .chat-input-container.disabled { background: #f3f4f6; }
+        .chat-disabled-message { color: #6b7280; font-size: 13px; font-style: italic; padding: 10px 0; }
+
         .summary-section { width: 350px; flex-shrink: 0; }
         .summary-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; }
         .summary-card h2 { font-size: 18px; font-weight: bold; color: #111827; margin: 0 0 20px 0; }
@@ -592,6 +669,78 @@
                         conv.style.display  = 'flex';
                         items.style.display = 'none';
                     }
+                });
+            });
+
+            // Handle chat form submission
+            document.querySelectorAll('.chat-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const inquiryId = form.getAttribute('data-inquiry-id');
+                    const textarea = form.querySelector('textarea[name="message"]');
+                    const message = textarea.value.trim();
+                    const submitBtn = form.querySelector('.send-button');
+
+                    if (!message) return;
+
+                    // Disable form while submitting
+                    textarea.disabled = true;
+                    submitBtn.disabled = true;
+
+                    fetch('/inquiries/' + inquiryId + '/notes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ message: message })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            // Add new message to container
+                            const container = document.getElementById('messagesContainer-' + inquiryId);
+                            const statusMessages = container.querySelectorAll('.status-message');
+
+                            const messageHtml = `
+                                <div class="conversation-message user-message">
+                                    <div class="message-header">
+                                        <span class="message-sender">
+                                            <i class="las la-user"></i> You
+                                        </span>
+                                        <span class="message-time">${data.note.created_at}</span>
+                                    </div>
+                                    <p class="message-text">${data.note.message}</p>
+                                </div>
+                            `;
+
+                            // Insert before status messages or at the end
+                            if (statusMessages.length > 0) {
+                                statusMessages[0].insertAdjacentHTML('beforebegin', messageHtml);
+                            } else {
+                                container.insertAdjacentHTML('beforeend', messageHtml);
+                            }
+
+                            // Clear textarea
+                            textarea.value = '';
+
+                            // Scroll to bottom
+                            container.scrollTop = container.scrollHeight;
+                        } else {
+                            alert(data.message || 'Failed to send message');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to send message');
+                    })
+                    .finally(() => {
+                        textarea.disabled = false;
+                        submitBtn.disabled = false;
+                        textarea.focus();
+                    });
                 });
             });
         });

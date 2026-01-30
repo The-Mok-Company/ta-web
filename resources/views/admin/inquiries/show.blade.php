@@ -291,6 +291,33 @@
         color: #0369a1;
         margin-bottom: 3px;
     }
+    .conv-message {
+        padding: 12px 16px;
+        border-radius: 10px;
+        max-width: 85%;
+    }
+    .conv-message.system-msg {
+        background: #f3f4f6;
+        max-width: 100%;
+        text-align: center;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .conv-message.admin-msg {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .conv-message.user-msg {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    .msg-body {
+        color: #374151;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
 </style>
 
 <div class="aiz-titlebar text-left mt-2 mb-3">
@@ -610,6 +637,73 @@
                 @endforelse
             </div>
         </div>
+
+        <!-- Conversation/Notes Section -->
+        <div class="card inquiry-card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                <h5 class="mb-0">
+                    <i class="las la-comments mr-2"></i>{{ translate('Conversation') }}
+                    <span class="badge badge-light text-dark ml-2">{{ $inquiry->notes->count() }}</span>
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="conversation-container" id="conversationContainer" style="max-height: 400px; overflow-y: auto;">
+                    {{-- System message for inquiry creation --}}
+                    <div class="conv-message system-msg mb-3">
+                        <div class="d-flex align-items-center justify-content-center text-muted">
+                            <i class="las la-file-alt mr-2"></i>
+                            <span>{{ translate('Inquiry created') }}</span>
+                            <span class="mx-2">•</span>
+                            <small>{{ $inquiry->created_at->format('d M Y - H:i') }}</small>
+                        </div>
+                    </div>
+
+                    {{-- Display all notes --}}
+                    @foreach($inquiry->notes as $note)
+                        <div class="conv-message {{ $note->sender_type === 'admin' ? 'admin-msg' : 'user-msg' }} mb-3">
+                            <div class="msg-header d-flex justify-content-between align-items-center mb-2">
+                                <span class="msg-sender">
+                                    @if($note->sender_type === 'admin')
+                                        <i class="las la-user-shield text-primary mr-1"></i>
+                                        <strong>{{ $note->user->name ?? 'Admin' }}</strong>
+                                        <span class="badge badge-primary ml-1">{{ translate('Admin') }}</span>
+                                    @else
+                                        <i class="las la-user text-info mr-1"></i>
+                                        <strong>{{ $note->user->name ?? 'Customer' }}</strong>
+                                        <span class="badge badge-info ml-1">{{ translate('Customer') }}</span>
+                                    @endif
+                                </span>
+                                <small class="text-muted">{{ $note->created_at->format('d M Y - H:i') }}</small>
+                            </div>
+                            <div class="msg-body">
+                                {{ $note->message }}
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @if($inquiry->notes->count() === 0)
+                        <div class="text-center text-muted py-4">
+                            <i class="las la-comment-slash" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="mt-2">{{ translate('No messages yet') }}</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Add Note Form --}}
+                <div class="add-note-form mt-4 pt-3" style="border-top: 1px solid #e9ecef;">
+                    <form action="{{ route('admin.inquiries.addNote', $inquiry->id) }}" method="POST" id="addNoteForm">
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-600">{{ translate('Add a Note') }}</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="{{ translate('Type your message here...') }}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="las la-paper-plane mr-1"></i>{{ translate('Send') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -698,6 +792,88 @@
                 'opacity': '1'
             }, 400).css('transform', 'translateY(0)');
         });
+
+        // Handle note form submission via AJAX
+        $('#addNoteForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var textarea = form.find('textarea[name="message"]');
+            var submitBtn = form.find('button[type="submit"]');
+            var message = textarea.val().trim();
+
+            if (!message) return;
+
+            // Disable form while submitting
+            textarea.prop('disabled', true);
+            submitBtn.prop('disabled', true).html('<i class="las la-spinner la-spin mr-1"></i> {{ translate("Sending...") }}');
+
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    message: message
+                },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.ok) {
+                        // Create new message HTML
+                        var messageHtml = `
+                            <div class="conv-message admin-msg mb-3" style="animation: slideIn 0.3s ease;">
+                                <div class="msg-header d-flex justify-content-between align-items-center mb-2">
+                                    <span class="msg-sender">
+                                        <i class="las la-user-shield text-primary mr-1"></i>
+                                        <strong>${data.note.user_name}</strong>
+                                        <span class="badge badge-primary ml-1">{{ translate('Admin') }}</span>
+                                    </span>
+                                    <small class="text-muted">${data.note.created_at}</small>
+                                </div>
+                                <div class="msg-body">${data.note.message}</div>
+                            </div>
+                        `;
+
+                        // Remove "No messages" placeholder if exists
+                        $('#conversationContainer .text-center.text-muted').remove();
+
+                        // Append new message
+                        $('#conversationContainer').append(messageHtml);
+
+                        // Update counter
+                        var badge = $('.card-header .badge');
+                        var count = parseInt(badge.text()) || 0;
+                        badge.text(count + 1);
+
+                        // Clear textarea
+                        textarea.val('');
+
+                        // Scroll to bottom
+                        var container = document.getElementById('conversationContainer');
+                        container.scrollTop = container.scrollHeight;
+
+                        // Show success toast
+                        AIZ.plugins.notify('success', '{{ translate("Note sent successfully") }}');
+                    } else {
+                        AIZ.plugins.notify('danger', data.message || '{{ translate("Failed to send note") }}');
+                    }
+                },
+                error: function(xhr) {
+                    var errorMsg = xhr.responseJSON?.message || '{{ translate("Failed to send note") }}';
+                    AIZ.plugins.notify('danger', errorMsg);
+                },
+                complete: function() {
+                    textarea.prop('disabled', false);
+                    submitBtn.prop('disabled', false).html('<i class="las la-paper-plane mr-1"></i>{{ translate("Send") }}');
+                    textarea.focus();
+                }
+            });
+        });
     });
 </script>
+<style>
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 @endsection
