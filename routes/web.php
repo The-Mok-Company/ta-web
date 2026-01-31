@@ -256,7 +256,7 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
     Route::get('/cart/tracking', 'tracking')->name('cart.tracking');
-    Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry');
+    Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry')->middleware('auth');
 
 
 });

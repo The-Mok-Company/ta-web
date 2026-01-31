@@ -1105,15 +1105,6 @@
                     </div>
                 @else
                     <div class="header-dropdown icon-dropdown">
-                        <a href="{{ route('cart.inquiry') }}" class="dropdown-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
-                                <circle cx="9" cy="20" r="1" />
-                                <circle cx="17" cy="20" r="1" />
-                            </svg>
-                            <span>{{ translate('My Inquiries') }}</span>
-                        </a>
                         <a href="{{ route('user.login') }}" class="dropdown-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2">
