@@ -1066,6 +1066,7 @@
 
             <div class="mb-4">
                 <div class="inquiry-title">{{ translate('Inquiry') }}</div>
+                <p class="text-muted fs-16" style="color: #64748b; font-weight: 500;">{{ translate('Want to inquire about anything else?') }} <a href="{{ route('categories.all') }}" class="text-primary fw-600" style="text-decoration: underline;">{{ translate('Browse Categories') }}</a></p>
             </div>
 
             <div class="row g-4">

@@ -408,4 +408,83 @@ private function applyItemPayload(InquiryItem $item, array $payload): void
             'total'            => round($total, 2),
         ]);
     }
+
+    /**
+     * Display inquiry reports dashboard with filters
+     */
+    public function reports(Request $request)
+    {
+        // Date range filters
+        $startDate = $request->input('start_date', now()->subDays(30)->toDateString());
+        $endDate = $request->input('end_date', now()->toDateString());
+        $status = $request->input('status');
+
+        // Base query
+        $query = Inquiry::query()
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        // Statistics
+        $totalInquiries = (clone $query)->count();
+        $pendingInquiries = (clone $query)->where('status', 'pending')->count();
+        $processingInquiries = (clone $query)->where('status', 'processing')->count();
+        $completedInquiries = (clone $query)->where('status', 'completed')->count();
+        $cancelledInquiries = (clone $query)->where('status', 'cancelled')->count();
+
+        $totalValue = (clone $query)->sum('total');
+        $averageValue = $totalInquiries > 0 ? $totalValue / $totalInquiries : 0;
+
+        // Daily inquiries for chart
+        $dailyInquiries = Inquiry::query()
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(total) as total_value')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Top users by inquiry count
+        $topUsers = Inquiry::query()
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->with('user:id,name,email')
+            ->selectRaw('user_id, COUNT(*) as inquiry_count, SUM(total) as total_value')
+            ->groupBy('user_id')
+            ->orderByDesc('inquiry_count')
+            ->limit(10)
+            ->get();
+
+        // Recent inquiries
+        $recentInquiries = Inquiry::query()
+            ->with(['user:id,name,email'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        // Status distribution for pie chart
+        $statusDistribution = [
+            'pending' => $pendingInquiries,
+            'processing' => $processingInquiries,
+            'completed' => $completedInquiries,
+            'cancelled' => $cancelledInquiries,
+        ];
+
+        return view('admin.inquiries.reports', compact(
+            'startDate',
+            'endDate',
+            'status',
+            'totalInquiries',
+            'pendingInquiries',
+            'processingInquiries',
+            'completedInquiries',
+            'cancelledInquiries',
+            'totalValue',
+            'averageValue',
+            'dailyInquiries',
+            'topUsers',
+            'recentInquiries',
+            'statusDistribution'
+        ));
+    }
 }

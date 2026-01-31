@@ -578,4 +578,6 @@ Route::prefix('admin')
             ->name('inquiries.addNote');
         Route::get('inquiries/{inquiry}/notes', [\App\Http\Controllers\Admin\InquiryController::class, 'getNotes'])
             ->name('inquiries.getNotes');
+        Route::get('inquiries-reports', [\App\Http\Controllers\Admin\InquiryController::class, 'reports'])
+            ->name('inquiries.reports');
     });

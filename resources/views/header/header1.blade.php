@@ -41,15 +41,16 @@
         })->values();
     }
 
-    // Cart count (works with DB/session cart via helper)
-    // - Guest users: often stored in Session('cart')
-    // - Logged-in users: typically stored via get_user_cart()
+    // Cart count (using CartCacheService for consistency)
     $header_cart_count = 0;
-    if (Session::has('cart')) {
-        $header_cart_count = is_countable(Session::get('cart')) ? count(Session::get('cart')) : 0;
-    } elseif (function_exists('get_user_cart')) {
-        $header_carts = get_user_cart();
-        $header_cart_count = is_countable($header_carts) ? count($header_carts) : 0;
+    $cartService = app(\App\Services\CartCacheService::class);
+    if (auth()->check()) {
+        $header_cart_count = $cartService->getCartCount(auth()->id(), null);
+    } else {
+        $tempUserId = Session::get('temp_user_id');
+        if ($tempUserId) {
+            $header_cart_count = $cartService->getCartCount(null, $tempUserId);
+        }
     }
 @endphp
 
@@ -624,10 +625,14 @@
             padding: 12px 0;
         }
 
+        /* Disable hover on mobile - use click only */
         .nav-dropdown:hover .header-dropdown {
-            transform: translateX(-23%) translateY(0px);
+            opacity: 0;
+            visibility: hidden;
+            transform: none;
         }
 
+        /* Only show dropdown when active (clicked) */
         .nav-dropdown.active .header-dropdown {
             opacity: 1;
             visibility: visible;

@@ -22,7 +22,7 @@
                         {{ $message->message }}
                     </div>
                     <span class="comment-date alpha-7 small mt-1 d-block text-right">
-                        {{ date('h:i:m d-m-Y', strtotime($message->created_at)) }}
+                        {{ date('h:i A, d M Y', strtotime($message->created_at)) }}
                     </span>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                         {{ $message->message }}
                     </div>
                     <span class="comment-date alpha-7 small mt-1 d-block">
-                        {{ date('h:i:m d-m-Y', strtotime($message->created_at)) }}
+                        {{ date('h:i A, d M Y', strtotime($message->created_at)) }}
                     </span>
                 </div>
             </div>

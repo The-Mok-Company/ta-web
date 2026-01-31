@@ -231,6 +231,9 @@
             </h1>
         </div>
         <div class="col-auto">
+            <a href="{{ route('admin.inquiries.reports') }}" class="btn btn-info mr-2">
+                <i class="las la-chart-bar mr-1"></i>{{ translate('Reports') }}
+            </a>
             <a href="{{ route('admin.inquiries.create') }}" class="btn btn-success">
                 <i class="las la-plus mr-1"></i>{{ translate('Create New Inquiry') }}
             </a>

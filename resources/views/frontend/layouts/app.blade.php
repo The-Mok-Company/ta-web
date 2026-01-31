@@ -19,10 +19,14 @@
       gtag('js', new Date());
       gtag('config', 'G-5G4454B3XY');
     </script>
-    
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
+
+{{-- Favicon is set dynamically below --}}
+
+
 
     <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
 
@@ -63,9 +67,14 @@
 
     <!-- Favicon -->
     @php
-        $siteIconSetting = get_setting('site_icon'); // e.g. "uploads/all/xxx.png"
-        $siteIconUrl = $siteIconSetting ? asset($siteIconSetting) : asset('assets/Vector.svg');
-        $isSvgIcon = \Illuminate\Support\Str::endsWith(strtolower($siteIconUrl), '.svg');
+        $siteIconSetting = get_setting('site_icon');
+        // Use uploaded_asset for uploaded files, fallback to static asset
+        if ($siteIconSetting) {
+            $siteIconUrl = uploaded_asset($siteIconSetting);
+        } else {
+            $siteIconUrl = static_asset('assets/img/placeholder.jpg');
+        }
+        $isSvgIcon = \Illuminate\Support\Str::endsWith(strtolower($siteIconUrl ?? ''), '.svg');
     @endphp
 
     <link rel="icon" href="{{ $siteIconUrl }}" @if($isSvgIcon) type="image/svg+xml" @endif>
