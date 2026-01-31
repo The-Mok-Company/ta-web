@@ -12,5 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UsersTableSeeder::class);
+        // Example multi-layer categories (Main + Sub under Industrial & Raw Materials):
+        // $this->call(CategoryExampleSeeder::class);
     }
 }

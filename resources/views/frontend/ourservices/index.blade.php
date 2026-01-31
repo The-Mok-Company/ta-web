@@ -1,4 +1,5 @@
 @extends('frontend.layouts.app')
+@section("meta_title",'Services')
 @php
     use App\Models\OurService;
 

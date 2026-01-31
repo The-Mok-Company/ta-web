@@ -51,8 +51,11 @@ class CategoryController extends Controller
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
             ->with('childrenCategories')
+            ->orderBy('order_level', 'desc')
+            ->orderBy('name')
             ->get();
-        return view('backend.product.categories.create', compact('categories'));
+        $selected_parent_id = request('parent_id');
+        return view('backend.product.categories.create', compact('categories', 'selected_parent_id'));
     }
 
     /**
@@ -265,14 +268,27 @@ class CategoryController extends Controller
         return 1;
     }
 
+    public function updatePublished(Request $request)
+    {
+        $category = Category::findOrFail($request->id);
+        $category->is_published = $request->status;
+        $category->save();
+        Cache::forget('featured_categories');
+        Cache::forget('hot_categories');
+        return 1;
+    }
+
     public function categoriesByType(Request $request)
     {
         $categories = Category::where('parent_id', 0)
             ->where('digital', $request->digital)
             ->with('childrenCategories')
+            ->orderBy('order_level', 'desc')
+            ->orderBy('name')
             ->get();
+        $selected_parent_id = $request->get('selected_parent_id');
 
-        return view('backend.product.categories.categories_option', compact('categories'));
+        return view('backend.product.categories.categories_option', compact('categories', 'selected_parent_id'));
     }
 
     public function categoriesWiseProductDiscount(Request $request){
@@ -331,21 +347,22 @@ class CategoryController extends Controller
     public function get_categories_by_filter(Request $request)
     {
         Log::info('Filter Category Request: ', $request->all());
-         $categories = Category::orderBy('order_level', 'desc');
-         $sort_search =null;
-         if($request->category_type=='physical_categories'){
-            $categories= $categories->where('digital',0);
-         }
-         else if($request->category_type=='digital_categories'){
-            $categories= $categories->where('digital',1);
+         $categories = Category::orderByRaw('COALESCE(level, 0) ASC')
+             ->orderBy('order_level', 'desc')
+             ->orderBy('id', 'asc');
+         $sort_search = null;
+         if ($request->category_type == 'physical_categories') {
+            $categories = $categories->where('digital', 0);
+         } elseif ($request->category_type == 'digital_categories') {
+            $categories = $categories->where('digital', 1);
          }
 
-        if ($request->search != null){
+        if ($request->search != null) {
             $sort_search = $request->search;
-            $categories = $categories->where('name', 'like', '%'.$sort_search.'%');
+            $categories = $categories->where('name', 'like', '%' . $sort_search . '%');
         }
 
-        $categories=$categories->paginate(15);
+        $categories = $categories->paginate(15);
         $view = view('backend.product.categories.categories_table',
             compact('categories', 'sort_search')
         )->render();

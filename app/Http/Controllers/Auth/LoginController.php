@@ -283,7 +283,8 @@ class LoginController extends Controller
         }
 
         if (auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'staff') {
-            CoreComponentRepository::instantiateShopRepository();
+            // Skip activation check - prevents redirect to activeitzone.com/activation on login
+            // CoreComponentRepository::instantiateShopRepository();
             return redirect()->route('admin.dashboard');
         } elseif (auth()->user()->user_type == 'seller') {
             

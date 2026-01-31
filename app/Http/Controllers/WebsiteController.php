@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Element;
 use App\Models\ElementType;
 use App\Models\Language;
@@ -29,7 +30,23 @@ class WebsiteController extends Controller
         $user = Auth::user();
         $system_language = Language::where('code', app()->getLocale())->first();
         $element_type = ElementType::find(get_setting('header_element'));
-        return view('backend.website_settings.header', compact('system_language', 'user', 'element_type'));
+
+        // Categories dropdown: main categories (level 0) with children, for editing in header settings
+        $headerCategoriesOrder = get_setting('header_categories_order') ? json_decode(get_setting('header_categories_order'), true) : null;
+        $mainCategories = Category::withoutGlobalScope('published')
+            ->where('level', 0)
+            ->with(['childrenCategories', 'catIcon'])
+            ->orderBy('order_level', 'desc')
+            ->orderBy('name')
+            ->get();
+        if (is_array($headerCategoriesOrder) && !empty($headerCategoriesOrder)) {
+            $mainCategories = $mainCategories->sortBy(function ($cat) use ($headerCategoriesOrder) {
+                $pos = array_search($cat->id, $headerCategoriesOrder);
+                return $pos !== false ? $pos : 9999;
+            })->values();
+        }
+
+        return view('backend.website_settings.header', compact('system_language', 'user', 'element_type', 'mainCategories', 'headerCategoriesOrder'));
     }
     public function footer(Request $request)
     {

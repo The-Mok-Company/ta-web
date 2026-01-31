@@ -1,4 +1,6 @@
 @extends('frontend.layouts.app')
+@section("meta_title",'Our Partners')
+
 
 @php
     use App\Models\OurPartners;
@@ -15,7 +17,7 @@
     .our-partners-page {
         background: #ffffff;
         min-height: 100vh;
-        padding: 100px 0;
+        padding: 130px 0;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
@@ -34,35 +36,17 @@
         line-height: 1.2;
     }
 
-    /* Trapezoid Container for Hero */
+    /* Trapezoid Container - Floating Image */
     .hero-trapezoid-container {
         position: relative;
-        max-width: 900px;
+        max-width: 1200px;
         margin: 0 auto 40px;
-        padding: 60px 80px;
+        padding: 0;
     }
 
-    .hero-trapezoid-border {
-        position: absolute;
-    }
-
-    .hero-trapezoid-border::before {
-        content: '';
-        position: absolute;
-        inset: 2px;
-        background: rgba(255, 255, 255, 0.95);
-        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
-        backdrop-filter: blur(10px);
-    }
-
-    .hero-trapezoid-border::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border: 4px solid rgba(100, 181, 246, 0.3);
-        clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
-        box-shadow: 0 8px 32px rgba(100, 181, 246, 0.12);
-        border-radius: 16px;
+    .imagetwosection {
+        position: relative;
+        background: none;
     }
 
     .hero-trapezoid-content {
@@ -71,27 +55,33 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: fadeInUp 0.8s ease-out;
-        padding: 20px;
+        animation: floatAnimation 3s ease-in-out infinite;
+        padding: 0;
     }
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+    @keyframes floatAnimation {
+
+        0%,
+        100% {
+            transform: translateY(0px);
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        50% {
+            transform: translateY(-20px);
         }
     }
 
     .hero-illustration {
         max-width: 100%;
-        max-height: 350px;
+        max-height: 500px;
         height: auto;
         object-fit: contain;
+        filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15));
+        transition: transform 0.3s ease;
+    }
+
+    .hero-illustration:hover {
+        transform: scale(1.05);
     }
 
     /* Subtitle Below Hero */
@@ -210,7 +200,11 @@
         }
 
         .hero-trapezoid-container {
-            padding: 50px 60px;
+            max-width: 90%;
+        }
+
+        .hero-illustration {
+            max-height: 400px;
         }
     }
 
@@ -225,12 +219,11 @@
         }
 
         .hero-trapezoid-container {
-            padding: 40px 40px;
-            max-width: 90%;
+            max-width: 95%;
         }
 
         .hero-illustration {
-            max-height: 280px;
+            max-height: 320px;
         }
 
         .hero-subtitle {
@@ -256,12 +249,8 @@
             font-size: 32px;
         }
 
-        .hero-trapezoid-container {
-            padding: 30px 20px;
-        }
-
         .hero-illustration {
-            max-height: 240px;
+            max-height: 280px;
         }
 
         .hero-subtitle {
@@ -310,10 +299,9 @@
     .imagetwosection {
         background-image: url("{{ asset('assets/img/partners/8aa53b5cb1926d6f320a563c04c919b68484e0b1.png') }}");
         background-repeat: no-repeat;
-        background-size: cover;
-        background-position:center top;
+        background-size: contain;
+        background-position: center;
         position: relative;
-
     }
 </style>
 
@@ -325,10 +313,9 @@
             <div class="partners-hero">
                 <h1>{{ $hero && isset($hero->value['title']) ? $hero->value['title'] : 'Our Partners' }}</h1>
 
-                {{-- Trapezoid Container with Illustration --}}
+                {{-- Floating Image Container --}}
                 <div class="hero-trapezoid-container">
-                    <div class="imagetwosection">
-                        <div class="hero-trapezoid-border"></div>
+                        <div class="imagetwosection">
                         <div class="hero-trapezoid-content">
                             @if ($hero && isset($hero->value['image']) && $hero->value['image'])
                                 <img src="{{ asset($hero->value['image']) }}" alt="Our Partners" class="hero-illustration"
@@ -339,7 +326,6 @@
                             @endif
                         </div>
                     </div>
-
                 </div>
 
                 {{-- Subtitle --}}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PreventDemoModeChanges;
+use Illuminate\Database\Eloquent\Builder;
 use App;
 
 class Category extends Model
@@ -16,6 +17,24 @@ class Category extends Model
     ];
 
     protected $with = ['category_translations'];
+
+    protected static function booted()
+    {
+        // Only filter unpublished categories on frontend (not in admin panel)
+        static::addGlobalScope('published', function (Builder $builder) {
+            $request = request();
+            $isAdmin = $request && (
+                $request->is('admin/*') ||
+                $request->is('admin') ||
+                $request->routeIs('admin.*') ||
+                $request->routeIs('categories.*')
+            );
+
+            if (!$isAdmin) {
+                $builder->where('is_published', 1);
+            }
+        });
+    }
 
     public function getTranslation($field = '', $lang = false)
     {

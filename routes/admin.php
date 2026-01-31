@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\Setting\ContactMessageController;
 use App\Http\Controllers\Admin\Report\EarningReportController;
+use App\Http\Controllers\Admin\Setting\ContactUsController;
 use App\Http\Controllers\Admin\Setting\FooterController;
 use App\Http\Controllers\Admin\Setting\HomePageController;
+use App\Http\Controllers\Admin\Setting\JoinUsController;
 use App\Http\Controllers\Admin\Setting\OurServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
@@ -35,6 +38,7 @@ use App\Http\Controllers\DynamicPopupController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\FlashDealController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MeasurementPointsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NoteController;
@@ -96,6 +100,7 @@ Route::controller(UpdateController::class)->group(function () {
 Route::get('/admin', [AdminController::class, 'admin_dashboard'])->name('admin.dashboard')->middleware(['auth', 'admin', 'prevent-back-history']);
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-back-history']], function () {
 
+
     // cyber sources
     Route::controller(CybersourceSettingController::class)->group(function () {
         Route::get('/cybersource-configuration', 'configuration')->name('cybersource_configuration');
@@ -108,6 +113,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/categories/destroy/{id}', 'destroy')->name('categories.destroy');
         Route::post('/categories/featured', 'updateFeatured')->name('categories.featured');
         Route::post('/categories/hot', 'updateHot')->name('categories.hot');
+        Route::post('/categories/published', 'updatePublished')->name('categories.published');
         Route::post('/categories/categoriesByType', 'categoriesByType')->name('categories.categories-by-type');
 
         //category-wise commission
@@ -421,6 +427,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     });
 
 
+    // Menu items (header nav) - CRUD like categories
+    Route::resource('menu-items', MenuItemController::class)->except(['show']);
+    Route::post('menu-items/import-from-header', [MenuItemController::class, 'importFromHeader'])->name('menu-items.import-from-header');
+
     // website setting
     Route::group(['prefix' => 'website'], function () {
         Route::controller(WebsiteController::class)->group(function () {
@@ -626,9 +636,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::get('/settings/our-partners', [OurPartnersController::class, 'index'])->name('settings.our-partners');
     Route::post('/settings/our-partners', [OurPartnersController::class, 'update'])->name('settings.our-partners.update');
     Route::get('/admin/settings/join-us', [PartnerController::class, 'index'])
-        ->name('settings.join-us');
+        ->name('settings.join_us');
     Route::get('/admin/home-page-settings', [HomePageController::class, 'index'])
         ->name('settings.home-page.index');
+
 
     Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
         ->name('settings.home-page.update');
@@ -638,10 +649,33 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
     Route::post('/settings/our-services/update', [OurServiceController::class, 'update'])
         ->name('settings.our-services.update');
+    Route::get('/settings/join-us', [JoinUsController::class, 'index'])->name('settings.join-us');
+    Route::post('/settings/join-us/update', [JoinUsController::class, 'update'])->name('settings.join-us.update');
+
+
+
+
 
 
     Route::get('/settings/footer', [FooterController::class, 'index'])->name('settings.footer');
     Route::post('/settings/footer', [FooterController::class, 'update'])->name('settings.footer.update');
+
+    Route::post('/admin/home-page-settings/update', [HomePageController::class, 'update'])
+        ->name('settings.home-page.update');
+
+
+    // Contact Us Settings
+    Route::get('/settings/contact-us', [ContactUsController::class, 'index'])
+        ->name('settings.contact-us');
+
+    Route::post('/settings/contact-us/update', [ContactUsController::class, 'update'])
+        ->name('settings.contact-us.update');
+
+
+            Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact.messages.index');
+
+    Route::post('/contact-messages/{id}/toggle-status', [ContactMessageController::class, 'toggleStatus'])->name('admin.contact.messages.toggle-status');
+
     // product Queries show on Admin panel
     Route::controller(ProductQueryController::class)->group(function () {
         Route::get('/product-queries', 'index')->name('product_query.index');

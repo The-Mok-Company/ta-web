@@ -164,6 +164,20 @@
                     </a>
                 </li>
 
+                <!-- My Inquiries -->
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('inquiries.index') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['inquiries.index']) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5" />
+                            <circle cx="9" cy="20" r="1" />
+                            <circle cx="17" cy="20" r="1" />
+                        </svg>
+                        <span class="aiz-side-nav-text ml-3">{{ translate('My Inquiries') }}</span>
+                    </a>
+                </li>
+
                 <!-- Compare -->
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('compare') }}" class="aiz-side-nav-link {{ areActiveRoutes(['compare']) }}">

@@ -29,10 +29,7 @@ class NewUpdateController extends Controller
             flash(translate('This action is disabled in demo mode'))->error();
             return back();
         }        
-        if (\App\Utility\CategoryUtility::create_initial_category($request->purchase_code) == false) {
-            flash("Sorry! The purchase code you have provided is not valid.")->error();
-            return back();
-        }
+        // Skip activation check - allow update without purchase code
         $current_version= get_setting('current_version');
         if (version_compare($current_version, '10.0.0', '<')) {
             flash(translate('Could not update. Please check the compatible version'))->error();
@@ -84,18 +81,20 @@ class NewUpdateController extends Controller
                     DB::unprepared(file_get_contents($sql_path));
                 }
 
+                $purchaseCode = $request->purchase_code ?: 'skipped';
+                $systemKey = $request->system_key ?: 'skipped';
                 $businessSetting = BusinessSetting::where('type', 'purchase_code')->first();
                 if ($businessSetting) {
-                    $businessSetting->value = $request->purchase_code;
+                    $businessSetting->value = $purchaseCode;
                     $businessSetting->save();
                 } else {
                     $business_settings = new BusinessSetting;
                     $business_settings->type = 'purchase_code';
-                    $business_settings->value = $request->purchase_code;
+                    $business_settings->value = $purchaseCode;
                     $business_settings->save();
                 }
 
-                $this->writeEnvironmentFile('SYSTEM_KEY', $request->system_key);
+                $this->writeEnvironmentFile('SYSTEM_KEY', $systemKey);
 
                 Artisan::call('view:clear');
                 Artisan::call('cache:clear');
@@ -110,12 +109,7 @@ class NewUpdateController extends Controller
                 // $this->convertColorsName();
                 $this->updatePermission();
                 $updated_version = get_setting('current_version');
-                $purchase_code_set = $request->purchase_code.'=--='.str_replace('.','-',$updated_version);
-                if (\App\Utility\CategoryUtility::create_initial_category($purchase_code_set) == false) {
-                    flash("Sorry! The purchase code you have provided is not valid.")->error();
-                    return back();
-                }
-
+                // Skip post-update activation check
                 flash(translate('Version updated to: '.$updated_version))->success();
                 return redirect()->route('admin.dashboard');
 

@@ -1,4 +1,6 @@
 @extends('frontend.layouts.app')
+@section('meta_title', 'Level Two Categories')
+
 
 @php
     $mainCategories = App\Models\Category::where('level', 0)
@@ -17,7 +19,9 @@
         ->orderBy('order_level', 'desc')
         ->get();
 
-    $currentCategoryId = request()->segment(2);
+    // If a specific category is requested via ?open=, use it as the active context
+    // for sidebar highlighting (active trail).
+    $currentCategoryId = request('open') ?? request()->segment(2);
 
     // Active trail + active main category (level 0) for sidebar highlighting
     $activeTrailIds = [];
@@ -35,6 +39,112 @@
 @endphp
 
 <style>
+    /* ===== Add to Inquiry button (matches featured-inquiry-btn: colors, circle, hover tooltip) ===== */
+    .add-inquiry-btn .icon-check {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-plus {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-check {
+        display: block;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .add-inquiry-btn.added .icon-check::before {
+        content: "✓";
+    }
+
+    .add-inquiry-wrap {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 6;
+    }
+
+    .add-inquiry-btn {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
+        transition: box-shadow .2s ease, background .2s ease, color .2s ease;
+        overflow: visible;
+        flex-shrink: 0;
+        padding: 0;
+    }
+
+    .add-inquiry-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+        box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
+    }
+
+    .add-inquiry-btn .icon {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .add-inquiry-btn .btn-text {
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%) translateX(6px);
+        opacity: 0;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+    }
+
+    .add-inquiry-btn:hover .btn-text,
+    .add-inquiry-btn:focus-visible .btn-text {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    }
+
+    .add-inquiry-btn.added .btn-text,
+    .add-inquiry-btn.added:hover .btn-text {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .add-inquiry-btn.added {
+        background: #16a34a;
+        cursor: default;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .add-inquiry-btn.added:hover {
+        background: #16a34a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .add-inquiry-btn:disabled {
+        opacity: .9;
+        cursor: not-allowed;
+    }
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -238,30 +348,36 @@
         flex-shrink: 0;
     }
 
-    .category-sidebar ul li:hover:not(.active) {
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) {
         background: #f8f9fa;
     }
 
-    .category-sidebar ul li:hover:not(.active) a.category-link,
-    .category-sidebar ul li:hover:not(.active) .category-header {
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) a.category-link,
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) .category-header {
         color: #333;
     }
 
     .category-sidebar ul li.active {
+        /* Remove background from li, apply to link/header instead */
+    }
+
+    /* IMPORTANT: only style the clicked item's own link (not its children) */
+    .category-sidebar ul li.active>a.category-link {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
+        border-color: transparent;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar ul li.active a.category-link {
+    /* IMPORTANT: only style the clicked item's own header (not nested ones) */
+    .category-sidebar ul li.active>.category-header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
         color: #fff;
+        border-color: transparent;
+        box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
 
-    .category-sidebar ul li.active .category-header {
-        color: #fff;
-    }
-
-    .category-sidebar ul li.active .category-name {
+    .category-sidebar ul li.active>.category-header .category-name {
         color: #fff;
     }
 
@@ -270,6 +386,35 @@
         opacity: 0.5;
         transition: .3s;
         flex-shrink: 0;
+    }
+
+    /* ========================
+       SIDEBAR ITEM SPACING + OUTLINE
+    ======================== */
+    .category-sidebar ul li {
+        margin-bottom: 10px;
+    }
+
+    .category-sidebar ul li:last-child {
+        margin-bottom: 0;
+    }
+
+    .category-sidebar a.category-link,
+    .category-sidebar .category-header {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) a.category-link,
+    .category-sidebar ul li:hover:not(.active):not(.is-active-trail) .category-header {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .category-sidebar ul li.active>a.category-link,
+    .category-sidebar ul li.active>.category-header {
+        border-color: transparent;
     }
 
     .category-sidebar ul li:hover i.fa-chevron-right {
@@ -281,100 +426,170 @@
     }
 
     /* ========================
-       MAIN CATEGORY SECTIONS (CLEARER STRUCTURE)
+       MAIN CATEGORY (LEVEL 0) WRAPPER (LIKE level_one_categories)
     ======================== */
-    .sidebar-section {
-        margin: 10px 0 14px;
+    .all-main-categories-wrapper {
+        padding-left: 0;
+        margin-top: 5px;
     }
 
-    .sidebar-section-header {
-        width: 100%;
+    .all-main-categories-wrapper.collapsed {
+        display: none;
+    }
+
+    .main-category-item {
+        margin-bottom: 15px;
+    }
+
+    .main-category-item .main-category-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: #f8f9fa;
-        border: 1px solid #eef0f3;
-        border-radius: 14px;
-        padding: 12px 14px;
+        padding: 12px 16px;
+        border-radius: 12px;
         cursor: pointer;
-        transition: all .2s ease;
-        color: #111827;
-        font-weight: 700;
-        font-size: 13px;
-        text-align: left;
+        transition: all .3s ease;
+        background: transparent;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+        border: 1px solid #e5e7eb;
     }
 
-    .sidebar-section-header:hover {
-        background: #f3f4f6;
+    .main-category-item .main-category-header:hover {
+        background: #f8f9fa;
+        color: #333;
     }
 
-    .sidebar-section.is-main-active .sidebar-section-header {
+    .main-category-item.active .main-category-header {
         background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-        border-color: transparent;
         color: #fff;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+        border-color: transparent;
     }
 
-    .sidebar-section-toggle {
+    .main-category-item.active .main-category-header:hover {
+        filter: brightness(1.05);
+    }
+
+    .main-category-item .main-category-name {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .main-category-item .main-toggle-icon {
         font-size: 10px;
-        opacity: 0.8;
-        transition: transform .2s ease;
-        margin-left: 10px;
+        opacity: 0.6;
+        transition: all .3s ease;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin-left: 8px;
         flex-shrink: 0;
     }
 
-    .sidebar-section.is-open .sidebar-section-toggle {
+    .main-category-item.active .main-toggle-icon {
+        opacity: 1;
+        color: #fff;
+    }
+
+    .main-category-item .main-toggle-icon.rotated {
         transform: rotate(180deg);
     }
 
-    .sidebar-section-body {
+    .main-category-children {
         display: none;
-        padding-top: 10px;
+        padding-left: 0;
+        margin-top: 10px;
     }
 
-    .sidebar-section.is-open .sidebar-section-body {
+    .main-category-children.show {
         display: block;
+        margin-left: 16px;
     }
 
-    /* Subtle marker for the active trail (parents) */
-    .category-sidebar li.is-active-trail:not(.active) {
-        background: #f8f9fa;
-        border: 1px solid #eef0f3;
-    }
-
-    .category-sidebar li.is-active-trail:not(.active) a,
-    .category-sidebar li.is-active-trail:not(.active) .category-header {
-        color: #111827;
+    /* Active trail styling (parents of active category) - only style the category-header with same blue as section header */
+    .category-sidebar li.is-active-trail:not(.active)>.category-header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        border-color: transparent;
+        color: #fff;
         font-weight: 600;
+        box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
+    }
+
+    .category-sidebar li.is-active-trail:not(.active)>.category-header a,
+    .category-sidebar li.is-active-trail:not(.active)>.category-header .category-name {
+        color: #fff;
+        font-weight: 600;
+    }
+
+    /* Don't style category-link for active trail - only the header */
+    .category-sidebar li.is-active-trail:not(.active)>a.category-link {
+        /* Keep default styling - no special background */
     }
 
     /* Sub Categories Styling - Level 2 */
     .sub-categories {
         margin: 8px 0 0 0 !important;
-        padding-left: 16px !important;
+        padding-left: 0 !important;
         list-style: none;
         display: none;
     }
 
     .sub-categories.show {
         display: block;
-        padding-top: 6px;
+        padding-top: 10px;
     }
 
     .sub-categories li {
         font-size: 13px;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    /* Indent without using UL padding */
+    .sub-categories>li {
+        margin-left: 16px;
     }
 
     .sub-categories li a.category-link {
-        padding: 10px 14px;
+        padding: 12px 16px;
         border-radius: 10px;
+        line-height: 1.25;
     }
 
     .sub-categories li .category-header {
-        padding: 10px 14px;
+        padding: 12px 16px;
         font-size: 13px;
         border-radius: 10px;
+        line-height: 1.25;
+    }
+
+    /* Center nested rows (text centered, icons stay right) */
+    .sub-categories li a.category-link,
+    .sub-categories li .category-header,
+    .sub-sub-categories li a.category-link,
+    .sub-sub-categories li .category-header {
+        justify-content: center;
+        text-align: center;
+        position: relative;
+    }
+
+    .sub-categories li a.category-link i.fa-chevron-right,
+    .sub-sub-categories li a.category-link i.fa-chevron-right {
+        position: absolute;
+        right: 12px;
+    }
+
+    .sub-categories li .toggle-icon,
+    .sub-sub-categories li .toggle-icon {
+        position: absolute;
+        right: 10px;
+    }
+
+    .sub-categories li .category-name,
+    .sub-sub-categories li .category-name {
+        width: 100%;
+        justify-content: center;
     }
 
     .sub-categories li i.fa-chevron-right,
@@ -385,24 +600,30 @@
     /* Sub Sub Categories Styling - Level 3 */
     .sub-sub-categories {
         margin: 8px 0 0 0 !important;
-        padding-left: 16px !important;
+        padding-left: 0 !important;
         list-style: none;
         display: none;
     }
 
     .sub-sub-categories.show {
         display: block;
-        padding-top: 6px;
+        padding-top: 10px;
     }
 
     .sub-sub-categories li {
         font-size: 12px;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
+    }
+
+    /* Indent without using UL padding */
+    .sub-sub-categories>li {
+        margin-left: 16px;
     }
 
     .sub-sub-categories li a.category-link {
-        padding: 8px 12px;
+        padding: 10px 14px;
         border-radius: 8px;
+        line-height: 1.25;
     }
 
     .sub-sub-categories li i {
@@ -433,7 +654,7 @@
 
     /* Spacing between category items */
     .parent-category-list>li {
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .parent-category-list>li:last-child {
@@ -457,7 +678,12 @@
 
     /* Ensure consistent vertical spacing between tile rows */
     #level2-categories-grid .category-card {
-        margin-bottom: 24px;
+        margin-bottom: 0;
+    }
+
+    /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
+    .category-cards-grid>[class*="col-"] {
+        margin-bottom: 28px;
     }
 
     .category-card img {
@@ -476,37 +702,10 @@
         transform: scale(1.08);
     }
 
-    /* Cart Icon - Top Left with Dark Circle */
-    .category-card .cart-icon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        cursor: pointer;
-        transition: .3s;
-    }
-
-    .category-card .cart-icon:hover {
-        background: rgba(0, 0, 0, 0.85);
-        transform: scale(1.1);
-    }
-
-    .category-card .cart-icon i {
-        color: #fff;
-        font-size: 14px;
-    }
-
     /* Category Title - Bottom Left */
     .category-card .category-title {
         position: absolute;
-        bottom: 30px; //important to change to be like the figma
+        bottom: 30px;
         left: 16px;
         right: 16px;
         z-index: 2;
@@ -520,38 +719,6 @@
         color: #fff;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
         letter-spacing: 0;
-    }
-
-    /* Small white "slash" accent under headline (---) */
-    .category-card .category-title-accent {
-        width: 44px;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 3px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-    }
-
-    /* Subcategory list under headline (Figma-style) */
-    .category-card .category-sublist {
-        margin-top: 0;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: 16px;
-        row-gap: 6px;
-        max-width: 320px;
-    }
-
-    .category-card .category-subitem {
-        font-size: 12px;
-        line-height: 1.2;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.9);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     /* Dark overlay gradient for better text visibility */
@@ -632,7 +799,7 @@
         .back-arrow {
             width: 40px;
             height: 40px;
-            top: 15px;
+            top: -60px;
             left: 15px;
         }
 
@@ -691,6 +858,11 @@
         .category-card .category-title h5 {
             font-size: 22px;
         }
+
+        /* Mobile: Always show buttons */
+        .add-inquiry-wrap {
+            opacity: 1;
+        }
     }
 
     /* Mobile Portrait */
@@ -698,7 +870,7 @@
         .back-arrow {
             width: 38px;
             height: 38px;
-            top: 12px;
+            top: -60px;
             left: 12px;
         }
 
@@ -821,6 +993,11 @@
     /* ========================
        INLINE PRODUCTS (UI IMPROVEMENTS)
     ======================== */
+    /* Ensure vertical spacing between wrapped product rows */
+    #products-row {
+        row-gap: 18px;
+    }
+
     #products-row .col.border-right.border-bottom {
         border: none !important;
     }
@@ -895,13 +1072,153 @@
         color: #fff;
         box-shadow: 0 3px 10px rgba(74, 144, 226, 0.25);
     }
+
+    /* ========================
+       PRODUCT HEADER (match product listing UI)
+    ======================== */
+    .products-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, .08);
+        padding: 24px;
+    }
+
+    .breadcrumb-modern {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 16px 0;
+        padding: 0;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .breadcrumb-modern a {
+        color: #6c757d;
+        text-decoration: none;
+        transition: color .2s;
+    }
+
+    .breadcrumb-modern a:hover {
+        color: #212529;
+    }
+
+    .breadcrumb-modern .active {
+        color: #212529;
+        font-weight: 600;
+    }
+
+    .breadcrumb-separator {
+        color: #adb5bd;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #212529;
+        margin: 0 0 10px 0;
+    }
+
+    .page-description {
+        font-size: 13px;
+        color: #6c757d;
+        line-height: 1.6;
+        margin: 0 0 18px 0;
+    }
+
+    .action-bar {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 18px;
+    }
+
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sort-dropdown {
+        min-width: 220px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 13px;
+        color: #212529;
+        outline: none;
+    }
+
+    .btn-add-inquiry {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        white-space: nowrap;
+    }
+
+    .btn-add-inquiry:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(8, 145, 178, .25);
+    }
+
+    .btn-add-inquiry:disabled {
+        opacity: .8;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .inline-back-btn {
+        height: 40px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .products-container {
+            padding: 18px;
+        }
+
+        .page-title {
+            font-size: 22px;
+        }
+
+        .toolbar {
+            justify-content: flex-start;
+        }
+
+        .sort-dropdown {
+            width: 100%;
+        }
+
+        .btn-add-inquiry {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 </style>
 
 @section('content')
     <div class="category-page">
         {{-- Hero Banner with Category Image --}}
-        <div class="category-hero"
-            style="background-image: url('{{ uploaded_asset($levelTwoCategories->first()->banner ?? '') }}');">
+        <div class="category-hero" style="background-image: url('{{ uploaded_asset($currentCategory->banner ?? '') }}');">
             <div class="container">
                 <a href="javascript:history.back()" class="back-arrow">
                     <i class="fas fa-arrow-left"></i>
@@ -909,7 +1226,7 @@
                 <h1>
                     <span class="explore">Explore</span>
 
-                    {{ $levelTwoCategories->first()->name ?? 'Categories' }}
+                    {{ $currentCategory->getTranslation('name') ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -922,122 +1239,125 @@
                     {{-- Sidebar --}}
                     <div class="col-lg-3 mb-4">
                         <div class="category-sidebar">
-                            <h6>CATEGORIES</h6>
-
-                            {{-- All Categories Link --}}
+                            {{-- All Categories + Toggle (same design as level_one_categories) --}}
                             <ul>
-                                <li class="{{ !request()->segment(2) ? 'active' : '' }}">
-                                    <a href="{{ route('categories.all') }}" class="category-link">
-                                        <span>All Categories</span>
-                                    </a>
+                                <li class="{{ !request()->segment(2) ? 'active' : '' }} parent-category" data-all-main="1">
+                                    <div class="category-header">
+                                        <a href="{{ route('categories.all') }}" class="category-name">
+                                            <span>All Categories</span>
+                                        </a>
+                                        <i class="fas fa-chevron-down toggle-icon toggle-all-main"></i>
+                                    </div>
                                 </li>
                             </ul>
 
-                            {{-- Loop through Main Categories (Level 0) --}}
-                            @foreach ($mainCategories as $mainCategory)
-                                @php
-                                    $isMainActive = !empty($activeMainCategoryId) && (int) $mainCategory->id === (int) $activeMainCategoryId;
-                                @endphp
+                            {{-- Main categories wrapper --}}
+                            <div class="all-main-categories-wrapper">
+                                @foreach ($mainCategories as $mainCategory)
+                                    @php
+                                        $isMainActive =
+                                            !empty($activeMainCategoryId) &&
+                                            (int) $mainCategory->id === (int) $activeMainCategoryId;
+                                    @endphp
 
-                                <div class="sidebar-section {{ $isMainActive ? 'is-main-active is-open' : '' }}"
-                                    data-main-category-id="{{ $mainCategory->id }}">
-                                    <button type="button" class="sidebar-section-header">
-                                        <span>{{ $mainCategory->getTranslation('name') }}</span>
-                                        <i class="fas fa-chevron-down sidebar-section-toggle"></i>
-                                    </button>
-
-                                    <div class="sidebar-section-body">
-                                        <ul class="parent-category-list">
+                                    <div class="main-category-item {{ $isMainActive ? 'active' : '' }}"
+                                        data-main-id="{{ $mainCategory->id }}">
+                                        <div class="main-category-header">
+                                            <a href="{{ route('categories.level2', $mainCategory->id) }}"
+                                                class="main-category-name">
+                                                {{ $mainCategory->getTranslation('name') }}
+                                            </a>
                                             @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
-                                                {{-- Main Category with Sub-categories (Level 1) --}}
-                                                @foreach ($mainCategory->childrenCategories as $level1Category)
-                                                    @php
-                                                        $isTrail = in_array((int) $level1Category->id, $activeTrailIds ?? [], true);
-                                                    @endphp
-                                                    <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }} {{ $isTrail ? 'is-active-trail' : '' }}"
-                                                        data-category-id="{{ $level1Category->id }}">
+                                                <i class="fas fa-chevron-down main-toggle-icon"></i>
+                                            @endif
+                                        </div>
 
-                                                        @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
-                                                            {{-- Level 1 has children (Level 2) --}}
-                                                            <div class="category-header">
-                                                                <a href="{{ route('categories.level2', $level1Category->id) }}"
-                                                                    class="category-name">
-                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                                </a>
-                                                                <i class="fas fa-chevron-down toggle-icon"></i>
-                                                            </div>
+                                        @if ($mainCategory->childrenCategories && $mainCategory->childrenCategories->count() > 0)
+                                            <div class="main-category-children {{ $isMainActive ? 'show' : '' }}">
+                                                <ul class="parent-category-list main-level0">
+                                                    @foreach ($mainCategory->childrenCategories as $level1Category)
+                                                        @php
+                                                            $isTrail = in_array(
+                                                                (int) $level1Category->id,
+                                                                $activeTrailIds ?? [],
+                                                                true,
+                                                            );
+                                                        @endphp
 
-                                                            {{-- Sub Categories (Level 2) --}}
-                                                            <ul class="sub-categories" data-parent-id="{{ $level1Category->id }}">
-                                                                @foreach ($level1Category->childrenCategories as $level2Category)
-                                                                    @php
-                                                                        $isTrail2 = in_array((int) $level2Category->id, $activeTrailIds ?? [], true);
-                                                                    @endphp
-                                                                    <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }} {{ $isTrail2 ? 'is-active-trail' : '' }}"
-                                                                        data-category-id="{{ $level2Category->id }}">
+                                                        <li class="parent-category {{ $currentCategoryId == $level1Category->id ? 'active' : '' }} {{ $isTrail ? 'is-active-trail' : '' }}"
+                                                            data-category-id="{{ $level1Category->id }}">
+                                                            @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
+                                                                <div class="category-header">
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}"
+                                                                        class="category-name">
+                                                                        <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                    </a>
+                                                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                                                </div>
 
-                                                                        @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
-                                                                            {{-- Level 2 has children (Level 3) --}}
-                                                                            <div class="category-header">
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                                    class="category-name">
+                                                                <ul class="sub-categories"
+                                                                    data-parent-id="{{ $level1Category->id }}">
+                                                                    @foreach ($level1Category->childrenCategories as $level2Category)
+                                                                        @php
+                                                                            $isTrail2 = in_array(
+                                                                                (int) $level2Category->id,
+                                                                                $activeTrailIds ?? [],
+                                                                                true,
+                                                                            );
+                                                                        @endphp
+                                                                        <li class="{{ $currentCategoryId == $level2Category->id ? 'active' : '' }} {{ $isTrail2 ? 'is-active-trail' : '' }}"
+                                                                            data-category-id="{{ $level2Category->id }}">
+                                                                            @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
+                                                                                <div class="category-header">
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
+                                                                                        class="category-name">
+                                                                                        <span>{{ $level2Category->getTranslation('name') }}</span>
+                                                                                    </a>
+                                                                                    <i
+                                                                                        class="fas fa-chevron-down toggle-icon"></i>
+                                                                                </div>
+
+                                                                                <ul class="sub-sub-categories"
+                                                                                    data-parent-id="{{ $level2Category->id }}">
+                                                                                    @foreach ($level2Category->childrenCategories as $level3Category)
+                                                                                        @php
+                                                                                            $isTrail3 = in_array(
+                                                                                                (int) $level3Category->id,
+                                                                                                $activeTrailIds ?? [],
+                                                                                                true,
+                                                                                            );
+                                                                                        @endphp
+                                                                                        <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}"
+                                                                                            data-category-id="{{ $level3Category->id }}">
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
+                                                                                                class="category-link">
+                                                                                                <span>{{ $level3Category->getTranslation('name') }}</span>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @else
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
+                                                                                    class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
-                                                                                <i class="fas fa-chevron-down toggle-icon"></i>
-                                                                            </div>
-
-                                                                            {{-- Sub Sub Categories (Level 3) --}}
-                                                                            <ul class="sub-sub-categories" data-parent-id="{{ $level2Category->id }}">
-                                                                                @foreach ($level2Category->childrenCategories as $level3Category)
-                                                                                    @php
-                                                                                        $isTrail3 = in_array((int) $level3Category->id, $activeTrailIds ?? [], true);
-                                                                                    @endphp
-                                                                                    <li class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }} {{ $isTrail3 ? 'is-active-trail' : '' }}">
-                                                                                        <a href="{{ route('products.level2', $level3Category->id) }}"
-                                                                                            class="category-link">
-                                                                                            <span>{{ $level3Category->getTranslation('name') }}</span>
-                                                                                            <i class="fas fa-chevron-right"></i>
-                                                                                        </a>
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        @else
-                                                                            {{-- Level 2 without children --}}
-                                                                            <a href="{{ route('products.level2', $level2Category->id) }}"
-                                                                                class="category-link">
-                                                                                <span>{{ $level2Category->getTranslation('name') }}</span>
-                                                                                <i class="fas fa-chevron-right"></i>
-                                                                            </a>
-                                                                        @endif
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @else
-                                                            {{-- Level 1 without children --}}
-                                                            <a href="{{ route('products.level2', $level1Category->id) }}"
-                                                                class="category-link">
-                                                                <span>{{ $level1Category->getTranslation('name') }}</span>
-                                                                <i class="fas fa-chevron-right"></i>
-                                                            </a>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            @else
-                                                <li class="{{ $currentCategoryId == $mainCategory->id ? 'active' : '' }}">
-                                                    <a href="#" class="category-link">
-                                                        <span class="product-count">There are no sub categories available.</span>
-                                                    </a>
-                                                </li>
-                                            @endif
-                                        </ul>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
+                                                                    class="category-link">
+                                                                    <span>{{ $level1Category->getTranslation('name') }}</span>
+                                                                </a>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Products (populated when a subcategory is opened) --}}
-                            <div class="sidebar-products d-none" id="sidebar-products-section">
-                                <h6>PRODUCTS</h6>
-                                <ul id="sidebar-products-list"></ul>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -1046,77 +1366,76 @@
                     <div class="col-lg-9">
                         {{-- Products view (loaded inline) --}}
                         <div id="inline-products-wrapper" class="d-none">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h4 class="mb-0 fw-700" id="inline-products-title"></h4>
-                                <button type="button" class="btn btn-sm btn-light" id="inline-products-back">
-                                    <i class="las la-arrow-left"></i> {{ translate('Back') }}
-                                </button>
-                            </div>
+                            <div class="products-container">
+                                <ul class="breadcrumb-modern" id="inline-breadcrumb"></ul>
 
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-3" id="products-row"></div>
-                            <div class="pagination-wrapper mt-3" id="pagination"></div>
+                                <h1 class="page-title" id="inline-page-title"></h1>
+
+                                <p class="page-description" id="inline-page-description">
+                                    To connect global markets efficiently and ethically by providing exceptional sourcing
+                                    and
+                                    trade solutions that enhance business value and foster sustainable growth.
+                                </p>
+
+                                <div class="action-bar">
+                                    <div class="toolbar">
+
+
+                                        <button type="button" class="btn-add-inquiry" id="inline-add-inquiry-btn">
+                                            <i class="las la-plus"></i> {{ translate('Add to inquiry') }}
+                                        </button>
+
+                                        <button type="button" class="btn btn-sm btn-light inline-back-btn"
+                                            id="inline-products-back">
+                                            <i class="las la-arrow-left"></i> {{ translate('Back') }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-3" id="products-row">
+                                </div>
+                                <div class="pagination-wrapper mt-3" id="pagination"></div>
+                            </div>
                         </div>
 
                         {{-- Categories grid (default) --}}
-                        <div class="row g-4" id="level2-categories-grid">
+                        <div class="row gx-3 gy-5 category-cards-grid" id="level2-categories-grid">
                             @foreach ($levelTwoCategories as $category)
                                 <div class="col-lg-6 col-md-6">
-                                    <a href="{{ route('products.level2', $category->id) }}" style="text-decoration: none;"
-                                        class="js-open-category-products"
+                                    <a href="{{ route('categories.level2', $category->id) }}?open={{ $category->id }}"
+                                        style="text-decoration: none;" class="js-open-category-products"
                                         data-category-id="{{ $category->id }}"
                                         data-category-name="{{ $category->getTranslation('name') }}">
+
                                         <div class="category-card">
                                             <img src="{{ uploaded_asset($category->banner) }}"
                                                 alt="{{ $category->getTranslation('name') }}">
 
-                                            {{-- Cart Icon - Top Left --}}
-                                            <div class="cart-icon">
-                                                <i class="fas fa-shopping-basket"></i>
+                                            {{-- Add to Inquiry Button - Top Right --}}
+                                            <div class="add-inquiry-wrap">
+                                                <button type="button" class="add-inquiry-btn js-add-category"
+                                                    data-id="{{ $category->id }}"
+                                                    data-name="{{ $category->getTranslation('name') }}"
+                                                    title="Add to Inquiry">
+                                                    <span class="icon icon-plus">+</span>
+                                                    <span class="icon icon-check"></span>
+                                                    <span class="btn-text">Add to Inquiry</span>
+                                                </button>
                                             </div>
 
                                             {{-- Category Title - Bottom Left --}}
                                             <div class="category-title">
                                                 <h5>{{ $category->getTranslation('name') }}</h5>
-                                                <div class="category-title-accent"></div>
-                                                <div class="category-sublist">
-                                                    @if ($category->childrenCategories && $category->childrenCategories->count() > 0)
-                                                        @foreach ($category->childrenCategories->take(5) as $subCat)
-                                                            <span class="category-subitem">{{ $subCat->getTranslation('name') }}</span>
-                                                        @endforeach
-                                                    @elseif ($category->products && $category->products->count() > 0)
-                                                        @foreach ($category->products->take(5) as $p)
-                                                            <span class="category-subitem">{{ $p->name }}</span>
-                                                        @endforeach
-                                                    @endif
-                                                </div>
                                             </div>
-
                                         </div>
+
                                     </a>
                                 </div>
                             @endforeach
+
                         </div>
                     </div>
 
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Details Modal (stay on same page) -->
-    <div class="modal fade" id="productDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-600">{{ translate('Product details') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body pt-0" id="productDetailModalBody">
-                    <div class="text-center p-4">
-                        <div class="spinner-border" role="status" aria-hidden="true"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1184,50 +1503,202 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let activeCategoryId = null;
+            let activeCategoryName = '';
 
-            function renderSidebarProducts(productList, categoryId) {
-                const $section = $('#sidebar-products-section');
-                const $list = $('#sidebar-products-list');
+            function escapeHtml(str) {
+                return $('<div>').text(str || '').html();
+            }
 
-                $list.html('');
+            function getSidebarCategoryName(categoryId) {
+                const $li = $(`.category-sidebar li[data-category-id="${categoryId}"]`).first();
+                if (!$li.length) return '';
 
-                if (!productList || !Array.isArray(productList) || productList.length === 0) {
-                    $section.addClass('d-none');
-                    return;
+                // Prefer the visible "header" label if present
+                const headerName = $li.find('> .category-header a.category-name span').first().text().trim();
+                if (headerName) return headerName;
+
+                // Fallback to leaf link label
+                const linkName = $li.find('> a.category-link span').first().text().trim();
+                if (linkName) return linkName;
+
+                // Last fallback: any span text
+                return ($li.find('span').first().text() || '').trim();
+            }
+
+            function buildInlineBreadcrumb(categoryId, categoryName) {
+                const homeUrl = @json(route('home'));
+                const allUrl = @json(route('categories.all'));
+
+                const parts = [];
+
+                // Always start with Home / All Categories
+                parts.push(`<li><a href="${homeUrl}">{{ translate('Home') }}</a></li>`);
+                parts.push(`<span class="breadcrumb-separator">/</span>`);
+                parts.push(`<li><a href="${allUrl}">{{ translate('All Categories') }}</a></li>`);
+
+                const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`).first();
+
+                // Helper function to get href from sidebar link
+                function getSidebarLinkHref($li) {
+                    // Try category-header link first (for categories with children)
+                    const $headerLink = $li.find('> .category-header a.category-name').first();
+                    if ($headerLink.length && $headerLink.attr('href')) {
+                        return $headerLink.attr('href');
+                    }
+                    // Try category-link (for leaf categories)
+                    const $categoryLink = $li.find('> a.category-link').first();
+                    if ($categoryLink.length && $categoryLink.attr('href')) {
+                        return $categoryLink.attr('href');
+                    }
+                    return null;
                 }
 
-                productList.forEach(function(p) {
-                    const name = p.name || '';
-                    const slug = p.slug || '';
-                    if (!slug) return;
+                // Try to add Main Category (level 0) from the accordion section
+                if ($activeLi.length) {
+                    const $mainItem = $activeLi.closest('.main-category-item');
+                    const mainName = ($mainItem.find('> .main-category-header .main-category-name').first()
+                        .text() || '').trim();
+                    const mainHref = $mainItem.find('> .main-category-header .main-category-name').first().attr(
+                        'href');
 
-                    const modalUrl = `{{ route('product.modal', '___SLUG___') }}`.replace('___SLUG___', slug) +
-                        (categoryId ? `?category_id=${categoryId}` : '');
+                    if (mainName && mainHref) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        parts.push(`<li><a href="${mainHref}">${escapeHtml(mainName)}</a></li>`);
+                    }
 
-                    $list.append(
-                        `<li data-product-slug="${slug}">
-                            <a href="/product/${slug}" class="js-open-product-details" data-modal-url="${modalUrl}" data-product-slug="${slug}">
-                                ${$('<div>').text(name).html()}
-                            </a>
-                        </li>`
-                    );
-                });
+                    // Build parent chain with IDs, names, and hrefs
+                    const chain = [];
+                    let currentId = categoryId;
+                    let $currentLi = $activeLi;
 
-                $section.removeClass('d-none');
+                    // Ensure the active name is present
+                    const resolvedActiveName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
+                    if (resolvedActiveName) {
+                        const activeHref = getSidebarLinkHref($activeLi);
+                        chain.push({
+                            id: categoryId,
+                            name: resolvedActiveName,
+                            href: activeHref
+                        });
+                    }
+
+                    while (true) {
+                        const $parentUl = $currentLi.closest('ul.sub-categories, ul.sub-sub-categories');
+                        if (!$parentUl.length) break;
+
+                        const parentId = parseInt($parentUl.attr('data-parent-id'), 10);
+                        if (!parentId) break;
+
+                        // Stop if we can't find the parent li in the sidebar
+                        const $parentLi = $(`.category-sidebar li[data-category-id="${parentId}"]`).first();
+                        if (!$parentLi.length) break;
+
+                        const parentName = (
+                            $parentLi.find('> .category-header a.category-name span').first().text() ||
+                            $parentLi.find('> a.category-link span').first().text() ||
+                            $parentLi.find('span').first().text() ||
+                            ''
+                        ).trim();
+
+                        if (parentName) {
+                            const parentHref = getSidebarLinkHref($parentLi);
+                            chain.push({
+                                id: parentId,
+                                name: parentName,
+                                href: parentHref
+                            });
+                        }
+
+                        currentId = parentId;
+                        $currentLi = $parentLi;
+                    }
+
+                    // Render chain from top (closest to main) to active
+                    const trail = chain.reverse().filter(item => item && item.name);
+                    trail.forEach(function(item, index) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        // Last item (active category) is not a link, others are clickable
+                        if (index === trail.length - 1) {
+                            parts.push(`<li class="active">${escapeHtml(item.name)}</li>`);
+                        } else {
+                            // Use the href from sidebar if available, otherwise construct it
+                            const href = item.href ||
+                                `{{ url('/category-level2') }}/${item.id}?open=${item.id}`;
+                            parts.push(`<li><a href="${href}">${escapeHtml(item.name)}</a></li>`);
+                        }
+                    });
+                } else {
+                    // Fallback: just show the active category name
+                    const resolvedActiveName = (categoryName || '').trim();
+                    if (resolvedActiveName) {
+                        parts.push(`<span class="breadcrumb-separator">/</span>`);
+                        parts.push(`<li class="active">${escapeHtml(resolvedActiveName)}</li>`);
+                    }
+                }
+
+                $('#inline-breadcrumb').html(parts.join(''));
+            }
+
+            function setOpenParamInUrl(openCategoryId) {
+                try {
+                    const url = new URL(window.location.href);
+                    if (openCategoryId) {
+                        url.searchParams.set('open', String(openCategoryId));
+                    } else {
+                        url.searchParams.delete('open');
+                    }
+                    window.history.replaceState({}, '', url.toString());
+                } catch (e) {}
+            }
+
+            function renderSidebarProducts(productList, categoryId) {
+                // Don't show products in sidebar - always keep it hidden
+                const $section = $('#sidebar-products-section');
+                $section.addClass('d-none');
+                $('#sidebar-products-list').html('');
             }
 
             function setActiveCategory(categoryId) {
                 activeCategoryId = categoryId;
 
-                $('.category-sidebar li').removeClass('active');
-                $(`.category-sidebar li[data-category-id="${categoryId}"]`).addClass('active');
+                // Remove all active and active-trail classes
+                $('.category-sidebar li').removeClass('active is-active-trail');
 
-                // Open and highlight the correct main section
+                // Add active class to the clicked category
                 const $activeLi = $(`.category-sidebar li[data-category-id="${categoryId}"]`);
-                const $section = $activeLi.closest('.sidebar-section');
-                if ($section.length) {
-                    $('.sidebar-section').removeClass('is-open is-main-active');
-                    $section.addClass('is-open is-main-active');
+                $activeLi.addClass('active');
+
+                // Add is-active-trail class to all parent categories
+                let $currentLi = $activeLi;
+                while ($currentLi.length) {
+                    const $parentUl = $currentLi.closest('ul.sub-categories, ul.sub-sub-categories');
+                    if (!$parentUl.length) break;
+
+                    const parentId = parseInt($parentUl.attr('data-parent-id'), 10);
+                    if (!parentId) break;
+
+                    const $parentLi = $(`.category-sidebar li[data-category-id="${parentId}"]`);
+                    if (!$parentLi.length) break;
+
+                    // Add is-active-trail to parent (but not active, since active is only for the clicked item)
+                    if (!$parentLi.hasClass('active')) {
+                        $parentLi.addClass('is-active-trail');
+                    }
+
+                    $currentLi = $parentLi;
+                }
+
+                // Open and highlight the correct main (level 0) section
+                const $mainItem = $activeLi.closest('.main-category-item');
+                if ($mainItem.length) {
+                    $('.main-category-item').removeClass('active');
+                    $('.main-category-children').removeClass('show');
+                    $('.main-toggle-icon').removeClass('rotated');
+
+                    $mainItem.addClass('active');
+                    const $children = $mainItem.find('> .main-category-children');
+                    $children.addClass('show');
+                    $mainItem.find('> .main-category-header .main-toggle-icon').addClass('rotated');
                 }
 
                 // Expand parents for the active li
@@ -1246,16 +1717,57 @@
                 }
             }
 
-            // Toggle main sections (accordion)
-            $(document).on('click', '.sidebar-section-header', function() {
-                const $section = $(this).closest('.sidebar-section');
-                if (!$section.length) return;
+            // Sidebar UX: make header blocks clickable (not only the <a>)
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.category-sidebar .category-header');
+                if (header) {
+                    if (e.target.closest('.toggle-icon')) return;
+                    const link = header.querySelector('a.category-name');
+                    if (link && link.getAttribute('href')) window.location.href = link.getAttribute('href');
+                }
 
-                // If clicking the already-open section, collapse it; otherwise open it and collapse others
-                const isOpen = $section.hasClass('is-open');
-                $('.sidebar-section').removeClass('is-open');
-                if (!isOpen) {
-                    $section.addClass('is-open');
+                const mainHeader = e.target.closest('.category-sidebar .main-category-header');
+                if (mainHeader) {
+                    if (e.target.closest('.main-toggle-icon')) return;
+                    const link = mainHeader.querySelector('a.main-category-name');
+                    if (link && link.getAttribute('href')) window.location.href = link.getAttribute('href');
+                }
+            });
+
+            // Toggle "All Categories" main wrapper
+            document.addEventListener('click', function(e) {
+                const icon = e.target.closest('.toggle-all-main');
+                if (!icon) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const wrap = document.querySelector('.all-main-categories-wrapper');
+                if (!wrap) return;
+                const collapsed = wrap.classList.contains('collapsed');
+                if (collapsed) {
+                    wrap.classList.remove('collapsed');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    wrap.classList.add('collapsed');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Toggle main category children
+            document.addEventListener('click', function(e) {
+                const icon = e.target.closest('.main-toggle-icon');
+                if (!icon) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const mainItem = icon.closest('.main-category-item');
+                const children = mainItem?.querySelector('.main-category-children');
+                if (!children) return;
+                const isVisible = children.classList.contains('show');
+                if (isVisible) {
+                    children.classList.remove('show');
+                    icon.classList.remove('rotated');
+                } else {
+                    children.classList.add('show');
+                    icon.classList.add('rotated');
                 }
             });
 
@@ -1276,7 +1788,13 @@
             function openCategoryProducts(categoryId, categoryName, page = 1) {
                 if (!categoryId) return;
 
-                $('#inline-products-title').text(categoryName || '');
+                activeCategoryId = categoryId;
+                activeCategoryName = (categoryName || getSidebarCategoryName(categoryId) || '').trim();
+
+                $('#inline-page-title').text(activeCategoryName);
+                buildInlineBreadcrumb(categoryId, activeCategoryName);
+                // Persist the opened category so refresh stays on the same products view
+                setOpenParamInUrl(categoryId);
                 $('#products-row').html(
                     '<div class="col-12 text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
                 );
@@ -1295,6 +1813,7 @@
                     type: 'get',
                     data: {
                         'categories[]': categoryId,
+                        sort_by: ($('#inline-sort-by').val() || ''),
                         page: page,
                         include_product_list: 1
                     },
@@ -1329,7 +1848,8 @@
                 e.preventDefault();
 
                 const categoryId = $(this).data('category-id');
-                const categoryName = $(this).data('category-name') || $(this).find('span').first().text() || '';
+                const categoryName = $(this).data('category-name') || $(this).find('span').first().text() ||
+                    '';
 
                 if (!categoryId) {
                     return true;
@@ -1338,35 +1858,37 @@
                 openCategoryProducts(categoryId, categoryName, 1);
             });
 
-            // Sidebar click: intercept /products-level2/{id} to keep same page
-            $(document).on('click', '.category-sidebar a.category-link, .category-sidebar a.category-name', function(e) {
-                // allow open-in-new-tab behaviors
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-                    return true;
-                }
+            // Sidebar click: intercept product-opening links (those carrying ?open=...) to keep same page
+            $(document).on('click', '.category-sidebar a.category-link, .category-sidebar a.category-name',
+                function(e) {
+                    // allow open-in-new-tab behaviors
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                        return true;
+                    }
 
-                const href = $(this).attr('href') || '';
-                if (!href.includes('/products-level2/')) {
-                    return true; // let category-level2 links navigate normally
-                }
+                    const href = $(this).attr('href') || '';
+                    // Only intercept links that explicitly ask to open products inline.
+                    // Plain /category-level2/{id} (without open=) should navigate normally.
+                    if (!href.includes('open=')) {
+                        return true;
+                    }
 
-                const $li = $(this).closest('li[data-category-id]');
-                const categoryId = $li.data('category-id');
-                const categoryName = $(this).find('span').first().text() || $(this).text().trim();
+                    const $li = $(this).closest('li[data-category-id]');
+                    const categoryId = $li.data('category-id');
+                    const categoryName = $(this).find('span').first().text() || $(this).text().trim();
 
-                if (!categoryId) return true;
+                    if (!categoryId) return true;
 
-                e.preventDefault();
-                openCategoryProducts(categoryId, categoryName, 1);
-            });
+                    e.preventDefault();
+                    openCategoryProducts(categoryId, categoryName, 1);
+                });
 
             // Pagination inside inline products
             $(document).on('click', '#pagination .page-btn', function(e) {
                 e.preventDefault();
                 const page = $(this).data('page');
                 if (!page || !activeCategoryId) return;
-                const categoryName = $('#inline-products-title').text() || '';
-                openCategoryProducts(activeCategoryId, categoryName, page);
+                openCategoryProducts(activeCategoryId, activeCategoryName, page);
             });
 
             $('#inline-products-back').on('click', function() {
@@ -1376,62 +1898,128 @@
                 $('#pagination').html('');
                 $('#sidebar-products-section').addClass('d-none');
                 $('#sidebar-products-list').html('');
+                // Clear open param so refresh returns to categories grid
+                setOpenParamInUrl(null);
             });
 
-            // Open product details in modal (stay on same page)
-            $(document).on('click', 'a.js-open-product-details', function(e) {
-                // allow open-in-new-tab behaviors
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-                    return true;
-                }
+            // Sort change (reload current category products)
+            $(document).on('change', '#inline-sort-by', function() {
+                if (!activeCategoryId) return;
+                openCategoryProducts(activeCategoryId, activeCategoryName, 1);
+            });
 
-                const modalUrl = $(this).data('modal-url');
-                if (!modalUrl) {
-                    return true;
-                }
-
+            // Header "Add to inquiry" should add the active category
+            $(document).on('click', '#inline-add-inquiry-btn', function(e) {
                 e.preventDefault();
+                if (!activeCategoryId) return;
 
-                // Highlight the clicked product in sidebar list
-                setActiveProduct($(this).data('product-slug'));
+                const $btn = $(this);
+                if ($btn.data('loading') === 1) return;
+                $btn.data('loading', 1).prop('disabled', true);
 
-                $('#productDetailModalBody').html(
-                    '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
-                );
-                $('#productDetailModal').modal('show');
-
-                $.get(modalUrl, function(html) {
-                    $('#productDetailModalBody').html(html);
-
-                    try {
-                        if (typeof AIZ !== 'undefined' && AIZ.plugins) {
-                            AIZ.plugins.slickCarousel();
-                            AIZ.plugins.zoom();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('cart.addCategoryToCart') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        category_id: activeCategoryId
+                    },
+                    success: function(data) {
+                        if (data && data.status === 1) {
+                            if (data.cart_count !== undefined) {
+                                const c = (data.cart_count === undefined || data.cart_count ===
+                                    null) ? 0 : data.cart_count;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (typeof flashHeaderCartSuccess === 'function') {
+                                flashHeaderCartSuccess();
+                            }
+                            try {
+                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ
+                                    .plugins.notify === 'function') {
+                                    AIZ.plugins.notify('success', (activeCategoryName || '') +
+                                        " {{ translate('added to inquiry') }}");
+                                }
+                            } catch (err) {}
                         }
-                        if (typeof AIZ !== 'undefined' && AIZ.extra) {
-                            AIZ.extra.plusMinus();
-                        }
-
-                        if (typeof getVariantPrice === 'function') {
-                            $('#option-choice-form input').off('change').on('change', function() {
-                                getVariantPrice();
-                            });
-                        }
-                    } catch (err) {
-                        console.warn('Product modal init error:', err);
+                    },
+                    complete: function() {
+                        $btn.data('loading', 0).prop('disabled', false);
                     }
-                }).fail(function() {
-                    $('#productDetailModalBody').html(
-                        '<div class="p-4 text-center text-danger">{{ translate('Something went wrong') }}</div>'
-                    );
                 });
             });
 
-            $('#productDetailModal').on('hidden.bs.modal', function() {
-                $('#productDetailModalBody').html(
-                    '<div class="text-center p-4"><div class="spinner-border" role="status" aria-hidden="true"></div></div>'
-                );
-            });
+            // Auto-open products when requested by controller (?open=... or category has no children)
+            const initialOpenCategoryId = @json($initialOpenCategoryId ?? null);
+            const initialOpenCategoryName = @json($initialOpenCategoryName ?? null);
+            if (initialOpenCategoryId) {
+                openCategoryProducts(initialOpenCategoryId, initialOpenCategoryName || '', 1);
+            }
+
+            // Product cards link to the single product page (no modal)
         });
+    </script>
+    <script>
+        // Add category to Inquiry (Ajax) - prevent navigation
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.js-add-category');
+            if (!btn) return;
+
+            // stop the <a> click and any handlers that open category products
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+            const categoryId = btn.getAttribute('data-id');
+            const categoryName = btn.getAttribute('data-name') || '';
+
+            btn.dataset.loading = "1";
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cart.addCategoryToCart') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status === 1) {
+
+                        if (data.cart_count !== undefined) {
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 :
+                                data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
+                        }
+
+                        // mark as added
+                        btn.classList.add('added');
+                        btn.setAttribute('disabled', 'disabled');
+
+                        if (data.message === 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName +
+                                " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName +
+                                " {{ translate('added to inquiry') }}");
+                        }
+
+                    } else {
+                        AIZ.plugins.notify('danger', (data && data.message) ? data.message :
+                            "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function() {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                },
+                complete: function() {
+                    btn.dataset.loading = "0";
+                }
+            });
+        }, true);
     </script>
 @endsection

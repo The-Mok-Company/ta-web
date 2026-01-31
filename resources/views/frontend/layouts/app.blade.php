@@ -11,10 +11,22 @@
 @endif
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5G4454B3XY"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5G4454B3XY');
+    </script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
+
+{{-- Favicon is set dynamically below --}}
+
+
 
     <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
 
@@ -55,11 +67,19 @@
 
     <!-- Favicon -->
     @php
-        $site_icon = uploaded_asset(get_setting('site_icon'));
+        $siteIconSetting = get_setting('site_icon');
+        // Use uploaded_asset for uploaded files, fallback to static asset
+        if ($siteIconSetting) {
+            $siteIconUrl = uploaded_asset($siteIconSetting);
+        } else {
+            $siteIconUrl = static_asset('assets/img/placeholder.jpg');
+        }
+        $isSvgIcon = \Illuminate\Support\Str::endsWith(strtolower($siteIconUrl ?? ''), '.svg');
     @endphp
-    <link rel="icon" href="{{ $site_icon }}">
-    <link rel="apple-touch-icon" href="{{ $site_icon }}">
 
+    <link rel="icon" href="{{ $siteIconUrl }}" @if($isSvgIcon) type="image/svg+xml" @endif>
+    <link rel="shortcut icon" href="{{ $siteIconUrl }}" @if($isSvgIcon) type="image/svg+xml" @endif>
+    <link rel="apple-touch-icon" href="{{ $siteIconUrl }}">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -179,6 +199,7 @@
         .home-category-banner::after {
             content: "{{ translate('View All') }}";
         }
+
     </style>
 
 @if (get_setting('google_analytics') == 1)
@@ -291,7 +312,7 @@
                             </button>
                         </div>
                     </div>
-                @endif                  
+                @endif
             @else
                 <div class="mb-3 custom-alert-box removable-session d-none" data-key="custom-alert-box-{{ $custom_alert->id }}" data-value="removed" style="box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.24);">
                     <div class="rounded-0 position-relative" style="background: {{ $custom_alert->background_color }};">
@@ -330,7 +351,7 @@
                             ->exists();
             $showPopup = $hasUnreviewed;
             }else{
-              $showPopup= false;  
+              $showPopup= false;
             }
         }
         @endphp
@@ -452,7 +473,7 @@
     a[aria-label="Go to GetButton.io website"] {
         display: none !important;
     }
-    
+
 </style>
 
     <script>
@@ -618,8 +639,27 @@
         });
 
         function updateNavCart(view,count){
-            $('.cart-count').html(count);
+            const c = (count === undefined || count === null) ? 0 : count;
+            $('.cart-count').html(c).attr('data-count', c);
             $('#cart_items').html(view);
+        }
+
+        // Flash header cart icon as "added" (green + check)
+        let __cartFlashTimer = null;
+        function flashHeaderCartSuccess() {
+            try {
+                document.querySelectorAll('.header-cart-btn').forEach((el) => {
+                    el.classList.add('is-success');
+                });
+                if (__cartFlashTimer) window.clearTimeout(__cartFlashTimer);
+                __cartFlashTimer = window.setTimeout(() => {
+                    document.querySelectorAll('.header-cart-btn.is-success').forEach((el) => {
+                        el.classList.remove('is-success');
+                    });
+                }, 1200);
+            } catch (e) {
+                // no-op
+            }
         }
 
         function removeFromCart(key){
@@ -722,7 +762,7 @@
             });
         }
 
-       
+
 
         function showReviewImageModal(imageUrl, imagesJson) {
             try {
@@ -769,7 +809,8 @@
                         $('.input-number').prop('max', data.max_limit);
                         if(parseInt(data.in_stock) == 0 && data.digital  == 0){
                            $('.buy-now').addClass('d-none');
-                           $('.add-to-cart').addClass('d-none');
+                           // Keep "Add to Inquiry" visible even if out of stock
+                           $('.add-to-cart').not('.btn-add-inquiry').addClass('d-none');
                            $('.out-of-stock').removeClass('d-none');
                         }
                         else{
@@ -861,11 +902,15 @@
                     if (data) {
                         // Update cart count in header
                         if(data.cart_count !== undefined) {
-                            $('.cart-count').html(data.cart_count);
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
                         }
                         // Update cart dropdown if exists
                         if(data.nav_cart_view) {
                             $('#cart_items').html(data.nav_cart_view);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
                         }
                         AIZ.plugins.notify('success', "{{ translate('Product added to cart successfully') }}");
                     }
@@ -879,6 +924,91 @@
                 fbq('track', 'AddToCart', {content_type: 'product'});
             }
         }
+
+        // Unified "Add to Inquiry" handler (used on cards + CTAs)
+        // - If product has variants and we're on a listing card -> open variant modal
+        // - If we're on product details page -> submit option form (includes qty/options)
+        // - Otherwise -> quick add with qty = min_qty (fallback 1)
+        window.featuredInquiryAction = window.featuredInquiryAction || function (btnEl) {
+            try {
+                const btn = btnEl;
+                const productId = parseInt(btn?.dataset?.productId || btn?.getAttribute('data-product-id') || '0', 10);
+                const hasVariants = (btn?.dataset?.hasVariants || btn?.getAttribute('data-has-variants') || '0') === '1';
+                if (!productId) return;
+
+                const $form = $('#option-choice-form');
+                const hasForm = $form.length > 0 && $form.find('input[name="id"]').length > 0;
+
+                // Listing cards: variants should open modal
+                if (hasVariants && !hasForm && typeof showAddToCartModal === 'function') {
+                    showAddToCartModal(productId);
+                    return;
+                }
+
+                if (btn && btn.classList && btn.classList.contains('is-loading')) return;
+                if (btn && btn.classList) btn.classList.add('is-loading');
+                if (btn && typeof btn.disabled !== 'undefined') btn.disabled = true; // match category-page behavior
+
+                // Prepare payload
+                let payload = null;
+                if (hasForm) {
+                    // Ensure form has correct id (just in case)
+                    $form.find('input[name="id"]').val(productId);
+
+                    if (typeof checkAddToCartValidity === 'function' && !checkAddToCartValidity()) {
+                        if (btn && btn.classList) btn.classList.remove('is-loading');
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
+                        try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('warning', "{{ translate('Please choose all the options') }}"); } catch (e) {}
+                        return;
+                    }
+                    payload = $form.serializeArray();
+                } else {
+                    const minQty = parseInt(btn?.dataset?.minQty || '1', 10) || 1;
+                    payload = { id: productId, quantity: minQty, _token: (typeof AIZ !== 'undefined' ? AIZ.data.csrf : "{{ csrf_token() }}") };
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '{{ route('cart.addToCart') }}',
+                    data: payload,
+                    success: function (data) {
+                        try {
+                            const cartCount = data?.cart_count;
+                            if (cartCount !== undefined) {
+                                const c = (cartCount === undefined || cartCount === null) ? 0 : cartCount;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (data?.nav_cart_view) $('#cart_items').html(data.nav_cart_view);
+                        } catch (e) {}
+
+                        // If min qty not satisfied on quick add, open modal so user can adjust
+                        if (data?.status === 0 && typeof data?.message === 'string' && data.message.toLowerCase().includes('min qty')) {
+                            if (typeof showAddToCartModal === 'function') showAddToCartModal(productId);
+                        }
+
+                        if (btn && btn.classList) {
+                            btn.classList.remove('is-loading');
+                            btn.classList.add('is-added');
+                            window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+                        }
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
+
+                        try {
+                            if (data?.status === 0 && data?.message && typeof AIZ !== 'undefined' && AIZ.plugins?.notify) {
+                                AIZ.plugins.notify('warning', data.message);
+                            } else if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) {
+                                AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                            }
+                        } catch (e) {}
+                    },
+                    error: function () {
+                        if (btn && btn.classList) btn.classList.remove('is-loading');
+                        if (btn && typeof btn.disabled !== 'undefined') btn.disabled = false;
+                        try { if (typeof AIZ !== 'undefined' && AIZ.plugins?.notify) AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}"); } catch (e) {}
+                    }
+                });
+            } catch (e) {}
+        };
 
         function buyNow(){
             @if (Auth::check() && Auth::user()->user_type != 'customer')
@@ -1099,7 +1229,7 @@
                 }
             }
         </script>
-        
+
     @endif
 
     @if (get_setting('header_element') == 5 || get_setting('header_element') == 6)
@@ -1181,7 +1311,7 @@
 
 
         function startRandomAlerts() {
-            const min = parseInt(`{{ get_setting('sale_alert_min_time') }}`)  * 1000; 
+            const min = parseInt(`{{ get_setting('sale_alert_min_time') }}`)  * 1000;
             const max = parseInt(`{{ get_setting('sale_alert_max_time') }}`)  * 1000;
             const randomDelay = Math.random() * (max - min) + min;
 

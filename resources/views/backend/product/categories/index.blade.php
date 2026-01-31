@@ -173,6 +173,30 @@
             });
         }
 
+        function update_published(el){
+
+            if('{{env('DEMO_MODE')}}' == 'On'){
+                AIZ.plugins.notify('info', '{{ translate('Data can not change in demo mode.') }}');
+                hideBulkActionModal();
+                return;
+            }
+
+            if(el.checked){
+                var status = 1;
+            }
+            else{
+                var status = 0;
+            }
+            $.post('{{ route('categories.published') }}', {_token:'{{ csrf_token() }}', id:el.value, status:status}, function(data){
+                if(data == 1){
+                    AIZ.plugins.notify('success', '{{ translate('Category visibility updated successfully') }}');
+                }
+                else{
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                }
+            });
+        }
+
         $(document).on("change", ".check-all", function() {
             if(this.checked) {
                 // Iterate each checkbox

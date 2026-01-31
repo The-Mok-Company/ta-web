@@ -76,11 +76,19 @@ class RegisterController extends Controller
     {
         // dd($data);
         if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $user = User::create([
+            $userData = [
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-            ]);
+            ];
+
+            // Save phone if provided (when OTP is not activated)
+            if (!empty($data['phone'])) {
+                $cleanPhone = preg_replace('/\D+/', '', $data['phone']);
+                $userData['phone'] = '+20' . $cleanPhone;
+            }
+
+            $user = User::create($userData);
         }
         else {
             if (addon_is_activated('otp_system')){
@@ -101,18 +109,13 @@ class RegisterController extends Controller
         }
         
         if(session('temp_user_id') != null){
-            if(auth()->user()->user_type == 'customer'){
-                Cart::where('temp_user_id', session('temp_user_id'))
-                ->update(
-                    [
-                        'user_id' => auth()->user()->id,
-                        'temp_user_id' => null
-                    ]
-                );
-            }
-            else {
-                Cart::where('temp_user_id', session('temp_user_id'))->delete();
-            }
+            // Note: `create()` runs before the user is logged in, so `auth()->user()` is null here.
+            // This controller creates customer accounts, so we can safely attach the guest cart to the new user.
+            Cart::where('temp_user_id', session('temp_user_id'))
+                ->update([
+                    'user_id' => $user->id,
+                    'temp_user_id' => null
+                ]);
             Session::forget('temp_user_id');
         }
 

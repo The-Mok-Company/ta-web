@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\Events\PasswordReset;
 use App\Models\Cart;
+use App\Models\ContactUsForm;
 use App\Models\Preorder;
 use App\Rules\Recaptcha;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use ZipArchive;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Session;
 
 class HomeController extends Controller
@@ -57,9 +59,9 @@ class HomeController extends Controller
         $hot_categories = Cache::rememberForever('hot_categories', function () {
             return Category::with('bannerImage')->where('hot_category', '1')->get();
         });
-         $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
+        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
 
-        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories', 'hot_categories', 'lang' , 'categories'));
+        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories', 'hot_categories', 'lang', 'categories'));
     }
 
     public function load_todays_deal_section()
@@ -71,7 +73,10 @@ class HomeController extends Controller
 
     public function about()
     {
-        return view('frontend.about.about');
+        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
+        $lang = app()->getLocale();
+
+        return view('frontend.about.about', compact('categories', 'lang'));
     }
     public function ourservices()
     {
@@ -85,10 +90,101 @@ class HomeController extends Controller
     {
         return view('frontend.join_us.index');
     }
+
+    public function ajaxSearch(Request $request)
+    {
+        $query = trim((string) $request->get('query', ''));
+
+        if ($query === '' || mb_strlen($query) < 2) {
+            return response()->json(['products' => []]);
+        }
+
+        $cacheKey = 'ajax_search:' . md5(app()->getLocale() . '|' . mb_strtolower($query));
+
+        $products = Cache::remember($cacheKey, 300, function () use ($query) {
+            return Product::query()
+                ->where('published', 1)
+                ->where('approved', 1)
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', '%' . $query . '%')
+                        ->orWhereHas('product_translations', function ($qt) use ($query) {
+                            $qt->where('name', 'like', '%' . $query . '%');
+                        });
+                })
+                ->select(['id', 'name', 'slug', 'photos'])
+                ->with('product_translations:id,product_id,name,lang')
+                ->orderBy('num_of_sale', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : $product->name,
+                        'photos' => $product->photos ? uploaded_asset($product->photos) : null,
+                        'url' => route('product', $product->slug),
+                    ];
+                })
+                ->values();
+        });
+
+        return response()->json(['products' => $products]);
+    }
+
+    public function initialSearch()
+    {
+        try {
+            $cacheKey = 'initial_search:' . app()->getLocale();
+
+            $products = Cache::remember($cacheKey, 3600, function () {
+                return Product::where('published', 1)
+                    ->where('approved', 1)
+                    ->select(['id', 'name', 'slug', 'photos', 'featured', 'num_of_sale'])
+                    ->with('product_translations:id,product_id,name,lang')
+                    ->orderByRaw('featured DESC, num_of_sale DESC')
+                    ->limit(10)
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'id' => $product->id,
+                            'name' => method_exists($product, 'getTranslation') ? $product->getTranslation('name') : $product->name,
+                            'photos' => $product->photos ? uploaded_asset($product->photos) : null,
+                            'url' => route('product', $product->slug)
+                        ];
+                    })
+                    ->values();
+            });
+
+            return response()->json([
+                'success' => true,
+                'products' => $products
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Initial Search Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'products' => []
+            ], 500);
+        }
+    }
     public function contact_us()
     {
         $Category = Category::where('level', 0)->get();
         return view('frontend.contact_us.index', compact('Category'));
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'message' => 'required|string'
+        ]);
+
+        ContactUsForm::create($validated);
+
+        return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
 
     public function load_newest_product_section(Request $request)
@@ -344,6 +440,17 @@ class HomeController extends Controller
 
     public function product(Request $request, $slug)
     {
+        // Redirect to clean URL when ?category_id= is present (strip from address bar)
+        if ($request->has('category_id')) {
+            $query = $request->query();
+            unset($query['category_id']);
+            $url = route('product', $slug);
+            if (!empty($query)) {
+                $url .= '?' . http_build_query($query);
+            }
+            return redirect($url, 302);
+        }
+
         if (!Auth::check()) {
             session(['link' => url()->current()]);
         }

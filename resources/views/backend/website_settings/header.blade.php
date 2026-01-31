@@ -17,7 +17,10 @@
 		<div class="col-md-8 mx-auto">
 			<div class="card">
 				<div class="card-header">
-					<h6 class="mb-0">{{ translate('Header Setting') }}</h6>
+					<div class="d-flex align-items-center justify-content-between w-100">
+						<h6 class="mb-0">{{ translate('Header Setting') }}</h6>
+						<a href="{{ route('menu-items.index') }}" class="btn btn-soft-primary btn-sm">{{ translate('Menu Items') }}</a>
+					</div>
 				</div>
 
 				<div class="card-body">
@@ -113,60 +116,59 @@
 									</div>
 								</div>
 							</div>
-							<div class="border-top pt-3">
-								<!-- Header Nav Menus -->
-								<label class="">{{translate('Header Nav Menu')}}</label>
-								<div class="header-nav-menu">
-									<input type="hidden" name="types[]" value="header_menu_labels">
-									<input type="hidden" name="types[]" value="header_menu_links">
-									@if (get_setting('header_menu_labels') != null)
-										@foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
-											<div class="row gutters-5">
-												<div class="col-4">
-													<div class="form-group">
-														<input type="text" class="form-control" placeholder="{{translate('Label')}}"
-															name="header_menu_labels[]" value="{{ $value }}">
-													</div>
+
+							<!-- Categories Dropdown Menu (header "Categories" dropdown items) -->
+							<div class="border-top pt-3 mt-3">
+								<label class="">{{ translate('Categories Dropdown Menu') }}</label>
+								<small class="d-block text-muted mb-2">{{ translate('These are the main categories and sub-categories shown in the header "Categories" dropdown. Edit each item below; you can reorder main categories with the arrows.') }}</small>
+								<style>
+									/* Make the categories list readable and scrollable */
+									.header-categories-dropdown-list {
+										max-height: 520px;
+										overflow: auto;
+										padding-right: 8px;
+									}
+								</style>
+								<input type="hidden" name="types[]" value="header_categories_order">
+								<div class="header-categories-dropdown-list">
+									@foreach ($mainCategories ?? [] as $mainCat)
+										<div class="header-category-row border rounded p-2 mb-2" data-category-id="{{ $mainCat->id }}">
+											<div class="d-flex align-items-center flex-wrap gap-2">
+												<div class="d-flex flex-column gap-0">
+													<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-category-up" title="{{ translate('Move up') }}"><i class="las la-arrow-up"></i></button>
+													<button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-secondary move-category-down" title="{{ translate('Move down') }}"><i class="las la-arrow-down"></i></button>
 												</div>
-												<div class="col">
-													<div class="form-group">
-														<input type="text" class="form-control"
-															placeholder="{{ translate('Link with') }} http:// {{ translate('or') }} https://"
-															name="header_menu_links[]"
-															value="{{ json_decode(App\Models\BusinessSetting::where('type', 'header_menu_links')->first()->value, true)[$key] }}">
-													</div>
+												<input type="hidden" name="header_categories_order[]" value="{{ $mainCat->id }}">
+												<div class="d-flex align-items-center flex-grow-1">
+													@if ($mainCat->catIcon && $mainCat->catIcon->file_name)
+														<img src="{{ my_asset($mainCat->catIcon->file_name) }}" alt="" width="24" height="24" class="rounded mr-2" style="object-fit: contain;">
+													@else
+														<span class="mr-2 rounded bg-light d-inline-block" style="width:24px;height:24px;"></span>
+													@endif
+													<span class="fw-500">{{ $mainCat->getTranslation('name') }}</span>
+													<span class="badge badge-soft-info ml-2">{{ translate('Main') }}</span>
 												</div>
-												<div class="col-auto">
-													<button type="button"
-														class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
-														data-toggle="remove-parent" data-parent=".row">
-														<i class="las la-times"></i>
-													</button>
-												</div>
+												<a href="/admin/categories/edit/{{ $mainCat->id }}?lang={{ env('DEFAULT_LANGUAGE') ?? 'en' }}" data-edit-url="/admin/categories/edit/{{ $mainCat->id }}?lang={{ env('DEFAULT_LANGUAGE') ?? 'en' }}" target="_blank" class="btn btn-soft-primary btn-sm header-category-edit-link" rel="noopener">
+													<i class="las la-edit"></i> {{ translate('Edit') }}
+												</a>
 											</div>
-										@endforeach
-									@endif
+											@if ($mainCat->childrenCategories && $mainCat->childrenCategories->count() > 0)
+												<div class="ml-5 mt-2 pl-2 border-left">
+													@foreach ($mainCat->childrenCategories as $subCat)
+														@include('backend.website_settings.partials.header_category_child_row', ['category' => $subCat, 'depth' => 1])
+													@endforeach
+												</div>
+											@endif
+										</div>
+									@endforeach
 								</div>
-								<button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
-									data-content='<div class="row gutters-5">
-										<div class="col-4">
-											<div class="form-group">
-												<input type="text" class="form-control" placeholder="{{translate('Label')}}" name="header_menu_labels[]">
-											</div>
-										</div>
-										<div class="col">
-											<div class="form-group">
-												<input type="text" class="form-control" placeholder="{{ translate('Link with') }} http:// {{ translate('or') }} https://" name="header_menu_links[]">
-											</div>
-										</div>
-										<div class="col-auto">
-											<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-											<i class="las la-times"></i>
-										</button>
-											</div>
-										</div>' data-target=".header-nav-menu">
-									{{ translate('Add New') }}
-								</button>
+								@if (isset($mainCategories) && $mainCategories->count() > 0)
+									<p class="small text-muted mt-2">
+										<a href="{{ route('categories.index') }}">{{ translate('Manage all categories') }}</a> ({{ translate('Products') }} → {{ translate('Categories') }})
+									</p>
+								@else
+									<p class="small text-muted mt-2">{{ translate('No main categories yet.') }} <a href="{{ route('categories.create') }}">{{ translate('Add category') }}</a></p>
+								@endif
 							</div>
 							<br>
 							<!-- Update Button -->
@@ -227,6 +229,54 @@
 
 			$('input[name="show_language_switcher"], input[name="show_currency_switcher"], input[name="header_stikcy"]').on('change', function () {
 				updateUI();
+			});
+
+			// Header menu: reorder links (move up / move down)
+			$(document).on('click', '.move-menu-up', function () {
+				var row = $(this).closest('.header-menu-row');
+				var prev = row.prev('.header-menu-row');
+				if (prev.length) row.insertBefore(prev);
+			});
+			$(document).on('click', '.move-menu-down', function () {
+				var row = $(this).closest('.header-menu-row');
+				var next = row.next('.header-menu-row');
+				if (next.length) row.insertAfter(next);
+			});
+
+			// Hide "Add New" when 7 or more links; show when fewer
+			function updateHeaderAddNewVisibility() {
+				var count = $('.header-nav-menu .header-menu-row').length;
+				$('#header-add-menu-btn-wrap').toggleClass('d-none', count >= 7);
+			}
+			updateHeaderAddNewVisibility();
+			$(document).on('click', '.header-add-menu-btn', function () {
+				setTimeout(updateHeaderAddNewVisibility, 50);
+			});
+			$(document).on('click', '[data-toggle="remove-parent"]', function () {
+				var parent = $(this).closest($(this).data('parent'));
+				if (parent.hasClass('header-menu-row') || parent.find('.header-menu-row').length) {
+					setTimeout(updateHeaderAddNewVisibility, 150);
+				}
+			});
+
+			// Categories dropdown: reorder main categories (move up / move down)
+			$(document).on('click', '.move-category-up', function () {
+				var row = $(this).closest('.header-category-row');
+				var prev = row.prev('.header-category-row');
+				if (prev.length) row.insertBefore(prev);
+			});
+			$(document).on('click', '.move-category-down', function () {
+				var row = $(this).closest('.header-category-row');
+				var next = row.next('.header-category-row');
+				if (next.length) row.insertAfter(next);
+			});
+
+			// Category Edit: handle click ourselves so no other listener can redirect
+			$(document).on('click', '.header-category-edit-link', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				var url = $(this).data('edit-url') || $(this).attr('href');
+				if (url) window.open(url, '_blank', 'noopener');
 			});
 		});
 	</script>

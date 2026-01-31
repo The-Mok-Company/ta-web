@@ -1,6 +1,6 @@
 <div class="bg-white border mb-4">
     <div class="p-3 p-sm-4 fs-16 fw-600">
-        {{ translate('Top Selling Products') }}
+        {{ translate('Hot products') }}
     </div>
     <div class="px-3 px-sm-4 pb-4">
         <ul class="list-group list-group-flush">
@@ -25,16 +25,6 @@
                                     <a href="{{ route('product', $top_product->slug) }}"
                                         class="d-block text-reset hov-text-primary">{{ $top_product->getTranslation('name') }}</a>
                                 </h4>
-                            </div>
-                            <div class="">
-                                <!-- Price -->
-                                <span class="fs-14 fw-700 text-primary">{{ home_discounted_base_price($top_product) }}</span>
-                                <!-- Home Price -->
-                                @if(home_price($top_product) != home_discounted_price($top_product))
-                                <del class="fs-14 fw-700 opacity-60 ml-1 ml-lg-0 ml-xl-1">
-                                    {{ home_price($top_product) }}
-                                </del>
-                                @endif
                             </div>
                         </div>
                     </div>

@@ -56,6 +56,13 @@
         </span>
         @endif
     </div>
+    @can('add_product_category')
+    <div class="border-bottom-dashed pt-15px pb-15px">
+        <a href="{{ route('categories.create', ['parent_id' => $category->id]) }}" class="d-inline-flex align-items-center fs-14 fw-500 text-blue py-5px px-10px border border-gray-300 rounded-1 bg-gray-100 hov-bg-blue hov-text-white">
+            {{ translate('Add sub category') }}
+        </a>
+    </div>
+    @endcan
     <div class="border-bottom-dashed  pt-15px pb-15px">
         <p class="m-0 fs-14 fw-700 text-dark pb-5px">{{translate('Parent Category')}}</p>
         @php

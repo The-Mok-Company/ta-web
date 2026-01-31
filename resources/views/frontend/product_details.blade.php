@@ -76,6 +76,61 @@
         @endphp
 
         <style>
+            /* Product gallery hover zoom (reduce intensity) */
+            .product-gallery .img-zoom img,
+            .product-gallery-carousel .img-zoom img {
+                transform: none !important;
+                transition: transform 0.25s ease !important;
+                will-change: transform;
+            }
+            .product-gallery .img-zoom:hover img,
+            .product-gallery-carousel .img-zoom:hover img {
+                transform: scale(1.03) !important; /* subtle */
+            }
+
+            /* Match category-page "Add to Inquiry" button exactly - override any conflicting styles */
+            button.btn-add-inquiry,
+            .btn-add-inquiry,
+            .btn-add-inquiry.add-to-cart,
+            .product-quantity .btn-add-inquiry,
+            form#option-choice-form .btn-add-inquiry {
+                height: 40px !important;
+                padding: 0 14px !important;
+                border-radius: 8px !important;
+                border: none !important;
+                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+                color: #fff !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                cursor: pointer !important;
+                transition: transform .18s ease, box-shadow .18s ease, background .18s ease !important;
+                white-space: nowrap !important;
+                box-shadow: none !important;
+            }
+            button.btn-add-inquiry:hover,
+            .btn-add-inquiry:hover,
+            .btn-add-inquiry.add-to-cart:hover,
+            .product-quantity .btn-add-inquiry:hover,
+            form#option-choice-form .btn-add-inquiry:hover {
+                background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 8px 22px rgba(8, 145, 178, .25) !important;
+                color: #fff !important;
+            }
+            button.btn-add-inquiry:disabled,
+            .btn-add-inquiry:disabled,
+            .btn-add-inquiry.add-to-cart:disabled,
+            .product-quantity .btn-add-inquiry:disabled,
+            form#option-choice-form .btn-add-inquiry:disabled {
+                opacity: .8 !important;
+                cursor: not-allowed !important;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
             /* Sidebar styles (aligned with category pages) */
             .category-sidebar {
                 background: #fff;
@@ -266,7 +321,7 @@
 
                                                                 @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                     <div class="category-header">
-                                                                        <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                        <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                             class="category-name">
                                                                             <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         </a>
@@ -278,7 +333,7 @@
                                                                         @foreach ($level2Category->childrenCategories as $level3Category)
                                                                             <li
                                                                                 class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                     <i class="fas fa-chevron-right"></i>
@@ -287,7 +342,7 @@
                                                                         @endforeach
                                                                     </ul>
                                                                 @else
-                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                         class="category-link">
                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                         <i class="fas fa-chevron-right"></i>
@@ -297,7 +352,7 @@
                                                         @endforeach
                                                     </ul>
                                                 @else
-                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                    <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
                                                         class="category-link">
                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                         <i class="fas fa-chevron-right"></i>
@@ -321,7 +376,7 @@
                                     @foreach ($sidebar_products as $p)
                                         <li class="{{ $p->id == $detailedProduct->id ? 'active' : '' }}">
                                             <a class="category-link"
-                                                href="{{ route('product', $p->slug) }}?category_id={{ $sidebar_category_id }}">
+                                                href="{{ route('product', $p->slug) }}">
                                                 <span>{{ $p->getTranslation('name') }}</span>
                                             </a>
                                         </li>
@@ -348,23 +403,14 @@
                         </div>
 
                         @if ($detailedProduct->auction_product)
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')
                         @else
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')
@@ -436,7 +482,7 @@
             });
         </script>
     @else
-        <section class="mb-4 pt-3">
+        <section class="mb-4 pt-3" style="padding-top:140px !important">
             <div class="container">
                 <div class="bg-white py-3">
                     <div class="row">
@@ -455,11 +501,8 @@
         </section>
 
         <section class="mb-4">
-            <div class="container">
+            <div class="container" >
                 @if ($detailedProduct->auction_product)
-                    <!-- Reviews & Ratings -->
-                    @include('frontend.product_details.review_section')
-
                     <!-- Description, Video, Downloads -->
                     @include('frontend.product_details.description')
 
@@ -472,23 +515,14 @@
                             <!-- Seller Info -->
                             @include('frontend.product_details.seller_info')
 
-                            <!-- Top Selling Products -->
-                            <div class="d-none d-lg-block">
-                                @include('frontend.product_details.top_selling_products')
-                            </div>
+
                         </div>
 
                         <!-- Right side -->
                         <div class="col-lg-9">
 
-                            <!-- Reviews & Ratings -->
-                            @include('frontend.product_details.review_section')
-
                             <!-- Description, Video, Downloads -->
                             @include('frontend.product_details.description')
-
-                            <!-- Frequently Bought products -->
-                            @include('frontend.product_details.frequently_bought_products')
 
                             <!-- Product Query -->
                             @include('frontend.product_details.product_queries')

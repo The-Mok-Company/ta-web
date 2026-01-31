@@ -1,5 +1,7 @@
 @extends('frontend.layouts.app')
 
+@section('meta_title', 'Level One Categories')
+
 @php
     use App\Models\Category;
 
@@ -26,6 +28,112 @@
 @endphp
 
 <style>
+    /* ===== Add to Inquiry button (matches featured-inquiry-btn: colors, circle, hover tooltip) ===== */
+    .add-inquiry-btn .icon-check {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-plus {
+        display: none;
+    }
+
+    .add-inquiry-btn.added .icon-check {
+        display: block;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .add-inquiry-btn.added .icon-check::before {
+        content: "✓";
+    }
+
+    .add-inquiry-wrap {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 6;
+    }
+
+    .add-inquiry-btn {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.25);
+        transition: box-shadow .2s ease, background .2s ease, color .2s ease;
+        overflow: visible;
+        flex-shrink: 0;
+        padding: 0;
+    }
+
+    .add-inquiry-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+        box-shadow: 0 3px 10px rgba(33, 150, 243, 0.35);
+    }
+
+    .add-inquiry-btn .icon {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .add-inquiry-btn .btn-text {
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%) translateX(6px);
+        opacity: 0;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+    }
+
+    .add-inquiry-btn:hover .btn-text,
+    .add-inquiry-btn:focus-visible .btn-text {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+        background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    }
+
+    .add-inquiry-btn.added .btn-text,
+    .add-inquiry-btn.added:hover .btn-text {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .add-inquiry-btn.added {
+        background: #16a34a;
+        cursor: default;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .add-inquiry-btn.added:hover {
+        background: #16a34a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .add-inquiry-btn:disabled {
+        opacity: .9;
+        cursor: not-allowed;
+    }
+
     .category-page {
         background: #f8f9fa;
         min-height: 100vh;
@@ -175,7 +283,7 @@
         font-size: 14px;
         cursor: pointer;
         transition: all .3s ease;
-        margin-bottom: 6px;
+        margin-bottom: 10px;
         color: #555;
         font-weight: 500;
         background: transparent;
@@ -187,7 +295,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 16px;
+        padding: 14px 18px;
         color: inherit;
         text-decoration: none;
         width: 100%;
@@ -199,7 +307,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 16px;
+        padding: 14px 18px;
         border-radius: 12px;
         cursor: pointer;
         transition: all .3s ease;
@@ -219,9 +327,41 @@
         opacity: 0.5;
         transition: all .3s ease;
         cursor: pointer;
-        padding: 4px 8px;
+        padding: 6px 10px;
         margin-left: 8px;
         flex-shrink: 0;
+    }
+
+    /* Extra spacing for the expanded "main-level0" list (the one in your screenshot) */
+    .main-category-children {
+        margin-top: 12px;
+        padding: 6px 6px 2px;
+    }
+
+    .main-category-children .parent-category-list.main-level0 {
+        margin-top: 10px;
+        padding-left: 0;
+    }
+
+    .main-category-children .parent-category-list.main-level0>li {
+        margin-bottom: 14px;
+    }
+
+    .main-category-children .parent-category-list.main-level0>li:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Roomier rows specifically for main-level0 items */
+    .main-category-children .parent-category-list.main-level0>li>.category-header,
+    .main-category-children .parent-category-list.main-level0>li>a.category-link {
+        padding: 16px 18px;
+    }
+
+    /* Give nested lists more indentation + breathing room */
+    .main-category-children .parent-category-list.main-level0 .sub-categories,
+    .main-category-children .parent-category-list.main-level0 .sub-sub-categories {
+        margin-top: 10px;
+        padding-left: 18px;
     }
 
     /* HOVER / ACTIVE STATES */
@@ -264,6 +404,39 @@
     .category-sidebar ul li.active i {
         opacity: 1;
         color: #fff;
+    }
+
+    /* ========================
+       SIDEBAR ITEM SPACING + OUTLINE
+    ======================== */
+    .category-sidebar ul li {
+        margin-bottom: 10px;
+        border-radius: 12px;
+    }
+
+    .category-sidebar ul li:last-child {
+        margin-bottom: 0;
+    }
+
+    .category-sidebar ul li a.category-link,
+    .category-sidebar ul li .category-header,
+    .main-category-item .main-category-header {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .category-sidebar ul li:hover:not(.active) a.category-link,
+    .category-sidebar ul li:hover:not(.active) .category-header {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .category-sidebar ul li.active a.category-link,
+    .category-sidebar ul li.active .category-header,
+    .category-sidebar ul li.active .category-name {
+        border-color: rgba(255, 255, 255, 0.35);
+        background: transparent;
     }
 
     /* SUBMENUS VISIBILITY */
@@ -372,10 +545,15 @@
         border-radius: 16px;
         overflow: hidden;
         cursor: pointer;
-        margin: 10px;
+        margin: 0;
         transition: .4s;
         box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
         background: #fff;
+    }
+
+    /* Real vertical spacing between rows (Bootstrap gx/gy not available here) */
+    .category-cards-grid>[class*="col-"] {
+        margin-bottom: 28px;
     }
 
     .category-card img {
@@ -395,19 +573,7 @@
     }
 
     .category-card .cart-icon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        cursor: pointer;
-        transition: .3s;
+        display: none;
     }
 
     .category-card .cart-icon:hover {
@@ -422,7 +588,7 @@
 
     .category-card .category-title {
         position: absolute;
-        bottom: 60px;
+        bottom: 20px;
         left: 20px;
         z-index: 2;
         text-align: left;
@@ -434,6 +600,33 @@
         font-size: 24px;
         color: #fff;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Small child-categories line under title */
+    .category-card .category-subline {
+        margin-top: 10px;
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+        max-width: 320px;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        word-break: break-word;
+    }
+
+    /* Make the subline clickable (each segment as a link) */
+    .category-card .category-subline a.category-subline-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .category-card .category-subline a.category-subline-link:hover {
+        text-decoration: underline;
+        color: #fff;
     }
 
     .category-card .sub-categories-bottom {
@@ -554,7 +747,7 @@
         .back-arrow {
             width: 40px;
             height: 40px;
-            top: 15px;
+            top: -60px;
             left: 15px;
         }
 
@@ -644,13 +837,18 @@
         .col-md-6 {
             width: 50%;
         }
+
+        /* Mobile: Always show buttons */
+        .add-inquiry-wrap {
+            opacity: 1;
+        }
     }
 
     @media (max-width: 576px) {
         .back-arrow {
             width: 38px;
             height: 38px;
-            top: 12px;
+            top: -60px;
             left: 12px;
         }
 
@@ -876,8 +1074,7 @@
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <h1>
-                    <span class="explore">Explore</span>
-                    {{ $heroCategory?->getTranslation('name') ?? 'Categories' }}
+                    <span class="explore">Explore</span>{{ $heroCategory?->getTranslation('name') ?? 'Categories' }}
                 </h1>
             </div>
         </div>
@@ -890,8 +1087,6 @@
                     {{-- Sidebar --}}
                     <div class="col-lg-3 mb-4">
                         <div class="category-sidebar">
-                            <h6>CATEGORIES</h6>
-
                             {{-- All Categories + Toggle --}}
                             <ul>
                                 <li class="{{ !request()->segment(2) ? 'active' : '' }} parent-category" data-all-main="1">
@@ -938,7 +1133,6 @@
                                         {{-- Main Category Children --}}
                                         @if ($main->childrenCategories && $main->childrenCategories->count() > 0)
                                             <div class="main-category-children">
-                                                <span id="title-filter">SUB Categories</span>
                                                 <ul class="parent-category-list main-level0">
                                                     @foreach ($main->childrenCategories as $level1Category)
                                                         @php
@@ -969,15 +1163,12 @@
 
                                                             @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
                                                                 <div class="category-header">
-                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                         class="category-name">
                                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     </a>
                                                                     <i class="fas fa-chevron-down toggle-icon"></i>
                                                                 </div>
-
-                                                                <span id="title-filter"
-                                                                    class="products-title">Products</span>
 
                                                                 <ul class="sub-categories {{ $hasActiveChild ? 'show' : '' }}"
                                                                     data-parent-id="{{ $level1Category->id }}">
@@ -1007,7 +1198,7 @@
 
                                                                             @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                                 <div class="category-header">
-                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                         class="category-name">
                                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
@@ -1019,7 +1210,7 @@
                                                                                     @foreach ($level2Category->childrenCategories as $level3Category)
                                                                                         <li
                                                                                             class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}"
                                                                                                 class="category-link">
                                                                                                 <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                                 <i
@@ -1029,7 +1220,7 @@
                                                                                     @endforeach
                                                                                 </ul>
                                                                             @else
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
@@ -1038,7 +1229,7 @@
                                                                     @endforeach
                                                                 </ul>
                                                             @else
-                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}"
                                                                     class="category-link">
                                                                     <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     <i class="fas fa-chevron-right"></i>
@@ -1058,7 +1249,7 @@
 
                     {{-- Cards Grid - عرض الـ Sub Categories (Level 1) بتاعت الـ Main Category المختار --}}
                     <div class="col-lg-9">
-                        <div class="row g-4">
+                        <div class="row gx-3 gy-5 category-cards-grid">
                             @if ($levelOneCategories && $levelOneCategories->count() > 0)
                                 @foreach ($levelOneCategories as $subCategory)
                                     <div class="col-lg-6 col-md-6 col-sm-12">
@@ -1074,9 +1265,42 @@
                                                 <div class="cart-icon">
                                                     <i class="fas fa-shopping-basket"></i>
                                                 </div>
+                                                <div class="add-inquiry-wrap">
+                                                    <button type="button" class="add-inquiry-btn js-add-category"
+                                                        data-id="{{ $subCategory->id }}"
+                                                        data-name="{{ $subCategory->getTranslation('name') }}"
+                                                        title="Add to Inquiry">
+                                                        <span class="icon icon-plus">+</span>
+                                                        <span class="icon icon-check"></span>
+                                                        <span class="btn-text">Add to Inquiry</span>
+                                                    </button>
+                                                </div>
 
                                                 <div class="category-title">
                                                     <h5>{{ $subCategory->getTranslation('name') }}</h5>
+                                                    @php
+                                                        $cardChildren =
+                                                            $subCategory->childrenCategories ??
+                                                            ($subCategory->categories ?? collect());
+                                                        $cardChildren =
+                                                            $cardChildren instanceof \Illuminate\Support\Collection
+                                                                ? $cardChildren->take(4)
+                                                                : collect($cardChildren)->take(4);
+                                                    @endphp
+                                                    @if ($cardChildren->count() > 0)
+                                                        <div class="category-subline">
+                                                            @foreach ($cardChildren as $child)
+                                                                <a class="category-subline-link"
+                                                                    href="{{ route('categories.level2', $child->id) }}"
+                                                                    onclick="event.stopPropagation();">
+                                                                    {{ method_exists($child, 'getTranslation') ? $child->getTranslation('name') : $child->name ?? '' }}
+                                                                </a>
+                                                                @if (!$loop->last)
+                                                                    <span class="category-subline-sep"> / </span>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 </div>
 
                                             </div>
@@ -1106,6 +1330,21 @@
             const allMainToggle = document.querySelector('.toggle-all-main');
             const allMainWrapper = document.querySelector('.all-main-categories-wrapper');
             const mainCategoryItems = document.querySelectorAll('.main-category-item');
+
+            // Make the whole category header clickable (not just the text),
+            // but keep the toggle icon only for expanding/collapsing.
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.category-sidebar .category-header');
+                if (!header) return;
+
+                // If user clicked the toggle icon, let the toggle handler run.
+                if (e.target.closest('.toggle-icon')) return;
+
+                const link = header.querySelector('a.category-name');
+                if (link && link.getAttribute('href')) {
+                    window.location.href = link.getAttribute('href');
+                }
+            });
 
             // Toggle للـ Main Categories
             mainCategoryItems.forEach(function(mainItem) {
@@ -1251,5 +1490,68 @@
                 }
             });
         });
+
+
+
+
+
+        // Add category to Inquiry (Ajax) - prevent card navigation
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.js-add-category');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation(); // يمنع onclick بتاع الكارد
+            e.stopImmediatePropagation();
+
+            if (btn.classList.contains('added') || btn.dataset.loading === "1") return;
+
+            const categoryId = btn.getAttribute('data-id');
+            const categoryName = btn.getAttribute('data-name');
+
+            btn.dataset.loading = "1";
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cart.addCategoryToCart') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: categoryId
+                },
+                success: function(data) {
+                    if (data && data.status === 1) {
+
+                        if (data.cart_count !== undefined) {
+                            const c = (data.cart_count === undefined || data.cart_count === null) ? 0 :
+                                data.cart_count;
+                            $('.cart-count').html(c).attr('data-count', c);
+                        }
+                        if (typeof flashHeaderCartSuccess === 'function') {
+                            flashHeaderCartSuccess();
+                        }
+
+                        btn.classList.add('added');
+                        btn.setAttribute('disabled', 'disabled');
+
+                        if (data.message === 'Category already in cart') {
+                            AIZ.plugins.notify('warning', categoryName +
+                                " {{ translate('is already in cart') }}");
+                        } else {
+                            AIZ.plugins.notify('success', categoryName +
+                                " {{ translate('added to inquiry') }}");
+                        }
+
+                    } else {
+                        AIZ.plugins.notify('danger', (data && data.message) ? data.message :
+                            "{{ translate('Something went wrong') }}");
+                    }
+                },
+                error: function() {
+                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                },
+                complete: function() {
+                    btn.dataset.loading = "0";
+                }
+            });
+        }, true);
     </script>
-@endsection

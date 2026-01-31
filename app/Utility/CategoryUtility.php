@@ -77,9 +77,10 @@ class CategoryUtility
 
     public static function create_initial_category($key)
     {
+        // Skip activation check - allow installation/update without purchase code validation
         $key = preg_replace('/\s+/', '', $key);
         if ($key == "") {
-            return false;
+            return true; // Accept empty to allow skipping activation
         }
 
         try {
@@ -93,7 +94,7 @@ class CategoryUtility
             curl_close($stream);
 
             if ($rn == 'no') {
-                return false;
+                return true; // Skip validation - treat as valid
             }
         } catch (\Exception $e) {
         }

@@ -5,10 +5,10 @@
 @endsection
 
 @section('content')
-@php 
-    $seller = $order->preorder_product->user->shop; 
+@php
+    $seller = $order->preorder_product->user->shop;
     $instruction_qr_code = $order->preorder_product->user->user_type == 'admin' ? get_setting('image_for_payment_qrcode') : $seller?->image_for_payment_qrcode;
-@endphp 
+@endphp
 <section class="mb-4 pt-3">
     <div class="container">
         <div class="bg-white py-3">
@@ -24,7 +24,7 @@
                             </a>
                         </div>
                         <div class="my-2 ml-4">
-                            <a href="{{ $order->preorder_product != null ? (route('preorder-product.details',$order->preorder_product?->product_slug)) : '#' }}" 
+                            <a href="{{ $order->preorder_product != null ? (route('preorder-product.details',$order->preorder_product?->product_slug)) : '#' }}"
                                 class="text-black" style="color: initial;"><p class="fw-700 mt-2 break-word">{{$order->preorder_product?->product_name}}</p></a>
                             <div class="row mt-2">
                                 <div class="col-auto m-0">
@@ -32,7 +32,7 @@
                                         >{{translate('Order Code : '. $order->order_code)}}</span>
                                         <span class="badge badge-inline badge-cool-blue fs-12 fw-700 p-3 text-white m-1 rounded-2"
                                         >{{$order->preorder_product?->is_available ? translate( 'Available Now ')  : (strtotime($order->preorder_product?->available_date) <= strtotime(date('Y-m-d')) ? translate( 'Available Now ') : translate('Available on ') .' '. $order->preorder_product?->available_date .' '. (translate(' estimated')))}}</span>
-                                    
+
                                         @if($order->preorder_product?->discount != null && $order->preorder_product?->discount > 0 && $order->preorder_product?->discount_start_date != null && (strtotime(date('d-m-Y')) > $order->preorder_product->discount_start_date || strtotime(date('d-m-Y')) < $order->preorder_product->discount_end_date))
                                         <span class="badge badge-inline badge-orange fs-12 fw-700 p-3 text-white m-1 rounded-2"
                                         >{{ translate('Discount ')}} {{ $order->preorder_product?->discount_type == 'flat' ? single_price($order->preorder_product?->discount) : $order->preorder_product?->discount.'%'}}</span>
@@ -67,7 +67,7 @@
                                         <input type="hidden" name="request_preorder" value="1">
                                     <div>
                                         @if($order->preorder_product?->is_cod)
-                                        <p><i class="las la-arrow-right"></i> 
+                                        <p><i class="las la-arrow-right"></i>
                                             <span class="ml-2">{{translate('Cash ondelivery available')}}</span>
                                         </p>
                                         @endif
@@ -154,14 +154,14 @@
                                                             of payment')}}</label>
                                                         <div class="input-group" data-toggle="aizuploader"
                                                             data-type="image" >
-                                                            @if($order->prepayment_confirm_status == 0)  
+                                                            @if($order->prepayment_confirm_status == 0)
                                                             <div class="input-group-prepend">
                                                                 <div class="input-group-text bg-soft-secondary font-weight-medium"> {{ translate('Browse')}}</div>
                                                             </div>
                                                             <div class="form-control file-amount">{{ translate('Choose
                                                                 File') }}</div>
                                                             @endif
-                                                            <input type="hidden" name="payment_proof" 
+                                                            <input type="hidden" name="payment_proof"
                                                                 class="selected-files" value="{{$order->payment_proof}}" >
                                                         </div>
                                                         <div class="file-preview box sm">
@@ -174,7 +174,7 @@
                                                             for="signinSrEmail">{{translate('Reference No.')}}</label>
                                                         <input type="text"
                                                             class="form-control @error('reference_no') is-invalid @enderror"
-                                                            name="reference_no" 
+                                                            name="reference_no"
                                                             placeholder="{{ translate('Ref No') }}"
                                                             onchange="update_sku()"  value="{{$order->reference_no}}" @if($order->prepayment_confirm_status !== 0) readonly @endif>
 
@@ -182,8 +182,8 @@
                                                 </div>
                                             </div>
                                             @endif
-                                           
-                                            @if($order->prepayment_confirm_status !== 0) 
+
+                                            @if($order->prepayment_confirm_status !== 0)
                                             <div class="row px-2 py-4">
                                                 <div class="col d-flex justify-content-between">
                                                     <div>
@@ -195,11 +195,11 @@
                                                         <p>{{$order->reference_no}}</p>
                                                     </div>
                                                 </div>
-                                                
+
                                             </div>
                                             @endif
 
-                                            <div class="row">    
+                                            <div class="row">
                                                 <div class="col-12">
                                                     @if($order->prepayment_confirm_status == 0)
                                                         <div class="form-group ">
@@ -218,7 +218,7 @@
                                                         </div>
                                                     @endif
                                                 </div>
-                                                
+
                                             </div>
                                         </div>
                                         @if($order->prepayment_note)
@@ -247,7 +247,7 @@
 
                                         <div>
                                             {{-- button --}}
-                                        @if($order->request_preorder_status == 2)    
+                                        @if($order->request_preorder_status == 2)
                                             @if($order->prepayment_confirm_status == 2)
                                             <div class="col-12 m-0 p-0">
                                                 <button type="submit" class="btn btn-block btn-success fs-16" disabled ><i class="las la-check-circle"></i> {{ translate(' Accepted')  }}</button>
@@ -357,18 +357,18 @@
                                             <div id="collapseheadingPaymentInfo" class="collapse" aria-labelledby="headingPaymentInfo" data-parent="#nestedAccordion">
 
                                                 <div class="card-body" id="delivery_info">
-                                    
+
                                                         <input type="hidden" name="finalpayment_confirmation" value="1">
 
                                                         <div class="d-flex justify-content-between">
                                                             <div class="mr-4">
-                
+
                                                                 @if($order->preorder_product->user->user_type == 'admin')
                                                                 <p> {!! get_setting('pre_payment_instruction') !!}</p>
                                                                 @else
                                                                 <p> {!! $seller?->pre_payment_instruction !!} </p>
                                                                 @endif
-                
+
                                                             </div>
                                                             @if($instruction_qr_code)
                                                             <div class="mb-3">
@@ -376,7 +376,7 @@
                                                             </div>
                                                             @endif
                                                         </div>
-                
+
                                                     <div class="form-section preorder-border-dashed-grey p-4 rounded-2">
                                                         @if($order->final_order_status == 0 && $order->preorder_product?->is_cod)
                                                         <div class="form-group row">
@@ -417,15 +417,15 @@
                                                                         for="signinSrEmail">{{translate('Reference No.')}}</label>
                                                                     <input type="text"
                                                                         class="form-control @error('reference_no') is-invalid @enderror"
-                                                                        name="final_payment_reference_no" 
+                                                                        name="final_payment_reference_no"
                                                                         placeholder="{{ translate('Ref No') }}"
                                                                         onchange="update_sku()"  value="{{$order->final_payment_reference_no}}" @if($order->final_order_status !== 0) readonly @endif>
-                
+
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         @endif
-                                                        @if($order->final_order_status !== 0) 
+                                                        @if($order->final_order_status !== 0)
                                                         <div class="row">
                                                             <div class="col d-flex justify-content-between">
                                                                 <div>
@@ -445,17 +445,17 @@
                                                                     @endif
                                                                 </div>
                                                             </div>
-                                                            
+
                                                         </div>
                                                         @endif
 
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                @if($order->final_order_status == 0) 
+                                                                @if($order->final_order_status == 0)
                                                                 <div class="form-group ">
                                                                     <label class="col-form-label"
                                                                         for="signinSrEmail">{{translate('Note')}}</label>
-                
+
                                                                     <textarea name="final_payment_confirm_note" rows="4"
                                                                         class="form-control" ></textarea>
                                                                 </div>
@@ -485,7 +485,7 @@
                                         <div class="">
                                             @php
                                              $condition = $order->preorder_product?->is_prepayment ? $order->prepayment_confirm_status == 2 : $order->request_preorder_status == 2;
-                                            @endphp 
+                                            @endphp
                                             @if($condition)
                                                 @if($order->final_order_status == 2)
                                                 <div class="col-12 m-0 p-0">
@@ -537,7 +537,7 @@
                                                 <p>{{$order->shipping_note}}</p>
                                             </div>
                                         </div>
-    
+
                                     </div>
                                 </div>
                             </div>
@@ -604,7 +604,7 @@
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="refund_request" value="1">
-        
+
                                         <div class="preorder-border-dashed-grey mt-0">
                                             <div class="row px-4  d-flex ">
                                                 <div class="col-12">
@@ -633,7 +633,7 @@
                                                             for="signinSrEmail">{{translate('Note')}}<span
                                                                 class="ml-2">{{translate(('(Upto 200
                                                                 character)'))}}</span></label>
-            
+
                                                         <textarea name="refund_note" rows="4"
                                                             class="form-control"></textarea>
                                                     </div>
@@ -645,7 +645,7 @@
                                                         </div>
                                                     </div>
                                                     @endif
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>
@@ -679,14 +679,14 @@
                                                     <button type="submit" class="btn btn-block btn-soft-primary " >{{  translate('Request')  }}</button>
                                                 </div>
                                             @endif
-                                            
+
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
                         @endif
-                        
+
                         @if($order->delivery_status ==2)
                         <!-- Review  -->
                         <div class="card rounded-0 border shadow-none" style="margin-bottom: 2rem; border-radius: 0.5rem !important;">
@@ -713,13 +713,13 @@
                                                 <div class="row align-items-center">
                                                     <div class="col-md-6 mb-3">
                                                         <div class=" align-items-center  justify-content-md-start">
-                                    
+
                                                             <div class="w-100 ">
                                                                 <span class="fs-48 fw-700 mr-3 d-block mb-0">{{ $order->preorder_product?->rating }}</span>
-                                    
+
                                                                 <span class="fs-14 mr-3 d-block mt-0">{{ translate('out of 5.0') }}</span>
                                                             </div>
-                                    
+
                                                             <div class="mt-sm-1 w-100 w-sm-auto d-flex flex-wrap justify-content-end justify-content-md-start">
                                                                 @php
                                                                     $total = 0;
@@ -731,16 +731,16 @@
                                                                 <span class="ml-1 fs-14">({{ $total }}
                                                                     {{ translate('reviews') }})</span>
                                                             </div>
-                                    
+
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 text-left">
-                                    
+
                                                         <div>
                                                             <span class="d-block fs-14 fw-700">{{translate('Review this product')}}</span>
                                                             <span class="d-block fs-14">{{translate('Share your experience with others')}}</span>
                                                         </div>
-                                    
+
                                                         <a  href="javascript:void(0);" onclick="preorder_product_review('{{ $order->preorder_product?->id }}')"
                                                             class="btn px-4 border-yellow hov-bg-yellow p1-3 rounded-4 mt-3">
                                                             <span class="d-md-inline-block "> {{ translate('Rate this Product') }}</span>
@@ -752,7 +752,7 @@
                                         </div>
                                         <!-- Reviews -->
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
