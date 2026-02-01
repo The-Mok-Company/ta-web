@@ -913,7 +913,7 @@
                                                     @if ($subHasChildren)
                                                         <div class="sub-dropdown level-2">
                                                             @foreach ($subCat->categories as $subSubCat)
-                                                                <a href="{{ route('products.category', $subSubCat->slug) }}" class="dropdown-item">
+                                                                <a href="{{ route('categories.level2', $subCat->slug) }}?open={{ $subSubCat->id }}" class="dropdown-item">
                                                                     <span>{{ $subSubCat->getTranslation('name') }}</span>
                                                                 </a>
                                                             @endforeach
