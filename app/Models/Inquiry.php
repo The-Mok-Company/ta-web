@@ -45,14 +45,12 @@ class Inquiry extends Model
     {
         static::created(function (Inquiry $inquiry) {
 
-            // لو الكود متحددش
             if (empty($inquiry->code)) {
                 $inquiry->updateQuietly([
                     'code' => 'INQ-' . str_pad($inquiry->id, 6, '0', STR_PAD_LEFT),
                 ]);
             }
 
-            // default status لو مش متحدد
             if (empty($inquiry->status)) {
                 $inquiry->updateQuietly([
                     'status' => 'pending',
