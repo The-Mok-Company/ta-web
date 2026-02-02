@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class InquiryNotification extends Notification
 {
@@ -32,7 +33,30 @@ class InquiryNotification extends Notification
      */
     public function via($notifiable)
     {
-        return [DbNotification::class];
+        return [DbNotification::class, 'mail'];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable)
+    {
+        $message = $this->data['message'] ?? 'You have a new inquiry notification.';
+        $link = $this->data['link'] ?? url('/');
+        $inquiryCode = $this->data['inquiry_code'] ?? '';
+        $status = $this->data['status'] ?? '';
+
+        return (new MailMessage)
+            ->subject('Inquiry Notification - ' . $inquiryCode)
+            ->greeting('Hello ' . ($notifiable->name ?? 'User') . '!')
+            ->line($message)
+            ->line('Inquiry Code: ' . $inquiryCode)
+            ->line('Status: ' . ucfirst($status))
+            ->action('View Inquiry', $link)
+            ->line('Thank you for using our service!');
     }
 
     /**
