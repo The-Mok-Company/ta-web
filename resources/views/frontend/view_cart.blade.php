@@ -1120,10 +1120,10 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="request-offer-btn" class="btn w-100 request-btn"
-                                onclick="submitInquiryRequest()" @if ($totalProducts == 0) disabled @endif>
+                            <a href="{{ route('cart.inquiry') }}" id="request-offer-btn" class="btn w-100 request-btn text-decoration-none d-flex align-items-center justify-content-center"
+                                @if ($totalProducts == 0) style="pointer-events: none; opacity: 0.6;" @endif>
                                 <span>{{ translate('Request Offer') }}</span>
-                            </button>
+                            </a>
 
                         </div>
                     </div>

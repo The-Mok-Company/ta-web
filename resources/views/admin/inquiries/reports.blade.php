@@ -108,6 +108,40 @@
     .table-modern tbody td:last-child {
         border-radius: 0 8px 8px 0;
     }
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    .status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+    }
+    .status-processing {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+    .status-completed {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+    .status-cancelled {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+    .inquiry-code {
+        font-weight: 700;
+        color: #667eea;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    .inquiry-code:hover {
+        color: #764ba2;
+    }
 </style>
 
 <div class="aiz-titlebar text-left mt-2 mb-3">
@@ -277,22 +311,28 @@
                         @forelse($recentInquiries as $inquiry)
                             <tr>
                                 <td>
-                                    <a href="{{ route('admin.inquiries.show', $inquiry->id) }}">
+                                    <a href="{{ route('admin.inquiries.show', $inquiry->id) }}" class="inquiry-code">
                                         {{ $inquiry->code ?? 'INQ-' . $inquiry->id }}
                                     </a>
                                 </td>
                                 <td>{{ $inquiry->user->name ?? 'N/A' }}</td>
                                 <td>
-                                    @php
-                                        $badgeClass = match($inquiry->status) {
-                                            'pending' => 'badge-warning',
-                                            'processing' => 'badge-info',
-                                            'completed' => 'badge-success',
-                                            'cancelled' => 'badge-danger',
-                                            default => 'badge-secondary'
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $badgeClass }}">{{ ucfirst($inquiry->status) }}</span>
+                                    @switch($inquiry->status)
+                                        @case('pending')
+                                            <span class="status-badge status-pending">{{ translate('Pending') }}</span>
+                                            @break
+                                        @case('processing')
+                                            <span class="status-badge status-processing">{{ translate('Processing') }}</span>
+                                            @break
+                                        @case('completed')
+                                            <span class="status-badge status-completed">{{ translate('Completed') }}</span>
+                                            @break
+                                        @case('cancelled')
+                                            <span class="status-badge status-cancelled">{{ translate('Cancelled') }}</span>
+                                            @break
+                                        @default
+                                            <span class="status-badge" style="background: #e2e8f0; color: #4a5568;">{{ $inquiry->status }}</span>
+                                    @endswitch
                                 </td>
                                 <td>{{ $inquiry->created_at->format('d M Y') }}</td>
                             </tr>
