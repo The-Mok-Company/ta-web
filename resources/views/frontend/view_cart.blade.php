@@ -1131,6 +1131,80 @@
 {!! json_encode($allProducts) !!}
 </script>
 
+
+
+    <section class="cart-section">
+        <div class="container py-4">
+
+            <div class="mb-4">
+                <div class="inquiry-title">{{ translate('Inquiry') }}</div>
+                <p class="text-muted fs-16" style="color: #64748b; font-weight: 500;">{{ translate('Want to inquire about anything else?') }} <a href="{{ route('categories.all') }}" class="text-primary fw-600" style="text-decoration: underline;">{{ translate('Browse Categories') }}</a></p>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Left: Products -->
+                <div class="col-lg-8" id="cart-items-container">
+                    @include('frontend.partials.cart.cart_details', ['carts' => $carts])
+                </div>
+
+                <!-- Right: Summary -->
+                <div class="col-lg-4">
+                    <div class="card summary-card">
+                        <div class="card-body p-4">
+
+                            <div class="summary-title">{{ translate('Cart Summary') }}</div>
+
+                            @php
+                                $totalProducts = isset($carts) ? count($carts) : 0;
+                                $totalItems = 0;
+                                if (isset($carts) && count($carts) > 0) {
+                                    foreach ($carts as $cart) {
+                                        $totalItems += $cart['quantity'] ?? 1;
+                                    }
+                                }
+                            @endphp
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="pill bg-primary text-white">{{ translate('Total Products') }}</div>
+                                <div class="pill bg-primary text-white" id="total-products">
+                                    {{ str_pad($totalProducts, 2, '0', STR_PAD_LEFT) }}</div>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>{{ translate('Products') }}</span>
+                                <span id="summary-products">{{ $totalProducts }} {{ translate('Products') }}</span>
+                            </div>
+
+                            <div class="summary-row mb-4">
+                                <span>{{ translate('Items') }}</span>
+                                <span id="summary-items">{{ $totalItems }} {{ translate('Items') }}</span>
+                            </div>
+
+                            <hr style="border-color:#e2e8f0;margin:24px 0">
+
+                            <textarea class="form-control mb-4 note-input" rows="3" id="inquiry-note"
+                                placeholder="{{ translate('Note...') }}"></textarea>
+
+                            <div id="inquiry-sent-msg" class="mb-4" style="display:none;">
+                                <div class="alert alert-success mb-0" style="border-radius:12px; font-weight:700;">
+                                    Your request has been sent.
+                                </div>
+                            </div>
+
+                            <a href="{{ route('cart.inquiry') }}" id="request-offer-btn" class="btn w-100 request-btn text-decoration-none d-flex align-items-center justify-content-center"
+                                @if ($totalProducts == 0) style="pointer-events: none; opacity: 0.6;" @endif>
+                                <span>{{ translate('Request Offer') }}</span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
 @endsection
 
 @section('script')
@@ -1161,7 +1235,6 @@
                 },
                 success: function(data) {
 
-                    // ✅ لو السيرفر بيرجع cart_view حدث الجزء (الأفضل عشان DOM يبقى متزامن)
                     if (data && data.cart_view !== undefined) {
                         $('#cart-items-container').html(data.cart_view);
                     } else {
@@ -1169,7 +1242,6 @@
                         if (qtyInput) qtyInput.value = newQty;
                     }
 
-                    // ✅ update nav cart
                     if (typeof updateNavCart === 'function' && data && data.nav_cart_view !== undefined) {
                         updateNavCart(data.nav_cart_view, data.cart_count);
                     }
