@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\Admin\InquiryUpdateRequest;
+use App\Utility\InquiryNotificationUtility;
 
 class InquiryController extends Controller
 {
@@ -197,6 +198,9 @@ public function store(Request $request)
             'message'     => $request->input('message'),
         ]);
 
+        // Send notification to customer
+        InquiryNotificationUtility::sendMessageNotification($inquiry, 'admin');
+
         if ($request->ajax()) {
             return response()->json([
                 'ok'   => true,
@@ -258,6 +262,9 @@ public function edit(Inquiry $inquiry)
 
     public function update(InquiryUpdateRequest $request, Inquiry $inquiry)
     {
+        // Track old status for notification
+        $oldStatus = $inquiry->status;
+
         DB::transaction(function () use ($request, $inquiry) {
 
             // 1) Update inquiry basic fields
@@ -318,6 +325,11 @@ public function edit(Inquiry $inquiry)
             }
 
         });
+
+        // Send notification if status changed
+        if ($oldStatus !== $inquiry->status) {
+            InquiryNotificationUtility::sendStatusChangedNotification($inquiry, $oldStatus);
+        }
 
         return redirect()
             ->route('admin.inquiries.show', $inquiry->id)
