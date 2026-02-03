@@ -796,6 +796,79 @@
 
 
 
+    <section class="cart-section">
+        <div class="container py-4">
+
+            <div class="mb-4">
+                <div class="inquiry-title">{{ translate('Inquiry') }}</div>
+                <p class="text-muted fs-16" style="color: #64748b; font-weight: 500;">{{ translate('Want to inquire about anything else?') }} <a href="{{ route('categories.all') }}" class="text-primary fw-600" style="text-decoration: underline;">{{ translate('Browse Categories') }}</a></p>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Left: Products -->
+                <div class="col-lg-8" id="cart-items-container">
+                    @include('frontend.partials.cart.cart_details', ['carts' => $carts])
+                </div>
+
+                <!-- Right: Summary -->
+                <div class="col-lg-4">
+                    <div class="card summary-card">
+                        <div class="card-body p-4">
+
+                            <div class="summary-title">{{ translate('Cart Summary') }}</div>
+
+                            @php
+                                $totalProducts = isset($carts) ? count($carts) : 0;
+                                $totalItems = 0;
+                                if (isset($carts) && count($carts) > 0) {
+                                    foreach ($carts as $cart) {
+                                        $totalItems += $cart['quantity'] ?? 1;
+                                    }
+                                }
+                            @endphp
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="pill bg-primary text-white">{{ translate('Total Products') }}</div>
+                                <div class="pill bg-primary text-white" id="total-products">
+                                    {{ str_pad($totalProducts, 2, '0', STR_PAD_LEFT) }}</div>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>{{ translate('Products') }}</span>
+                                <span id="summary-products">{{ $totalProducts }} {{ translate('Products') }}</span>
+                            </div>
+
+                            <div class="summary-row mb-4">
+                                <span>{{ translate('Items') }}</span>
+                                <span id="summary-items">{{ $totalItems }} {{ translate('Items') }}</span>
+                            </div>
+
+                            <hr style="border-color:#e2e8f0;margin:24px 0">
+
+                            <textarea class="form-control mb-4 note-input" rows="3" id="inquiry-note"
+                                placeholder="{{ translate('Note...') }}"></textarea>
+
+                            <div id="inquiry-sent-msg" class="mb-4" style="display:none;">
+                                <div class="alert alert-success mb-0" style="border-radius:12px; font-weight:700;">
+                                    Your request has been sent.
+                                </div>
+                            </div>
+
+                            <button type="button" id="request-offer-btn" class="btn w-100 request-btn d-flex align-items-center justify-content-center"
+                                onclick="submitInquiryRequest()"
+                                @if ($totalProducts == 0) disabled style="opacity: 0.6;" @endif>
+                                <span>{{ translate('Request Offer') }}</span>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     {{-- ✅ Categories & Products Dropdown List Section --}}
     <section class="categories-dropdown-section">
         <div class="container">
@@ -1023,8 +1096,7 @@
                     </div>
                 </div>
 
-                {{-- Products List (New 4th Column) --}}
-                {{-- Products List (New 4th Column) --}}
+                {{-- Products List (4th Column) --}}
                 <div class="col-lg-3 col-md-6">
                     <div class="category-dropdown-card">
                         <div class="category-dropdown-header active" onclick="toggleProductsList()">
@@ -1163,7 +1235,6 @@
                 },
                 success: function(data) {
 
-                    // ✅ لو السيرفر بيرجع cart_view حدث الجزء (الأفضل عشان DOM يبقى متزامن)
                     if (data && data.cart_view !== undefined) {
                         $('#cart-items-container').html(data.cart_view);
                     } else {
@@ -1171,7 +1242,6 @@
                         if (qtyInput) qtyInput.value = newQty;
                     }
 
-                    // ✅ update nav cart
                     if (typeof updateNavCart === 'function' && data && data.nav_cart_view !== undefined) {
                         updateNavCart(data.nav_cart_view, data.cart_count);
                     }
@@ -1302,6 +1372,10 @@
 
             var note = $('#inquiry-note').val();
 
+            // Debug: log items being sent
+            console.log('Sending items:', items);
+            console.log('Items JSON:', JSON.stringify(items));
+
             // UI
             $btn.prop('disabled', true);
             $btn.find('span').text("{{ translate('Sending...') }}");
@@ -1319,13 +1393,20 @@
                         AIZ.plugins.notify('success', "{{ translate('Your request has been sent') }}");
                     }
 
-                    // ✅ refresh page to show changes
-                    window.location.replace(window.location.href);
+                    // ✅ redirect to inquiries page
+                    window.location.href = "{{ route('cart.inquiry') }}";
                 },
                 error: function(xhr) {
-                    console.log(xhr.responseText);
+                    console.log('Error:', xhr.status, xhr.responseText);
+                    var errorMsg = "{{ translate('Something went wrong') }}";
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMsg = response.message;
+                        }
+                    } catch(e) {}
                     if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
-                        AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                        AIZ.plugins.notify('danger', errorMsg);
                     }
                     $btn.prop('disabled', false);
                     $btn.find('span').text("{{ translate('Request Offer') }}");
