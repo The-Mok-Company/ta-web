@@ -721,21 +721,30 @@
         }
 
         .nav-dropdown.active .dropdown-item {
-            color: #fff;
+            color: #000;
         }
 
         .nav-dropdown.active .dropdown-item span {
-            color: #fff !important;
+            color: #000 !important;
         }
 
         .nav-dropdown.active .dropdown-item:hover {
-            background: #3a3a3a;
+            background: #dbdbdb;
         }
     }
 
     .welcome-text {
         font-size: 12px;
         color: rgba(255, 255, 255, 1);
+    }
+
+    .user-name-badge {
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     #logo-iconstyle {
@@ -913,7 +922,7 @@
                                                     @if ($subHasChildren)
                                                         <div class="sub-dropdown level-2">
                                                             @foreach ($subCat->categories as $subSubCat)
-                                                                <a href="{{ route('categories.level2', $subCat->id) }}?open={{ $subSubCat->id }}" class="dropdown-item">
+                                                                <a href="{{ route('categories.level2', $mainCat->id) }}?open={{ $subSubCat->id }}" class="dropdown-item">
                                                                     <span>{{ $subSubCat->getTranslation('name') }}</span>
                                                                 </a>
                                                             @endforeach
@@ -1065,10 +1074,14 @@
             <!-- User Icon -->
             <div class="icon-btn user-menu-btn" style="position: relative; top:5px;" tabindex="0"
                 aria-label="{{ translate('Account') }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                @auth
+                    <span class="user-name-badge">{{ Str::limit(Auth::user()->name, 5, '') }}</span>
+                @else
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                @endauth
 
                 @auth
                     <div class="header-dropdown icon-dropdown">

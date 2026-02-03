@@ -295,7 +295,7 @@
         <h5 class="mb-0">
             <i class="las la-list mr-2"></i>{{ translate('All Inquiries') }}
         </h5>
-        <span class="badge badge-light text-dark">{{ $inquiries->total() }} {{ translate('records') }}</span>
+        <span style="color: white; font-size: 14px;">{{ $inquiries->total() }} {{ translate('records') }}</span>
     </div>
 
     <div class="card-body">

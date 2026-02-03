@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\CartCacheService;
+use App\Utility\InquiryNotificationUtility;
 
 class InquiryController extends Controller
 {
@@ -168,6 +169,9 @@ class InquiryController extends Controller
 
             $this->cartCacheService->clearCart($user->id, null);
 
+            // Send notification to admin about new inquiry
+            InquiryNotificationUtility::sendInquiryCreatedNotification($inquiry);
+
             return response()->json([
                 'ok'         => true,
                 'message'    => 'Inquiry created with items',
@@ -196,9 +200,14 @@ class InquiryController extends Controller
             return redirect()->back()->with('error', 'Offer not ready yet');
         }
 
+        $oldStatus = $inquiry->status;
+
         $inquiry->update([
             'status' => 'completed',
         ]);
+
+        // Send notification about status change
+        InquiryNotificationUtility::sendStatusChangedNotification($inquiry, $oldStatus);
 
         return redirect()
             ->route('cart.inquiry')
@@ -216,9 +225,14 @@ class InquiryController extends Controller
             return redirect()->back()->with('error', 'Cannot cancel this inquiry');
         }
 
+        $oldStatus = $inquiry->status;
+
         $inquiry->update([
             'status' => 'cancelled',
         ]);
+
+        // Send notification about status change
+        InquiryNotificationUtility::sendStatusChangedNotification($inquiry, $oldStatus);
 
         return redirect()
             ->route('cart.inquiry')
@@ -250,6 +264,9 @@ class InquiryController extends Controller
             'sender_type' => 'user',
             'message'     => $request->input('message'),
         ]);
+
+        // Send notification to admin
+        InquiryNotificationUtility::sendMessageNotification($inquiry, 'user');
 
         return response()->json([
             'ok'   => true,
