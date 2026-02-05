@@ -252,10 +252,11 @@
                     <div class="form-group">
                         <label class="font-weight-bold">{{ translate('Status') }}</label>
                         <select name="status" class="form-control form-control-modern">
-                            <option value="pending">{{ translate('Pending') }}</option>
-                            <option value="processing">{{ translate('Processing') }}</option>
-                            <option value="completed">{{ translate('Completed') }}</option>
-                            <option value="cancelled">{{ translate('Cancelled') }}</option>
+                            @foreach(\App\Models\Inquiry::getStatuses() as $value => $label)
+                                <option value="{{ $value }}" {{ $value == 'new' ? 'selected' : '' }}>
+                                    {{ translate($label) }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 

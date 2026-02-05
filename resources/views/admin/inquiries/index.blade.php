@@ -119,21 +119,45 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+    .status-new {
+        background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+        color: #1e40af;
+    }
     .status-pending {
         background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         color: #92400e;
     }
-    .status-processing {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        color: #1e40af;
+    .status-responded {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #3730a3;
     }
-    .status-completed {
+    .status-offer_sent {
+        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        color: #6b21a8;
+    }
+    .status-accepted {
         background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
         color: #065f46;
+    }
+    .status-rejected {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+    .status-deal_closed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
     }
     .status-cancelled {
         background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
         color: #991b1b;
+    }
+    .status-on_hold {
+        background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+        color: #78350f;
+    }
+    .status-expired {
+        background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%);
+        color: #374151;
     }
     .action-btn {
         width: 35px;
@@ -242,50 +266,92 @@
 </div>
 
 <!-- Stats Cards -->
+@php
+    $newCount = \App\Models\Inquiry::where('status', 'new')->count();
+    $pendingCount = \App\Models\Inquiry::where('status', 'pending')->count();
+    $offerSentCount = \App\Models\Inquiry::where('status', 'offer_sent')->count();
+    $acceptedCount = \App\Models\Inquiry::where('status', 'accepted')->count();
+    $dealClosedCount = \App\Models\Inquiry::where('status', 'deal_closed')->count();
+    $totalCount = \App\Models\Inquiry::count();
+@endphp
 <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="stats-card pending">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stats-number">{{ \App\Models\Inquiry::where('status', 'pending')->count() }}</div>
-                    <div class="stats-label">{{ translate('Pending') }}</div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index', ['status' => 'new']) }}" class="text-decoration-none">
+            <div class="stats-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $newCount }}</div>
+                        <div class="stats-label">{{ translate('New') }}</div>
+                    </div>
+                    <i class="las la-envelope-open" style="font-size: 2.5rem; opacity: 0.5;"></i>
                 </div>
-                <i class="las la-clock" style="font-size: 3rem; opacity: 0.5;"></i>
             </div>
-        </div>
+        </a>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stats-card processing">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stats-number">{{ \App\Models\Inquiry::where('status', 'processing')->count() }}</div>
-                    <div class="stats-label">{{ translate('Processing') }}</div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index', ['status' => 'pending']) }}" class="text-decoration-none">
+            <div class="stats-card pending">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $pendingCount }}</div>
+                        <div class="stats-label">{{ translate('Pending') }}</div>
+                    </div>
+                    <i class="las la-clock" style="font-size: 2.5rem; opacity: 0.5;"></i>
                 </div>
-                <i class="las la-spinner" style="font-size: 3rem; opacity: 0.5;"></i>
             </div>
-        </div>
+        </a>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stats-card completed">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stats-number">{{ \App\Models\Inquiry::where('status', 'completed')->count() }}</div>
-                    <div class="stats-label">{{ translate('Completed') }}</div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index', ['status' => 'offer_sent']) }}" class="text-decoration-none">
+            <div class="stats-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $offerSentCount }}</div>
+                        <div class="stats-label">{{ translate('Offer Sent') }}</div>
+                    </div>
+                    <i class="las la-paper-plane" style="font-size: 2.5rem; opacity: 0.5;"></i>
                 </div>
-                <i class="las la-check-circle" style="font-size: 3rem; opacity: 0.5;"></i>
             </div>
-        </div>
+        </a>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stats-card total">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stats-number">{{ \App\Models\Inquiry::count() }}</div>
-                    <div class="stats-label">{{ translate('Total Inquiries') }}</div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index', ['status' => 'accepted']) }}" class="text-decoration-none">
+            <div class="stats-card completed">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $acceptedCount }}</div>
+                        <div class="stats-label">{{ translate('Accepted') }}</div>
+                    </div>
+                    <i class="las la-thumbs-up" style="font-size: 2.5rem; opacity: 0.5;"></i>
                 </div>
-                <i class="las la-file-alt" style="font-size: 3rem; opacity: 0.5;"></i>
             </div>
-        </div>
+        </a>
+    </div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index', ['status' => 'deal_closed']) }}" class="text-decoration-none">
+            <div class="stats-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $dealClosedCount }}</div>
+                        <div class="stats-label">{{ translate('Deal Closed') }}</div>
+                    </div>
+                    <i class="las la-handshake" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-2 mb-3">
+        <a href="{{ route('admin.inquiries.index') }}" class="text-decoration-none">
+            <div class="stats-card total">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">{{ $totalCount }}</div>
+                        <div class="stats-label">{{ translate('Total') }}</div>
+                    </div>
+                    <i class="las la-file-alt" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
 
@@ -306,10 +372,11 @@
                     <div class="col-md-3 mb-2 mb-md-0">
                         <select class="form-control filter-input" name="status" onchange="sort_inquiries()">
                             <option value="">{{ translate('All Status') }}</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ translate('Pending') }}</option>
-                            <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>{{ translate('Processing') }}</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ translate('Completed') }}</option>
-                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>{{ translate('Cancelled') }}</option>
+                            @foreach(\App\Models\Inquiry::getStatuses() as $value => $label)
+                                <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>
+                                    {{ translate($label) }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-4 mb-2 mb-md-0">
@@ -376,22 +443,18 @@
                                     <small class="text-muted d-block">{{ translate('EGP') }}</small>
                                 </td>
                                 <td>
-                                    @switch($inquiry->status)
-                                        @case('pending')
-                                            <span class="status-badge status-pending">{{ translate('Pending') }}</span>
-                                            @break
-                                        @case('processing')
-                                            <span class="status-badge status-processing">{{ translate('Processing') }}</span>
-                                            @break
-                                        @case('completed')
-                                            <span class="status-badge status-completed">{{ translate('Completed') }}</span>
-                                            @break
-                                        @case('cancelled')
-                                            <span class="status-badge status-cancelled">{{ translate('Cancelled') }}</span>
-                                            @break
-                                        @default
-                                            <span class="status-badge" style="background: #e2e8f0; color: #4a5568;">{{ $inquiry->status }}</span>
-                                    @endswitch
+                                    @php
+                                        $statuses = \App\Models\Inquiry::getStatuses();
+                                        $statusLabel = $statuses[$inquiry->status] ?? ucfirst(str_replace('_', ' ', $inquiry->status));
+                                    @endphp
+                                    <span class="status-badge status-{{ $inquiry->status }}">
+                                        {{ translate($statusLabel) }}
+                                    </span>
+                                    @if($inquiry->isExpired())
+                                        <small class="d-block text-danger mt-1">
+                                            <i class="las la-exclamation-triangle"></i> {{ translate('Expired') }}
+                                        </small>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="font-weight-600">{{ $inquiry->created_at->format('d M, Y') }}</div>

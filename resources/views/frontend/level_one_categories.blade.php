@@ -27,6 +27,7 @@
     $heroCategory = $mainCategory ?? null;
 @endphp
 
+@section('content')
 <style>
     /* ===== Add to Inquiry button (matches featured-inquiry-btn: colors, circle, hover tooltip) ===== */
     .add-inquiry-btn .icon-check {
@@ -1064,7 +1065,6 @@
     }
 </style>
 
-@section('content')
     <div class="category-page">
 
         {{-- Hero Banner --}}
@@ -1555,3 +1555,4 @@
             });
         }, true);
     </script>
+@endsection
