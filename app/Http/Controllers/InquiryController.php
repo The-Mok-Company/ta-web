@@ -169,6 +169,9 @@ class InquiryController extends Controller
 
             $this->cartCacheService->clearCart($user->id, null);
 
+            // Refresh inquiry to get the generated code
+            $inquiry->refresh();
+
             // Send notification to admin about new inquiry
             InquiryNotificationUtility::sendInquiryCreatedNotification($inquiry);
 
