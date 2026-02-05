@@ -1,5 +1,7 @@
 @extends('backend.layouts.blank')
 
+
+@section('meta_title', 'Register')
 @section('content')
 
 

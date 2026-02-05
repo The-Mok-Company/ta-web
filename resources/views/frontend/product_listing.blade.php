@@ -1,5 +1,8 @@
 @extends('frontend.layouts.app')
 
+@section('meta_title', 'Product Listing')
+
+
 @php
     $form_all_preorder_page = session('preorder_all_page');
     session()->forget('preorder_all_page');
@@ -146,8 +149,8 @@
         }
 
         /* =======================
-                                                                                                           CATEGORY SIDEBAR (LIKE IMAGE)
-                                                                                                        ======================= */
+                                                                                                               CATEGORY SIDEBAR (LIKE IMAGE)
+                                                                                                            ======================= */
 
         .category-list {
             list-style: none;
@@ -198,8 +201,8 @@
         }
 
         /* =======================
-                                                                                                           CHILDREN
-                                                                                                        ======================= */
+                                                                                                               CHILDREN
+                                                                                                            ======================= */
 
         .category-children {
             list-style: none;
@@ -229,8 +232,8 @@
         }
 
         /* =======================
-                                                                                                           SUB CHILD
-                                                                                                        ======================= */
+                                                                                                               SUB CHILD
+                                                                                                            ======================= */
 
         .category-children .category-children {
             padding-left: 12px;
@@ -1246,7 +1249,7 @@
                                                             @if ($level1Category->childrenCategories && $level1Category->childrenCategories->count() > 0)
                                                                 <div
                                                                     class="category-header {{ $isLevel1Active ? 'active' : '' }}">
-                                                                    <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                    <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
                                                                         class="category-name">
                                                                         <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     </a>
@@ -1285,7 +1288,7 @@
                                                                             @if ($level2Category->childrenCategories && $level2Category->childrenCategories->count() > 0)
                                                                                 <div
                                                                                     class="category-header {{ $isLevel2Active ? 'active' : '' }}">
-                                                                                    <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                    <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                                         class="category-name">
                                                                                         <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                     </a>
@@ -1298,7 +1301,7 @@
                                                                                     @foreach ($level2Category->childrenCategories as $level3Category)
                                                                                         <li
                                                                                             class="{{ $currentCategoryId == $level3Category->id ? 'active' : '' }}">
-                                                                                            <a href="{{ route('products.level2', $level3Category->id) }}"
+                                                                                            <a href="{{ route('categories.level2', $level3Category->id) }}?open={{ $level3Category->id }}"
                                                                                                 class="category-link">
                                                                                                 <span>{{ $level3Category->getTranslation('name') }}</span>
                                                                                                 <i
@@ -1308,7 +1311,7 @@
                                                                                     @endforeach
                                                                                 </ul>
                                                                             @else
-                                                                                <a href="{{ route('products.level2', $level2Category->id) }}"
+                                                                                <a href="{{ route('categories.level2', $level2Category->id) }}?open={{ $level2Category->id }}"
                                                                                     class="category-link">
                                                                                     <span>{{ $level2Category->getTranslation('name') }}</span>
                                                                                 </a>
@@ -1317,7 +1320,7 @@
                                                                     @endforeach
                                                                 </ul>
                                                             @else
-                                                                <a href="{{ route('products.level2', $level1Category->id) }}"
+                                                                <a href="{{ route('categories.level2', $level1Category->id) }}?open={{ $level1Category->id }}"
                                                                     class="category-link">
                                                                     <span>{{ $level1Category->getTranslation('name') }}</span>
                                                                     <i class="fas fa-chevron-right"></i>

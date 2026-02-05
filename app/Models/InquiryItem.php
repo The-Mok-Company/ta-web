@@ -17,8 +17,13 @@ class InquiryItem extends Model
         'quantity',
         'unit',
         'note',
+        'user_note',
+        'price',
     ];
-
+protected $casts = [
+  'quantity' => 'decimal:3',
+  'price'    => 'decimal:2',
+];
     public function inquiry()
     {
         return $this->belongsTo(Inquiry::class);

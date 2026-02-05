@@ -4,16 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Inquiry extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'code','user_id','admin_id','note','status',
-        'products_total','categories_total','subtotal',
-        'tax','delivery','discount','extra_fees','total',
+        'code',
+        'user_id',
+        'admin_id',
+        'note',
+        'user_note',
+        'status',
+        'products_total',
+        'categories_total',
+        'subtotal',
+        'tax',
+        'delivery',
+        'discount',
+        'extra_fees',
+        'total',
     ];
 
     protected $casts = [
@@ -27,17 +37,29 @@ class Inquiry extends Model
         'total'            => 'decimal:2',
     ];
 
+    /**
+     * Auto-generate inquiry code AFTER record is created
+     * Example: INQ-000123
+     */
     protected static function booted()
     {
-        static::creating(function (Inquiry $inquiry) {
+        static::created(function (Inquiry $inquiry) {
+
             if (empty($inquiry->code)) {
-                $inquiry->code = 'INQ-' . strtoupper(Str::random(10));
+                $inquiry->updateQuietly([
+                    'code' => 'INQ-' . str_pad($inquiry->id, 6, '0', STR_PAD_LEFT),
+                ]);
             }
+
             if (empty($inquiry->status)) {
-                $inquiry->status = 'draft';
+                $inquiry->updateQuietly([
+                    'status' => 'pending',
+                ]);
             }
         });
     }
+
+    /* ================= Relations ================= */
 
     public function items()
     {
@@ -52,5 +74,10 @@ class Inquiry extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(InquiryNote::class)->orderBy('created_at', 'asc');
     }
 }

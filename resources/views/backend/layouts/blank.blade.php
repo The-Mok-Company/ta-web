@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Favicon -->
-  	<title>{{ config('app.name', 'eCommerce') }}</title>
+  	<title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
 
     <!-- google font -->
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"> --}}

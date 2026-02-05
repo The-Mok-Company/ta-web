@@ -1,7 +1,66 @@
-<!-- Last Viewed Products  -->
-
-
 <!-- footer Description -->
+<style>
+    /* Policy tiles (top bar) */
+    .footer-policy-bar .policy-file a {
+        color: #fff;
+        /* Use inset shadow instead of borders to avoid border "shifting" / double-thick lines */
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-decoration: none;
+    }
+
+    .footer-policy-bar .policy-file .policy-title {
+        color: #fff;
+        transition: color 0.25s ease;
+    }
+
+    .footer-policy-bar .policy-file svg path {
+        fill: #fff !important;
+        transition: fill 0.25s ease;
+    }
+
+    .footer-policy-bar .policy-file a:hover {
+        /* On hover: change text/icon to blue accent, white background */
+        background: #fff;
+        transform: translateY(-1px);
+    }
+
+    .footer-policy-bar .policy-file a:hover .policy-title {
+        color: var(--blue) !important;
+    }
+
+    .footer-policy-bar .policy-file a:hover svg path {
+        fill: var(--blue) !important;
+    }
+
+    /* Remove default heading spacing that can misalign borders */
+    .footer-policy-bar .policy-file h4 {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Give each tile its own clean white border via inset shadow (no nth-child rules needed). */
+
+    #logofootre {
+        height: 40px;
+    }
+
+    @media (max-width: 768px) {
+        #logofootre {
+            height: 20px;
+        }
+    }
+
+    /* Keep SVG icons consistent without per-item padding hacks */
+    .footer-policy-bar .policy-file svg {
+        display: block;
+    }
+</style>
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
         <div class="container py-32px">
@@ -27,12 +86,12 @@
 @endif
 
 <!-- footer top Bar -->
-<section class="bg-light border-top mt-auto">
+<section class="bg-light border-top mt-auto footer-policy-bar">
     <div class="container px-xs-0">
         <div class="row no-gutters border-left border-soft-light">
             <!-- Terms & conditions -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('terms') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="26.004" height="32" viewBox="0 0 26.004 32">
                         <path id="Union_8" data-name="Union 8"
@@ -40,13 +99,14 @@
                             transform="translate(14513.998 -18900.002)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}
+                    </h4>
                 </a>
             </div>
 
             <!-- Return Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('returnpolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.001" height="23.971" viewBox="0 0 32.001 23.971">
                         <path id="Union_7" data-name="Union 7"
@@ -54,13 +114,13 @@
                             transform="translate(14514.001 -18900)" fill="rgba(255, 255, 255, 1)" />
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
                 </a>
             </div>
 
             <!-- Support Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100  border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('supportpolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.002" height="32.002" viewBox="0 0 32.002 32.002">
                         <g id="Group_24198" data-name="Group 24198" transform="translate(-1113.999 -2398)">
@@ -84,13 +144,13 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
                 </a>
             </div>
 
             <!-- Privacy Policy -->
             <div class="col-lg-3 col-6 policy-file">
-                <a class="text-reset h-100 border-right border-bottom border-soft-light text-center p-2 p-md-4 d-block hov-ls-1"
+                <a class="text-reset h-100 text-center p-2 p-md-4 d-block"
                     href="{{ route('privacypolicy') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <g id="Group_24236" data-name="Group 24236" transform="translate(-1454.002 -2430.002)">
@@ -106,7 +166,7 @@
                         </g>
                     </svg>
 
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
+                    <h4 class="policy-title fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
                 </a>
             </div>
         </div>
@@ -127,7 +187,7 @@
             <div class="footer-left">
                 <div class="logo">
                     @if ($branding && isset($branding->value['logo_image']) && $branding->value['logo_image'])
-                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" style="height: 40px;">
+                        <img src="{{ asset($branding->value['logo_image']) }}" alt="Logo" id="logofootre">
                     @else
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3b9df8" />

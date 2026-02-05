@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Cookie;
+use Session;
+use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Carrier;
-use Illuminate\Http\Request;
+use App\Models\Country;
+use App\Models\Inquiry;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Cart;
-use App\Models\Country;
-use Auth;
 use App\Utility\CartUtility;
+use Illuminate\Http\Request;
 use App\Services\CartCacheService;
-use Session;
-use Cookie;
 
 class CartController extends Controller
 {
@@ -24,10 +25,12 @@ class CartController extends Controller
         $this->cartCacheService = $cartCacheService;
     }
 
+
     public function index(Request $request)
     {
         $user_id = null;
         $temp_user_id = null;
+         $Category = Category::get();
 
         if (auth()->user() != null) {
             $user_id = Auth::user()->id;
@@ -48,12 +51,13 @@ class CartController extends Controller
             $carts = $this->cartCacheService->getCartItemsAsCollection($user_id, $temp_user_id);
         }
 
-        return view('frontend.view_cart', compact('carts'));
+        return view('frontend.view_cart', compact('carts', 'Category'));
     }
 
     public function showCartModal(Request $request)
     {
         $product = Product::find($request->id);
+
         return view('frontend.partials.cart.addToCart', compact('product'));
     }
 
@@ -303,18 +307,15 @@ public function updateQuantity(Request $request)
         ]);
     }
 
-    // ✅ الكمية الجديدة
     $newQuantity = (int) $request->quantity;
     if ($newQuantity < 1) $newQuantity = 1;
     if ($newQuantity < (int)$product->min_qty) $newQuantity = (int)$product->min_qty;
 
-    // ✅ هات الستوك للـ variant أو أول ستوك
     $variant = $cartItem['variation'] ?? '';
     $product_stock = $product->stocks->where('variant', $variant)->first();
     if (!$product_stock) $product_stock = $product->stocks->first();
 
     if (!$product_stock) {
-        // مفيش ستوك أصلاً
         return response()->json([
             'cart_count'    => $this->cartCacheService->getCartCount($user_id, $temp_user_id),
             'status'        => 0,
@@ -323,11 +324,9 @@ public function updateQuantity(Request $request)
         ], 400);
     }
 
-    // ✅ stock limit
     $maxQty = (int) $product_stock->qty;
     if ($maxQty > 0 && $newQuantity > $maxQty) $newQuantity = $maxQty;
 
-    // ✅ احسب السعر بنفس منطق addToCart
     $price = CartUtility::get_price($product, $product_stock, $newQuantity);
     $tax   = CartUtility::tax_calculation($product, $price);
 
@@ -400,4 +399,25 @@ public function updateQuantity(Request $request)
 
         return view('frontend.partials.cart.cart_details', compact('carts'))->render();
     }
+    public function tracking(Request $request)
+    {
+        return view('frontend.tracking');
+    }
+
+    public function inquiry(Request $request)
+    {
+        $user = Auth::user();
+
+        $inquiries = Inquiry::where('user_id', $user->id)
+            ->with([
+                'items.product:id,name,unit_price,thumbnail_img',
+                'items.category:id,name,banner',
+                'notes.user:id,name'
+            ])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('frontend.inquiry', compact('inquiries'));
+    }
+    
 }

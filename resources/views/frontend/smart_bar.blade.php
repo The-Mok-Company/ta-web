@@ -28,65 +28,30 @@
                         </h6>
                     </div>
 
-                    <!-- Price -->
-                    <div class="flex-shrink-0 d-flex align-items-center" style="gap: 0.3rem;">
-                        <div class="fw-700 d-block d-sm-none"
-                            style="font-size: 18px; font-weight:700; color: {{ $text_color }}">
-                            {{ home_discounted_price($detailedProduct) }}
-                        </div>
+                    {{-- Prices hidden for inquiry-based system --}}
 
-                        <div class="d-none d-sm-flex align-items-center" style="gap: 0.3rem;">
-                            @if (home_price($detailedProduct) != home_discounted_price($detailedProduct))
-                                <div class="fw-700" style="font-size: 20px; font-weight:700; color: {{ $text_color }}">
-                                    {{ home_discounted_price($detailedProduct) }}
-                                </div>
-                                <div class="text-center" style="font-size: 14px; color: {{ $text_color }}">
-                                    <del class="opacity-70">{{ home_price($detailedProduct) }}</del><br>
-                                    <span class="fw-600">{{ discount_in_percentage($detailedProduct) }}% OFF</span>
-                                </div>
-                            @else
-                                <div class="fw-700" style="font-size: 20px; font-weight:700; color: {{ $text_color }}">
-                                    {{ home_discounted_price($detailedProduct) }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Add to cart button -->
+                    <!-- Add to Inquiry button -->
                     <div class="flex-shrink-0">
-                        @if ($detailedProduct->digital == 0)
-                            @if (((get_setting('product_external_link_for_seller') == 1) && ($detailedProduct->added_by == "seller") && ($detailedProduct->external_link != null)) ||
-                                (($detailedProduct->added_by != "seller") && ($detailedProduct->external_link != null)))
-                            @else
-                                @if ( (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0) )
-                                    <a href="javascript:void(0)"
-                                    class="btn btn-secondary-base mr-2 add-to-cart fw-600 rounded-0 text-white"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="showAddToCartModal({{ $detailedProduct->id }})" @else onclick="showLoginModal()" @endif>
-                                        <i class="las la-shopping-bag"></i>
-                                        <span class="d-none d-sm-inline">{{ translate('Add to cart') }}</span>
-                                    </a>
-                                @else
-                                    <button type="button"
-                                            class="btn btn-secondary-base mr-2 add-to-cart fw-600 rounded-0 text-white"
-                                            @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
-                                        <i class="las la-shopping-bag"></i>
-                                        <span class="d-none d-sm-inline">{{ translate('Add to cart') }}</span>
-                                    </button>
-                                @endif
-                            @endif
-
-                            <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
-                                <i class="la la-cart-arrow-down"></i>
-                                <span class="d-none d-sm-inline">{{ translate('Out of Stock') }}</span>
-                            </button>
-                        @elseif ($detailedProduct->digital == 1)
-                            <button type="button"
-                                    class="btn btn-secondary-base mr-2 add-to-cart fw-600 rounded-0 text-white"
-                                    @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
-                                <i class="las la-shopping-bag"></i>
-                                <span class="d-none d-sm-inline">{{ translate('Add to cart') }}</span>
-                            </button>
-                        @endif
+                        @php
+                            $detailHasVariants = false;
+                            try {
+                                $detailColors = is_string($detailedProduct->colors ?? null) ? json_decode($detailedProduct->colors, true) : ($detailedProduct->colors ?? []);
+                                $detailChoice = is_string($detailedProduct->choice_options ?? null) ? json_decode($detailedProduct->choice_options, true) : ($detailedProduct->choice_options ?? []);
+                                $detailHasVariants = (is_array($detailColors) && count($detailColors) > 0) || (is_array($detailChoice) && count($detailChoice) > 0);
+                            } catch (\Throwable $e) {
+                                $detailHasVariants = false;
+                            }
+                        @endphp
+                        <button type="button"
+                                class="btn btn-add-inquiry fw-600 rounded-0 text-white"
+                                style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border: none;"
+                                data-product-id="{{ $detailedProduct->id }}"
+                                data-has-variants="{{ $detailHasVariants ? 1 : 0 }}"
+                                data-min-qty="{{ (int) $detailedProduct->min_qty }}"
+                                onclick="event.preventDefault(); event.stopPropagation(); featuredInquiryAction(this);">
+                            <i class="las la-plus"></i>
+                            <span class="d-none d-sm-inline">{{ translate('Add to Inquiry') }}</span>
+                        </button>
                     </div>
                     <div class="flex-shrink-0">
                         <!-- Close button -->

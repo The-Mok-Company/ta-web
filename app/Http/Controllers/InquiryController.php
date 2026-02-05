@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
 use App\Models\InquiryItem;
+use App\Models\InquiryNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\CartCacheService;
+use App\Utility\InquiryNotificationUtility;
 
 class InquiryController extends Controller
 {
@@ -18,43 +20,81 @@ class InquiryController extends Controller
         $this->cartCacheService = $cartCacheService;
     }
 
+    public function index()
+    {
+        // (1) Ensure user is logged in
+        if (!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+
+        // (2) Fetch user inquiries (latest first)
+        $inquiries = Inquiry::query()
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(15);
+
+        // (3) Return view
+        return view('frontend.user.inquiries.index', compact('inquiries'));
+    }
+ /**
+     * Show one inquiry details page
+     * ✅ this is what fixes "Undefined variable $inquiry"
+     */
+    public function show($id)
+    {
+        $user = Auth::user();
+
+        $inquiry = Inquiry::with([
+                'items.product',
+                'items.category',
+            ])
+            ->where('id', $id)
+            ->where('user_id', $user->id) // security: user only sees his inquiries
+            ->firstOrFail();
+
+        return view('frontend.inquiries.show', compact('inquiry'));
+    }
+
     public function requestOffer(Request $request)
     {
+        // (1) Ensure user is authenticated
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        // (2) Get current user
         $user = Auth::user();
 
-        // note
+        // (3) Get inquiry note (optional)
         $note = (string) $request->input('note', '');
 
-        // ✅ items جايه string (JSON.stringify) => نفكها
+        // (4) Get items (may come as JSON string)
         $items = $request->input('items');
         $items = is_string($items) ? json_decode($items, true) : $items;
 
+        // (5) Validate items not empty
         if (!is_array($items) || count($items) === 0) {
             return response()->json(['message' => 'Items are empty'], 422);
         }
 
-        // ✅ Validate basic structure
-        // كل item لازم يبقى فيه type + quantity (اختياري) + product_id/category_id
-        $normalized = [];
-        $productsTotal = 0;
+        // (6) Normalize + validate items structure
+        $normalized      = [];
+        $productsTotal   = 0;
         $categoriesTotal = 0;
 
         foreach ($items as $it) {
+            // (6.1) Validate type
             $type = $it['type'] ?? null;
             if (!in_array($type, ['product', 'category'], true)) {
                 continue;
             }
 
-            $cartId = isset($it['cart_id']) ? (string) $it['cart_id'] : null;
-
+            // (6.2) Read IDs
+            $cartId     = isset($it['cart_id']) ? (string) $it['cart_id'] : null;
             $productId  = isset($it['product_id']) ? (int) $it['product_id'] : null;
             $categoryId = isset($it['category_id']) ? (int) $it['category_id'] : null;
 
-            // type validation
+            // (6.3) Validate required ID based on type
             if ($type === 'product' && (!$productId || $productId < 1)) {
                 continue;
             }
@@ -62,37 +102,47 @@ class InquiryController extends Controller
                 continue;
             }
 
+            // (6.4) Quantity default + safety
             $qty = isset($it['quantity']) ? (int) $it['quantity'] : 1;
             if ($qty < 1) $qty = 1;
 
+            // (6.5) Item note (optional)
             $itemNote = isset($it['note']) ? (string) $it['note'] : null;
 
-            if ($type === 'product') $productsTotal++;
+            // (6.6) Totals counters
+            if ($type === 'product')  $productsTotal++;
             if ($type === 'category') $categoriesTotal++;
 
+            // (6.7) Build normalized array
             $normalized[] = [
-                'type'        => $type,
-                'cart_id'      => $cartId,
-                'product_id'   => $productId,
-                'category_id'  => $categoryId,
-                'quantity'     => $qty,
-                'note'         => $itemNote,
+                'type'       => $type,
+                'cart_id'     => $cartId,
+                'product_id'  => $productId,
+                'category_id' => $categoryId,
+                'quantity'    => $qty,
+                'note'        => $itemNote,
             ];
         }
 
+        // (7) Validate normalized not empty
         if (count($normalized) === 0) {
             return response()->json(['message' => 'No valid items'], 422);
         }
 
+        // (8) Start DB transaction
         DB::beginTransaction();
         try {
+            // (8.1) Create inquiry (status = pending)
             $inquiry = Inquiry::create([
                 'user_id'          => $user->id,
                 'admin_id'         => null,
-                'note'             => $note,
-                'status'           => 'submitted',
+                'user_note'        => $note,  // User's note (read-only for admin)
+                'note'             => null,   // Admin's note (editable by admin)
+                'status'           => 'pending',
+
                 'products_total'   => $productsTotal,
                 'categories_total' => $categoriesTotal,
+
                 'subtotal'         => 0,
                 'tax'              => 0,
                 'delivery'         => 0,
@@ -101,40 +151,167 @@ class InquiryController extends Controller
                 'total'            => 0,
             ]);
 
+            // (8.2) Create inquiry items
             foreach ($normalized as $it) {
                 InquiryItem::create([
-                    'inquiry_id' => $inquiry->id,
-                    'type'       => $it['type'],
-                    'product_id' => $it['type'] === 'product' ? $it['product_id'] : null,
-                    'category_id'=> $it['type'] === 'category' ? $it['category_id'] : null,
-                    'quantity'   => $it['quantity'],
-                    'unit'       => null, // لو عندك unit في InquiryItem سيبها أو املاها
-                    'note'       => $it['note'],
-
-                    // ✅ لو عندك عمود cart_id في جدول inquiry_items (اختياري)
-                    // 'cart_id' => $it['cart_id'],
+                    'inquiry_id'  => $inquiry->id,
+                    'type'        => $it['type'],
+                    'product_id'  => $it['type'] === 'product' ? $it['product_id'] : null,
+                    'category_id' => $it['type'] === 'category' ? $it['category_id'] : null,
+                    'quantity'    => $it['quantity'],
+                    'unit'        => null,
+                    'user_note'   => $it['note'],  // User's note (read-only for admin)
+                    'note'        => null,         // Admin's note (editable by admin)
                 ]);
             }
 
             DB::commit();
 
-            // ✅✅✅ تفريغ السلة بعد نجاح إنشاء الـ Inquiry
-            // بما إن السلة عندك في الكاش (CartCacheService)
             $this->cartCacheService->clearCart($user->id, null);
 
+            // Refresh inquiry to get the generated code
+            $inquiry->refresh();
+
+            // Send notification to admin about new inquiry
+            InquiryNotificationUtility::sendInquiryCreatedNotification($inquiry);
+
             return response()->json([
-                'ok' => true,
-                'message' => 'Inquiry created with items',
+                'ok'         => true,
+                'message'    => 'Inquiry created with items',
                 'inquiry_id' => $inquiry->id,
             ]);
         } catch (\Throwable $e) {
+            // (12) Rollback on error
             DB::rollBack();
 
             return response()->json([
-                'ok' => false,
+                'ok'      => false,
                 'message' => 'Failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function acceptOffer($id)
+    {
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // User can only accept when status is 'processing'
+        if ($inquiry->status !== 'processing') {
+            return redirect()->back()->with('error', 'Offer not ready yet');
+        }
+
+        $oldStatus = $inquiry->status;
+
+        $inquiry->update([
+            'status' => 'completed',
+        ]);
+
+        // Send notification about status change
+        InquiryNotificationUtility::sendStatusChangedNotification($inquiry, $oldStatus);
+
+        return redirect()
+            ->route('cart.inquiry')
+            ->with('success', 'Offer accepted successfully');
+    }
+
+    public function cancelOffer($id)
+    {
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // User can only cancel when status is 'processing'
+        if ($inquiry->status !== 'processing') {
+            return redirect()->back()->with('error', 'Cannot cancel this inquiry');
+        }
+
+        $oldStatus = $inquiry->status;
+
+        $inquiry->update([
+            'status' => 'cancelled',
+        ]);
+
+        // Send notification about status change
+        InquiryNotificationUtility::sendStatusChangedNotification($inquiry, $oldStatus);
+
+        return redirect()
+            ->route('cart.inquiry')
+            ->with('success', 'Inquiry cancelled successfully');
+    }
+
+    public function addNote(Request $request, $id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // User can only add notes when status is not completed or cancelled
+        if (in_array($inquiry->status, ['completed', 'cancelled'])) {
+            return response()->json(['message' => 'Cannot add notes to this inquiry'], 403);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:2000',
+        ]);
+
+        $note = InquiryNote::create([
+            'inquiry_id'  => $inquiry->id,
+            'user_id'     => Auth::id(),
+            'sender_type' => 'user',
+            'message'     => $request->input('message'),
+        ]);
+
+        // Send notification to admin
+        InquiryNotificationUtility::sendMessageNotification($inquiry, 'user');
+
+        return response()->json([
+            'ok'   => true,
+            'note' => [
+                'id'          => $note->id,
+                'message'     => $note->message,
+                'sender_type' => $note->sender_type,
+                'user_name'   => Auth::user()->name,
+                'created_at'  => $note->created_at->format('d M Y - H:i'),
+            ],
+        ]);
+    }
+
+    public function getNotes($id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $inquiry = Inquiry::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $lastId = request()->input('last_id', 0);
+
+        $notes = $inquiry->notes()
+            ->where('id', '>', $lastId)
+            ->with('user:id,name')
+            ->get()
+            ->map(function ($note) {
+                return [
+                    'id'          => $note->id,
+                    'message'     => $note->message,
+                    'sender_type' => $note->sender_type,
+                    'user_name'   => $note->user->name ?? 'Unknown',
+                    'created_at'  => $note->created_at->format('d M Y - H:i'),
+                ];
+            });
+
+        return response()->json([
+            'ok'    => true,
+            'notes' => $notes,
+        ]);
     }
 }

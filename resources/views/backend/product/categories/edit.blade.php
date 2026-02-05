@@ -53,7 +53,7 @@
                     <div class="form-group mb-3">
                         <label class="col-form-label">{{translate('Parent Category')}}</label>
                         <select class="select2 form-control aiz-selectpicker" name="parent_id" data-toggle="select2" data-placeholder="Choose ..."data-live-search="true" data-selected="{{ $category->parent_id }}">
-                            @include('backend.product.categories.categories_option_edit', ['categories' => $categories])
+                            @include('backend.product.categories.categories_option_edit', ['categories' => $categories, 'category' => $category])
                         </select>
                     </div>
                     <div class="form-group mb-3">
@@ -138,33 +138,38 @@
 @section('script')
 
 <script type="text/javascript">
+    var currentParentId = {{ json_encode($category->parent_id ?? 0) }};
     function categoriesByType(val){
-          $('.type-option').removeClass('border-primary');
-          $('.type-option[data-value="'+val+'"]').addClass('border-primary');
+        $('.type-option').removeClass('border-primary');
+        $('.type-option[data-value="'+val+'"]').addClass('border-primary');
         $('select[name="parent_id"]').html('');
         AIZ.plugins.bootstrapSelect('refresh');
         $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            type:"POST",
-            url:'{{ route('categories.categories-by-type') }}',
-            data:{
-               digital: val
+            type: "POST",
+            url: '{{ route('categories.categories-by-type') }}',
+            data: {
+                digital: val,
+                selected_parent_id: currentParentId
             },
             success: function(data) {
                 $('select[name="parent_id"]').html(data);
                 AIZ.plugins.bootstrapSelect('refresh');
+                if (currentParentId && $('select[name="parent_id"] option[value="'+currentParentId+'"]').length) {
+                    $('select[name="parent_id"]').val(currentParentId);
+                    AIZ.plugins.bootstrapSelect('refresh');
+                }
             }
         });
     }
     $(document).ready(function() {
         const checkedRadio = $('input[name="digital"]:checked').val();
-        if(checkedRadio !== undefined){
+        if (checkedRadio !== undefined) {
             $('.type-option[data-value="'+checkedRadio+'"]').addClass('border-primary');
         }
     });
-   
 </script>
 
 @endsection

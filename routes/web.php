@@ -66,9 +66,25 @@ use App\Models\User;
   |
  */
 
+// admin password
 
- Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
-        ->name('inquiry.requestOffer');
+
+
+Route::post('/inquiries/request-offer', [InquiryController::class, 'requestOffer'])
+    ->name('inquiry.requestOffer');
+Route::post('/inquiries/{id}/accept', [InquiryController::class, 'acceptOffer'])
+    ->name('inquiries.accept');
+Route::post('/inquiries/{id}/cancel', [InquiryController::class, 'cancelOffer'])
+    ->name('inquiries.cancel');
+Route::post('/inquiries/{id}/notes', [InquiryController::class, 'addNote'])
+    ->name('inquiries.addNote');
+Route::get('/inquiries/{id}/notes', [InquiryController::class, 'getNotes'])
+    ->name('inquiries.getNotes');
+Route::get('/inquiries/{id}', [InquiryController::class, 'show'])->name('inquiries.show');
+
+Route::get('/search/ajax', [HomeController::class, 'ajaxSearch'])->name('search.ajax');
+Route::get('/search/initial', [HomeController::class, 'initialSearch'])->name('search.initial');
+
 Route::get('update-admin', function () {
     User::where('email', 'mokdev18@gmail.com')
         ->update([
@@ -223,7 +239,7 @@ Route::controller(SearchController::class)->group(function () {
     Route::get('/search', 'index')->name('search');
     Route::get('/search?keyword={search}', 'index')->name('suggestion.search');
     Route::get('/search2', 'index2')->name('suggestion.search2');
-    Route::post('/ajax-search', 'ajax_search')->name('search.ajax');
+    // Route::post('/ajax-search', 'ajax_search')->name('search.ajax');
     Route::get('/category/{category_slug}', 'listingByCategory')->name('products.category');
     Route::get('/category-level2/{category_slug}', 'listingByCategory2')->name('categories.level2');
     Route::get('/products-level2/{id}', 'levelTwoProducts')->name('products.level2');
@@ -235,9 +251,14 @@ Route::controller(CartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart');
     Route::post('/cart/show-cart-modal', 'showCartModal')->name('cart.showCartModal');
     Route::post('/cart/addtocart', 'addToCart')->name('cart.addToCart');
-    Route::post('/cart/addCategoryToCart', 'addCategoryToCart')->name('cart.addCategoryToCart');    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
+    Route::post('/cart/addCategoryToCart', 'addCategoryToCart')->name('cart.addCategoryToCart');
+    Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/updateCartStatus', 'updateCartStatus')->name('cart.updateCartStatus');
+    Route::get('/cart/tracking', 'tracking')->name('cart.tracking');
+    Route::get('/cart/inquiry', 'inquiry')->name('cart.inquiry')->middleware('auth');
+
+
 });
 
 //Paypal START
@@ -302,6 +323,9 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
         Route::post('/new-user-email', 'update_email')->name('user.change.email');
         Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
     });
+
+    // My Inquiries (submitted inquiry requests)
+    Route::get('/my-inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
 
     Route::controller(NotificationController::class)->group(function () {
         Route::get('/all-notifications', 'customerIndex')->name('customer.all-notifications');
@@ -438,6 +462,9 @@ Route::get('/join_us', [HomeController::class, 'join_us'])->name('join_us');
 Route::post('/partner',  [PartnerController::class, 'store'])
     ->name('partner.store');
 Route::get('/contact_us', [HomeController::class, 'contact_us'])->name('contact_us');
+Route::post('/contact_us/form', [HomeController::class, 'store'])->name('contact.store');
+
+
 
 
 Route::get('/instamojo/payment/pay-success', [InstamojoController::class, 'success'])->name('instamojo.success');
@@ -543,3 +570,14 @@ Route::controller(PageController::class)->group(function () {
 Route::controller(ContactController::class)->group(function () {
     Route::post('/contact', 'contact')->name('contact');
 });
+Route::prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('inquiries', \App\Http\Controllers\Admin\InquiryController::class);
+        Route::post('inquiries/{inquiry}/notes', [\App\Http\Controllers\Admin\InquiryController::class, 'addNote'])
+            ->name('inquiries.addNote');
+        Route::get('inquiries/{inquiry}/notes', [\App\Http\Controllers\Admin\InquiryController::class, 'getNotes'])
+            ->name('inquiries.getNotes');
+        Route::get('inquiries-reports', [\App\Http\Controllers\Admin\InquiryController::class, 'reports'])
+            ->name('inquiries.reports');
+    });

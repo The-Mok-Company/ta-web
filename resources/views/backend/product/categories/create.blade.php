@@ -37,8 +37,11 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class=" col-form-label">{{translate('Parent Category')}}</label>
+                        @if(isset($selected_parent_id) && $selected_parent_id)
+                        <p class="text-muted small mb-1">{{ translate('Adding sub category under selected parent.') }}</p>
+                        @endif
                         <select class="select2 form-control aiz-selectpicker" name="parent_id" data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
-                            @include('backend.product.categories.categories_option', ['categories' => $categories])
+                            @include('backend.product.categories.categories_option', ['categories' => $categories, 'selected_parent_id' => $selected_parent_id ?? null])
                             {{-- <option value="0">{{ translate('No Parent') }}</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
@@ -128,6 +131,7 @@
 @section('script')
 
 <script type="text/javascript">
+    var selectedParentId = {{ json_encode($selected_parent_id ?? null) }};
     function categoriesByType(val){
         $('.type-option').removeClass('border-primary');
         $('.type-option[data-value="'+val+'"]').addClass('border-primary');
@@ -140,11 +144,16 @@
             type:"POST",
             url:'{{ route('categories.categories-by-type') }}',
             data:{
-               digital: val
+               digital: val,
+               selected_parent_id: selectedParentId || ''
             },
             success: function(data) {
                 $('select[name="parent_id"]').html(data);
                 AIZ.plugins.bootstrapSelect('refresh');
+                if (selectedParentId && $('select[name="parent_id"] option[value="'+selectedParentId+'"]').length) {
+                    $('select[name="parent_id"]').val(selectedParentId);
+                    AIZ.plugins.bootstrapSelect('refresh');
+                }
             }
         });
     }

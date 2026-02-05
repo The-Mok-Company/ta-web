@@ -1,8 +1,10 @@
 @extends('frontend.layouts.app')
 
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+@section('meta_title', 'Home Page')
 
 @section('content')
     <style>
@@ -127,26 +129,60 @@
             opacity: 1;
         }
 
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 60px;
-            height: 60px;
+        /* Hero controls: fixed size + centered (override Bootstrap defaults) */
+        #heroCarousel .carousel-control-prev,
+        #heroCarousel .carousel-control-next {
+            position: absolute;
+            top: 50%;
+            bottom: auto; /* override Bootstrap bottom:0 */
+            transform: translateY(-50%);
+
+            width: 51px;  /* override Bootstrap width:15% */
+            height: 51px;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             background-color: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: all 0.3s ease;
+            opacity: 0.85;
+            transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
             z-index: 3;
             border: none;
         }
 
-        .carousel-control-prev {
-            left: 40px;
+        #heroCarousel .carousel-control-prev { left: 12px; }
+        #heroCarousel .carousel-control-next { right: 12px; }
+
+        /* Smaller screens: smaller buttons + icons */
+        @media (max-width: 576px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 42px;
+                height: 42px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 18px;
+                height: 18px;
+            }
         }
 
-        .carousel-control-next {
-            right: 40px;
+        @media (max-width: 360px) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                width: 36px;
+                height: 36px;
+            }
+
+            #heroCarousel .carousel-control-prev-icon,
+            #heroCarousel .carousel-control-next-icon {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         .hero-carousel:hover .carousel-control-prev,
@@ -154,8 +190,16 @@
             opacity: 1;
         }
 
-        .carousel-control-prev:hover,
-        .carousel-control-next:hover {
+        /* Touch devices: always show controls (no hover) */
+        @media (hover: none) and (pointer: coarse) {
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                opacity: 1;
+            }
+        }
+
+        #heroCarousel .carousel-control-prev:hover,
+        #heroCarousel .carousel-control-next:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -165,6 +209,7 @@
             height: 24px;
             background-size: 100% 100%;
         }
+
 
         /* Second Section Styles */
         .customers-section {
@@ -209,7 +254,7 @@
         .customers-section .about-link {
             display: inline-flex;
             align-items: center;
-            color: #007bff;
+            color: var(--blue);
             font-size: 1rem;
             font-weight: 500;
             text-decoration: none;
@@ -217,7 +262,7 @@
         }
 
         .customers-section .about-link:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .customers-section .about-link svg {
@@ -287,7 +332,7 @@
             border-radius: 50%;
             border: none;
             background-color: #f8f9fa;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -296,7 +341,7 @@
         }
 
         .categories-section .arrow-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
         }
 
@@ -442,14 +487,17 @@
             color: white;
             font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
         }
 
         .gather-section .top-bar .text-content p {
             color: rgba(255, 255, 255, 0.85);
             font-size: 0.95rem;
             margin: 0;
+            margin-top: 0;
             max-width: 450px;
+            line-height: 1.5;
         }
 
         .gather-section .top-bar .explore-btn {
@@ -536,11 +584,11 @@
 
         @media (max-width: 768px) {
             .hero-content h1 {
-                font-size: 2.5rem;
+                font-size: 2.0rem;
             }
 
             .hero-content p {
-                font-size: 1rem;
+                font-size: 0.6rem;
             }
 
             .carousel-control-prev,
@@ -624,148 +672,6 @@
     </style>
 
     <style>
-        /* Our Categories Section - New Design */
-        .categories-section-new {
-            padding: clamp(40px, 8vw, 80px) 0;
-            background-color: #ffffff;
-            position: relative;
-        }
-
-        .categories-section-new .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(15px, 3vw, 30px);
-            margin-bottom: clamp(30px, 5vw, 50px);
-            flex-wrap: wrap;
-            padding: 0 15px;
-        }
-
-        .categories-section-new .section-header h2 {
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0;
-            text-align: center;
-        }
-
-        .categories-section-new .nav-btn {
-            width: clamp(40px, 5vw, 45px);
-            height: clamp(40px, 5vw, 45px);
-            border-radius: 50%;
-            border: none;
-            background-color: white;
-            color: #007bff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .categories-section-new .nav-btn:hover {
-            background-color: #007bff;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .categories-slider-new {
-            position: relative;
-            overflow: hidden;
-            padding: 0 15px;
-        }
-
-        .categories-wrapper-new {
-            display: flex;
-            gap: clamp(15px, 2vw, 25px);
-            transition: transform 0.5s ease;
-            padding: 10px 0;
-        }
-
-        .category-card-new {
-            flex: 0 0 calc(33.333% - 17px);
-            position: relative;
-            border-radius: clamp(12px, 2vw, 20px);
-            overflow: hidden;
-            height: clamp(200px, 30vw, 280px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: block;
-        }
-
-        .category-card-new:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .category-card-new img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .category-card-new:hover img {
-            transform: scale(1.08);
-        }
-
-        .category-card-new::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
-            z-index: 1;
-        }
-
-        .category-card-new .cart-icon {
-            position: absolute;
-            top: clamp(12px, 2vw, 20px);
-            left: clamp(12px, 2vw, 20px);
-            width: clamp(36px, 5vw, 42px);
-            height: clamp(36px, 5vw, 42px);
-            background-color: rgb(0, 0, 0);
-            border-radius: 50px;
-            display: flex;
-            color: white;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .category-card-new:hover .cart-icon {
-            background-color: white;
-            color: #000;
-            transform: scale(1.1);
-        }
-
-        .category-card-new .cart-icon svg {
-            width: clamp(18px, 2.5vw, 22px);
-            height: clamp(18px, 2.5vw, 22px);
-        }
-
-        .category-card-new .content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: clamp(15px, 3vw, 25px);
-            z-index: 2;
-            color: white;
-        }
-
-        .category-card-new .content h3 {
-            font-size: clamp(1.2rem, 3vw, 1.6rem);
-            font-weight: 700;
-            margin: 0;
-        }
-
         /* Featured Products Section */
         .featured-products-section {
             padding: clamp(40px, 6vw, 60px) 0 clamp(50px, 8vw, 80px) 0;
@@ -807,7 +713,7 @@
             border-radius: 50%;
             border: none;
             background-color: white;
-            color: #007bff;
+            color: var(--blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -818,13 +724,13 @@
         }
 
         .featured-products-section .nav-btn:hover {
-            background-color: #007bff;
+            background-color: var(--blue);
             color: white;
             transform: scale(1.05);
         }
 
         .featured-products-section .view-all {
-            color: #007bff;
+            color: var(--blue);
             text-decoration: none;
             font-weight: 500;
             font-size: clamp(0.85rem, 2vw, 0.95rem);
@@ -833,7 +739,7 @@
         }
 
         .featured-products-section .view-all:hover {
-            color: #0056b3;
+            color: var(--hov-blue);
         }
 
         .products-slider {
@@ -851,14 +757,16 @@
         .product-card {
             flex: 0 0 calc(25% - 15px);
             background: white;
-            border-radius: clamp(12px, 2vw, 15px);
+            border-radius: clamp(12px, 2vw, 16px);
             overflow: hidden;
             cursor: pointer;
-            padding: clamp(12px, 2vw, 16px);
+            padding: clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px) clamp(8px, 1.5vw, 12px);
             transition: all 0.3s ease;
             text-decoration: none;
-            display: block;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f0f0f0;
         }
 
         .product-card:hover {
@@ -869,8 +777,10 @@
         .product-card .image-wrapper {
             position: relative;
             width: 100%;
-            height: clamp(150px, 20vw, 200px);
+            aspect-ratio: 1 / 1;
             overflow: hidden;
+            border-radius: clamp(8px, 1.5vw, 12px);
+            background: #f5f5f5;
         }
 
         .product-card .image-wrapper img {
@@ -885,68 +795,103 @@
             transform: scale(1.1);
         }
 
-        .product-card .add-btn {
+        /* Home featured card action icons (match category-page cards) */
+        .product-card .featured-action-icons {
             position: absolute;
-            bottom: clamp(10px, 1.5vw, 15px);
-            right: clamp(10px, 1.5vw, 15px);
+            top: clamp(8px, 1.5vw, 12px);
+            right: clamp(8px, 1.5vw, 12px);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1vw, 8px);
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover .featured-action-icons {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .product-card .featured-action-btn {
             width: clamp(32px, 4vw, 36px);
             height: clamp(32px, 4vw, 36px);
-            background-color: #1a1a1a;
-            border-radius: 18px;
+            border-radius: 50%;
             border: none;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 0;
-            z-index: 2;
-            transition: width 0.4s ease,
-                padding 0.4s ease,
-                background-color 0.3s ease;
-        }
-
-        .product-card .add-btn svg {
-            width: clamp(16px, 2vw, 18px);
-            height: clamp(16px, 2vw, 18px);
-            flex-shrink: 0;
-        }
-
-        .product-card .add-btn .btn-text {
-            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
-            font-weight: 500;
-            opacity: 0;
-            max-width: 0;
-            margin-left: 0;
-            transform: translateX(-10px);
             transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            color: #6c757d;
+            position: relative;
+            overflow: hidden;
         }
 
-        .product-card .add-btn:hover {
-            background-color: #000000;
-            width: auto;
-            padding: 0 16px 0 12px;
+        .product-card .featured-action-btn svg {
+            width: clamp(14px, 2vw, 16px);
+            height: clamp(14px, 2vw, 16px);
         }
 
-        .product-card .add-btn:hover .btn-text {
-            opacity: 1;
-            max-width: 150px;
-            margin-left: 8px;
-            transform: translateX(0);
+        .product-card .featured-action-btn:hover {
+            background: #007bff;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .product-card .featured-inquiry-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(33, 150, 243, 0.25);
+        }
+
+        .product-card .featured-inquiry-btn:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            box-shadow: 0 10px 22px rgba(33, 150, 243, 0.35);
+        }
+
+        .product-card .featured-inquiry-btn .icon-check { display: none; }
+        .product-card .featured-inquiry-btn.is-added .icon-default { display: none; }
+        .product-card .featured-inquiry-btn.is-added .icon-check { display: block; }
+
+        .product-card .featured-inquiry-btn.is-loading {
+            opacity: .92;
+            pointer-events: none;
+        }
+
+        .product-card .featured-inquiry-btn.is-added::before {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(22,163,74,.35) 0%, rgba(22,163,74,0) 70%);
+            animation: featuredRipple .6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes featuredRipple {
+            0% { opacity: 0; transform: scale(.7); }
+            30% { opacity: 1; }
+            100% { opacity: 0; transform: scale(1.25); }
         }
 
         .product-card .product-info {
-            padding: clamp(12px, 2.5vw, 20px);
-            max-height: clamp(60px, 8vw, 70px);
+            padding: clamp(10px, 2vw, 14px) 0 0 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .product-card .product-info h3 {
             font-size: clamp(0.95rem, 2vw, 1.1rem);
             font-weight: 600;
             color: #1a1a1a;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            margin-top: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -958,16 +903,21 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            margin: 0;
+        }
+
+        .product-info {
+            cursor: pointer;
+        }
+
+        .product-info:hover .featured-product-category {
+            text-decoration: underline;
         }
 
         /* ================= Responsive Media Queries ================= */
 
         /* Large Tablets and Small Desktops */
         @media (max-width: 1024px) {
-            .category-card-new {
-                flex: 0 0 calc(50% - 12px);
-            }
-
             .product-card {
                 flex: 0 0 calc(33.333% - 14px);
             }
@@ -975,22 +925,18 @@
 
         /* Tablets */
         @media (max-width: 768px) {
-            .categories-section-new .section-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .category-card-new {
-                flex: 0 0 calc(50% - 10px);
-                height: clamp(180px, 35vw, 220px);
-            }
-
             .product-card {
                 flex: 0 0 calc(50% - 10px);
             }
 
             .product-card .image-wrapper {
-                height: clamp(140px, 25vw, 180px);
+                aspect-ratio: 1 / 1;
+            }
+
+            /* Show action icons on touch/mobile */
+            .product-card .featured-action-icons {
+                opacity: 1;
+                transform: translateX(0);
             }
 
             .featured-products-section .section-header {
@@ -1005,24 +951,14 @@
 
         /* Mobile Devices */
         @media (max-width: 640px) {
-            .categories-section-new {
-                padding: 30px 0;
-            }
-
-            .category-card-new {
-                flex: 0 0 100%;
-                height: clamp(220px, 50vw, 280px);
-            }
-
             .product-card {
                 flex: 0 0 100%;
             }
 
             .product-card .image-wrapper {
-                height: clamp(200px, 50vw, 250px);
+                aspect-ratio: 1 / 1;
             }
 
-            .categories-wrapper-new,
             .products-wrapper {
                 gap: 15px;
             }
@@ -1030,8 +966,6 @@
 
         /* Small Mobile Devices */
         @media (max-width: 480px) {
-
-            .categories-section-new .nav-btn,
             .featured-products-section .nav-btn {
                 width: 36px;
                 height: 36px;
@@ -1051,7 +985,6 @@
                 padding: 15px;
             }
 
-            .categories-slider-new,
             .products-slider {
                 padding: 0 10px;
             }
@@ -1063,14 +996,8 @@
 
         /* Extra Small Devices */
         @media (max-width: 360px) {
-
-            .categories-section-new .section-header h2,
             .featured-products-section .section-header h2 {
                 font-size: 1.3rem;
-            }
-
-            .category-card-new .content h3 {
-                font-size: 1.1rem;
             }
 
             .product-card .product-info h3 {
@@ -1078,8 +1005,6 @@
             }
         }
     </style>
-
-
 
     @php
         use App\Models\HomePage;
@@ -1091,7 +1016,7 @@
 
     <!-- Carousel Section -->
     <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel">
-        <div class="carousel-indicators">
+        <div class="carousel-indicators" style="margin-bottom: 20px;">
             @if ($hero && isset($hero->value['slides']))
                 @foreach ($hero->value['slides'] as $index => $slide)
                     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $index }}"
@@ -1201,372 +1126,90 @@
             </div>
         </div>
     </section>
-   <!-- Categories Slider Section -->
-<section class="categories-section-new">
-    <div class="container">
-        <div class="section-header">
-            <button class="nav-btn" id="categoriesPrevBtn" type="button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 18l-6-6 6-6" />
-                </svg>
-            </button>
 
-            <h2>Our Categories</h2>
+    <!-- Our Categories -->
+    @include('frontend.classic.partials.our_categories_section', ['categories' => $categories, 'lang' => $lang])
 
-            <button class="nav-btn" id="categoriesNextBtn" type="button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 18l6-6-6-6" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="categories-slider-new">
-            <div class="categories-wrapper-new" id="categoriesWrapperNew">
-                @foreach ($categories as $category)
-                    @php
-                        $categoryName = $category->getTranslation('name', $lang);
-
-                        $categoryImage = null;
-                        if ($category->banner) {
-                            $categoryImage = uploaded_asset($category->banner);
-                        } elseif ($category->cover_image) {
-                            $categoryImage = uploaded_asset($category->cover_image);
-                        }
-
-                        if (!$categoryImage) {
-                            $lowerName = strtolower($categoryName);
-                            if (str_contains($lowerName, 'bakery') || str_contains($lowerName, 'bread')) {
-                                $categoryImage = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800';
-                            } elseif (str_contains($lowerName, 'beverage') || str_contains($lowerName, 'juice')) {
-                                $categoryImage = 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800';
-                            } elseif (str_contains($lowerName, 'frozen')) {
-                                $categoryImage = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
-                            } else {
-                                $categoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800';
-                            }
-                        }
-
-                        $categoryUrl = route('products.category', $category->slug);
-                    @endphp
-
-                    <a href="{{ $categoryUrl }}" class="category-card-new">
-                        <!-- left icon -->
-                        <div class="cart-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="9" cy="21" r="1" />
-                                <circle cx="20" cy="21" r="1" />
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                            </svg>
-                        </div>
-
-                        <!-- ✅ Add Button -->
-                        <button type="button"
-                                class="category-add-btn js-add-category"
-                                data-id="{{ $category->id }}"
-                                data-name="{{ $categoryName }}"
-                                title="{{ translate('Add to Cart') }}">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14M5 12h14"/>
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="header-left">
+                    <h2>{{ translate('Hot products') }}</h2>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" id="productsPrevBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 18l-6-6 6-6" />
                             </svg>
                         </button>
-
-                        <img src="{{ $categoryImage }}" alt="{{ $categoryName }}"
-                             onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'">
-
-                        <div class="content">
-                            <h3>{{ $categoryName }}</h3>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-    .categories-section-new { padding: 40px 0; }
-    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
-    .section-header h2 { margin:0; font-weight:700; }
-
-    .nav-btn{
-        width:44px;height:44px;border-radius:50%;
-        border:1px solid #e5e7eb;background:#fff;
-        display:flex;align-items:center;justify-content:center;
-        cursor:pointer;
-    }
-
-    .categories-slider-new{ overflow:hidden; }
-    .categories-wrapper-new{
-        display:flex; gap:18px;
-        transition:transform .35s ease;
-        will-change: transform;
-    }
-
-    .category-card-new{
-        position:relative;
-        min-width:240px;
-        border-radius:16px;
-        overflow:hidden;
-        text-decoration:none;
-        box-shadow:0 2px 10px rgba(0,0,0,.12);
-        transform:translateZ(0);
-    }
-
-    .category-card-new img{
-        width:100%;
-        height:190px;
-        object-fit:cover;
-        display:block;
-    }
-
-    .category-card-new::before{
-        content:'';
-        position:absolute; inset:0;
-        background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.6) 100%);
-        z-index:1;
-    }
-
-    .category-card-new .content{
-        position:absolute;
-        left:14px; right:14px; bottom:14px;
-        z-index:2;
-    }
-
-    .category-card-new .content h3{
-        margin:0;
-        color:#fff;
-        font-size:1.05rem;
-        font-weight:700;
-        text-shadow:0 2px 6px rgba(0,0,0,.4);
-    }
-
-    .cart-icon{
-        position:absolute;
-        top:12px; left:12px;
-        width:40px;height:40px;
-        border-radius:50%;
-        background:#fff;
-        display:flex;align-items:center;justify-content:center;
-        z-index:3;
-        box-shadow:0 2px 8px rgba(0,0,0,.15);
-    }
-    .cart-icon svg{ width:20px;height:20px; color:#111; }
-
-    /* ✅ Add button */
-    .category-add-btn{
-        position:absolute;
-        top:12px; right:12px;
-        width:40px;height:40px;
-        border-radius:50%;
-        border:none;
-        background:#0891B2;
-        color:#fff;
-        display:flex;align-items:center;justify-content:center;
-        z-index:4;
-        cursor:pointer;
-        opacity:0;
-        transform:scale(.95);
-        transition: .25s ease;
-        box-shadow:0 2px 10px rgba(0,0,0,.2);
-    }
-    .category-card-new:hover .category-add-btn{
-        opacity:1;
-        transform:scale(1);
-    }
-    .category-add-btn:hover{ background:#0E7490; transform:scale(1.07); }
-    .category-add-btn svg{ color:#fff; }
-</style>
-
-<script>
-    (function () {
-        const wrapper = document.getElementById('categoriesWrapperNew');
-        const prevBtn = document.getElementById('categoriesPrevBtn');
-        const nextBtn = document.getElementById('categoriesNextBtn');
-
-        if (!wrapper || !prevBtn || !nextBtn) return;
-
-        // احسب خطوة الحركة حسب عرض كارد + الجاب
-        function getStep() {
-            const firstCard = wrapper.querySelector('.category-card-new');
-            if (!firstCard) return 260;
-            const cardWidth = firstCard.getBoundingClientRect().width;
-
-            // gap من CSS (fallback 18)
-            const styles = window.getComputedStyle(wrapper);
-            const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
-
-            return cardWidth + gap;
-        }
-
-        let currentX = 0;
-
-        function getMaxTranslate() {
-            const parent = wrapper.parentElement; // categories-slider-new
-            const parentWidth = parent.getBoundingClientRect().width;
-            const contentWidth = wrapper.scrollWidth;
-            const max = Math.max(0, contentWidth - parentWidth);
-            return max;
-        }
-
-        function apply() {
-            wrapper.style.transform = `translateX(${-currentX}px)`;
-        }
-
-        function clamp() {
-            const max = getMaxTranslate();
-            if (currentX < 0) currentX = 0;
-            if (currentX > max) currentX = max;
-        }
-
-        nextBtn.addEventListener('click', function () {
-            currentX += getStep();
-            clamp();
-            apply();
-        });
-
-        prevBtn.addEventListener('click', function () {
-            currentX -= getStep();
-            clamp();
-            apply();
-        });
-
-        window.addEventListener('resize', function () {
-            clamp();
-            apply();
-        });
-
-        // ✅ منع فتح لينك الكاتيجوري عند الضغط على +
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('.js-add-category');
-            if (!btn) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const categoryId = btn.getAttribute('data-id');
-            const categoryName = btn.getAttribute('data-name') || 'Category';
-
-            addCategoryToCart(categoryId, categoryName);
-        });
-
-        // ✅ AJAX Add Category to Cart
-        function addCategoryToCart(categoryId, categoryName) {
-            $.ajax({
-                type: "POST",
-                url: '{{ route("cart.addCategoryToCart") }}',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    category_id: categoryId
-                },
-                success: function (data) {
-                    if (data && data.status == 1) {
-
-                        if (data.cart_count !== undefined) {
-                            $('.cart-count').html(data.cart_count);
-                        }
-
-                        if (data.message === 'Category already in cart') {
-                            AIZ.plugins.notify('warning', categoryName + " {{ translate('is already in cart') }}");
-                        } else {
-                            AIZ.plugins.notify('success', categoryName + " {{ translate('added to cart successfully') }}");
-                        }
-
-                    } else {
-                        AIZ.plugins.notify('danger', (data && data.message) ? data.message : "{{ translate('Something went wrong') }}");
-                    }
-                },
-                error: function () {
-                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                }
-            });
-        }
-    })();
-</script>
-
-
-   <!-- Featured Products Section -->
-<section class="featured-products-section">
-    <div class="container">
-        <div class="section-header">
-            <div class="header-left">
-                <h2>Featured Products</h2>
-                <div class="nav-buttons">
-                    <button class="nav-btn" id="productsPrevBtn" type="button">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 18l-6-6 6-6" />
-                        </svg>
-                    </button>
-                    <button class="nav-btn" id="productsNextBtn" type="button">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 18l6-6-6-6" />
-                        </svg>
-                    </button>
+                        <button class="nav-btn" id="productsNextBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+                <a href="#" class="view-all">View All</a>
             </div>
-            <a href="#" class="view-all">View All</a>
-        </div>
 
-        <div class="products-slider">
-            <div class="products-wrapper" id="productsWrapper">
-                @php
-                    $featuredProducts = \App\Models\Product::where('published', 1)
-                        ->where('approved', 1)
-                        ->where('featured', 1)
-                        ->take(8)
-                        ->get();
-
-                    if ($featuredProducts->count() < 4) {
-                        $featuredProducts = \App\Models\Product::where('published', 1)
-                            ->where('approved', 1)
-                            ->orderBy('num_of_sale', 'desc')
-                            ->take(8)
-                            ->get();
-                    }
-
-                    if ($featuredProducts->count() == 0) {
-                        $featuredProducts = \App\Models\Product::where('published', 1)
-                            ->where('approved', 1)
-                            ->orderBy('created_at', 'desc')
-                            ->take(8)
-                            ->get();
-                    }
-                @endphp
-
-                @foreach ($featuredProducts as $product)
+            <div class="products-slider">
+                <div class="products-wrapper" id="productsWrapper">
                     @php
-                        $productName = $product->getTranslation('name', $lang);
-                        $productImage = uploaded_asset($product->thumbnail_img);
-                        $productUrl = route('product', $product->slug);
+                        $featuredProducts = \App\Models\Product::where('published', 1)
+                            ->where('approved', 1)
+                            ->where('featured', 1)
+                            ->take(8)
+                            ->get();
+
+                        if ($featuredProducts->count() < 4) {
+                            $featuredProducts = \App\Models\Product::where('published', 1)
+                                ->where('approved', 1)
+                                ->orderBy('num_of_sale', 'desc')
+                                ->take(8)
+                                ->get();
+                        }
+
+                        if ($featuredProducts->count() == 0) {
+                            $featuredProducts = \App\Models\Product::where('published', 1)
+                                ->where('approved', 1)
+                                ->orderBy('created_at', 'desc')
+                                ->take(8)
+                                ->get();
+                        }
                     @endphp
 
-                    <a href="{{ $productUrl }}" class="product-card">
-                        <div class="image-wrapper">
-                            <img src="{{ $productImage }}" alt="{{ $productName }}"
-                                 onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'">
+                    @foreach ($featuredProducts as $product)
+                        @php
+                            $productName = $product->getTranslation('name', $lang);
+                            $productImage = uploaded_asset($product->thumbnail_img);
+                            $productUrl = route('product', $product->slug);
 
-                            <!-- ✅ Add to DB Button -->
-                            <button type="button"
-                                    class="add-btn js-add-featured"
-                                    data-id="{{ $product->id }}"
-                                    data-name="{{ $productName }}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                <span class="btn-text">Inquire Now</span>
-                            </button>
-                        </div>
+                            $category = \App\Models\Category::find($product->category_id);
+                            $categoryName = $category?->getTranslation('name');
+                            $categoryUrl = $category ? (route('categories.level2', $category->id) . '?open=' . $category->id) : '#';
 
-                        <div class="product-info">
-                            <h3>{{ $productName }}</h3>
-                            <p>{{ $product->category ? $product->category->getTranslation('name', $lang) : 'Products' }}</p>
-                        </div>
-                    </a>
-                @endforeach
+                            $hasVariants = $product->choice_options && count(json_decode($product->choice_options, true)) > 0;
+                        @endphp
+
+                        @include('frontend.components.product_card', [
+                            'product' => $product,
+                            'lang' => $lang,
+                            'productName' => $productName,
+                            'productImage' => $productImage,
+                            'productUrl' => $productUrl,
+                            'categoryName' => $categoryName ?? translate('Products'),
+                            'categoryUrl' => $categoryUrl,
+                            'useCategoryRedirect' => true,
+                            'useModal' => false,
+                            'showBadges' => false,
+                        ])
+                    @endforeach
+                </div>
             </div>
         </div>
-    </div>
-</section>
-
+    </section>
 
     <!-- Gather Quality Section -->
     <section class="gather-section">
@@ -1647,209 +1290,220 @@
         </script>
     @endif
 
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Categories slider
-            const categoriesWrapper = document.getElementById('categoriesWrapperNew');
-            const categoriesPrevBtn = document.getElementById('categoriesPrevBtn');
-            const categoriesNextBtn = document.getElementById('categoriesNextBtn');
+            // Our Categories slider + Add-to-Inquiry logic moved to:
+            // resources/views/frontend/classic/partials/our_categories_section.blade.php
 
-            if (categoriesWrapper && categoriesPrevBtn && categoriesNextBtn) {
-                let categoriesIndex = 0;
-
-                setTimeout(() => {
-                    const firstCard = categoriesWrapper.querySelector('.category-card-new');
-                    if (firstCard) {
-                        const cardWidth = firstCard.offsetWidth + 25;
-
-                        categoriesNextBtn.addEventListener('click', () => {
-                            const maxScroll = categoriesWrapper.scrollWidth - categoriesWrapper
-                                .parentElement.offsetWidth;
-                            if (categoriesIndex < maxScroll) {
-                                categoriesIndex += cardWidth;
-                                if (categoriesIndex > maxScroll) categoriesIndex = maxScroll;
-                                categoriesWrapper.style.transform =
-                                    `translateX(-${categoriesIndex}px)`;
-                            }
-                        });
-
-                        categoriesPrevBtn.addEventListener('click', () => {
-                            if (categoriesIndex > 0) {
-                                categoriesIndex -= cardWidth;
-                                if (categoriesIndex < 0) categoriesIndex = 0;
-                                categoriesWrapper.style.transform =
-                                    `translateX(-${categoriesIndex}px)`;
-                            }
-                        });
-                    }
-                }, 100);
-            }
-
-            // Products slider
+            // ==========================================
+            // Products Slider Navigation (infinite loop)
+            // ==========================================
             const productsWrapper = document.getElementById('productsWrapper');
             const productsPrevBtn = document.getElementById('productsPrevBtn');
             const productsNextBtn = document.getElementById('productsNextBtn');
 
             if (productsWrapper && productsPrevBtn && productsNextBtn) {
-                let productsIndex = 0;
+                const slider = {
+                    wrapper: productsWrapper,
+                    viewport: productsWrapper.parentElement,
+                    prevBtn: productsPrevBtn,
+                    nextBtn: productsNextBtn,
+                    originalCount: 0,
+                    clonesEachSide: 0,
+                    index: 0,
+                    step: 0,
+                    isAnimating: false,
+                    transition: 'transform 0.5s ease',
+                };
 
-                setTimeout(() => {
-                    const firstProduct = productsWrapper.querySelector('.product-card');
-                    if (firstProduct) {
-                        const productWidth = firstProduct.offsetWidth + 20;
+                function getStep() {
+                    const first = slider.wrapper.querySelector('.product-card');
+                    if (!first) return 0;
+                    const cardWidth = first.getBoundingClientRect().width;
+                    const styles = window.getComputedStyle(slider.wrapper);
+                    const gap = parseFloat(styles.columnGap || styles.gap || 0) || 0;
+                    return cardWidth + gap;
+                }
 
-                        productsNextBtn.addEventListener('click', () => {
-                            const maxScroll = productsWrapper.scrollWidth - productsWrapper
-                                .parentElement.offsetWidth;
-                            if (productsIndex < maxScroll) {
-                                productsIndex += productWidth;
-                                if (productsIndex > maxScroll) productsIndex = maxScroll;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                function getItemsPerView(step) {
+                    if (!step) return 1;
+                    const width = slider.viewport.getBoundingClientRect().width;
+                    return Math.max(1, Math.round(width / step));
+                }
+
+                function removeClones() {
+                    slider.wrapper.querySelectorAll('.product-card.is-clone').forEach((n) => n.remove());
+                }
+
+                function buildInfiniteLoop() {
+                    removeClones();
+
+                    const originals = Array.from(slider.wrapper.querySelectorAll('.product-card')).filter(
+                        (n) => !n.classList.contains('is-clone')
+                    );
+
+                    slider.originalCount = originals.length;
+                    slider.step = getStep();
+
+                    const perView = getItemsPerView(slider.step);
+                    slider.clonesEachSide = Math.min(perView, slider.originalCount);
+
+                    // Not enough items to loop cleanly.
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.index = 0;
+                        slider.wrapper.style.transition = '';
+                        slider.wrapper.style.transform = 'translateX(0px)';
+                        return;
+                    }
+
+                    // Prepend clones of last N cards
+                    originals
+                        .slice(-slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.insertBefore(clone, slider.wrapper.firstChild);
                         });
 
-                        productsPrevBtn.addEventListener('click', () => {
-                            if (productsIndex > 0) {
-                                productsIndex -= productWidth;
-                                if (productsIndex < 0) productsIndex = 0;
-                                productsWrapper.style.transform = `translateX(-${productsIndex}px)`;
-                            }
+                    // Append clones of first N cards
+                    originals
+                        .slice(0, slider.clonesEachSide)
+                        .map((n) => n.cloneNode(true))
+                        .forEach((clone) => {
+                            clone.classList.add('is-clone');
+                            slider.wrapper.appendChild(clone);
+                        });
+
+                    // Start on the first real slide (after prepended clones)
+                    slider.index = slider.clonesEachSide;
+                    slider.wrapper.style.transition = 'none';
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                    requestAnimationFrame(() => {
+                        slider.wrapper.style.transition = slider.transition;
+                    });
+                }
+
+                function goToIndex(nextIndex) {
+                    slider.index = nextIndex;
+                    slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                }
+
+                function next() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index + 1);
+                }
+
+                function prev() {
+                    if (slider.isAnimating || slider.originalCount <= slider.clonesEachSide) return;
+                    slider.isAnimating = true;
+                    goToIndex(slider.index - 1);
+                }
+
+                slider.nextBtn.addEventListener('click', next);
+                slider.prevBtn.addEventListener('click', prev);
+
+                slider.wrapper.addEventListener('transitionend', () => {
+                    if (slider.originalCount <= slider.clonesEachSide) {
+                        slider.isAnimating = false;
+                        return;
+                    }
+
+                    // If we moved onto the appended "first" clone, jump back to the real first.
+                    if (slider.index === slider.clonesEachSide + slider.originalCount) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
                         });
                     }
-                }, 100);
+
+                    // If we moved onto the prepended "last" clone, jump back to the real last.
+                    if (slider.index === slider.clonesEachSide - 1) {
+                        slider.wrapper.style.transition = 'none';
+                        slider.index = slider.clonesEachSide + slider.originalCount - 1;
+                        slider.wrapper.style.transform = `translateX(-${slider.index * slider.step}px)`;
+                        requestAnimationFrame(() => {
+                            slider.wrapper.style.transition = slider.transition;
+                        });
+                    }
+
+                    slider.isAnimating = false;
+                });
+
+                // Init + keep responsive
+                setTimeout(buildInfiniteLoop, 50);
+                let resizeTimer = null;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(buildInfiniteLoop, 120);
+                });
             }
         });
+
+        // Featured Products Inquiry Function
+        function featuredInquiryAction(btnEl) {
+            try {
+                const btn = btnEl;
+                const productId = parseInt(btn?.dataset?.productId || '0', 10);
+                const hasVariants = (btn?.dataset?.hasVariants || '0') === '1';
+
+                if (!productId) return;
+
+                if (hasVariants) {
+                    if (typeof showAddToCartModal === 'function') {
+                        showAddToCartModal(productId);
+                    }
+                    return;
+                }
+
+                if (btn.classList.contains('is-loading')) return;
+                btn.classList.add('is-loading');
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('cart.addToCart') }}",
+                    data: {
+                        id: productId,
+                        quantity: 1,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(data) {
+                        if (data) {
+                            if (data.cart_count !== undefined) {
+                                const c = (data.cart_count === undefined || data.cart_count === null) ? 0 : data.cart_count;
+                                $('.cart-count').html(c).attr('data-count', c);
+                            }
+                            if (data.nav_cart_view) {
+                                $('#cart_items').html(data.nav_cart_view);
+                            }
+                            if (typeof flashHeaderCartSuccess === 'function') {
+                                flashHeaderCartSuccess();
+                            }
+
+                            btn.classList.remove('is-loading');
+                            btn.classList.add('is-added');
+                            window.setTimeout(() => btn.classList.remove('is-added'), 1200);
+
+                            try {
+                                if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                                    AIZ.plugins.notify('success', "{{ translate('Added to inquiry') }}");
+                                }
+                            } catch (e) {}
+                        }
+                    },
+                    error: function() {
+                        btn.classList.remove('is-loading');
+                        try {
+                            if (typeof AIZ !== 'undefined' && AIZ.plugins && typeof AIZ.plugins.notify === 'function') {
+                                AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
+                            }
+                        } catch (e) {}
+                    }
+                });
+            } catch (e) {
+                console.error('Error in featuredInquiryAction:', e);
+            }
+        }
     </script>
-@endsection
-@section('script')
-<script>
-(function () {
-    // =========================
-    // Slider (prev/next)
-    // =========================
-    const wrapper = document.getElementById('productsWrapper');
-    const prevBtn = document.getElementById('productsPrevBtn');
-    const nextBtn = document.getElementById('productsNextBtn');
-
-    if (wrapper && prevBtn && nextBtn) {
-
-        function getStep() {
-            const firstCard = wrapper.querySelector('.product-card');
-            if (!firstCard) return 260;
-
-            const cardWidth = firstCard.getBoundingClientRect().width;
-            const styles = window.getComputedStyle(wrapper);
-            const gap = parseFloat(styles.columnGap || styles.gap || 18) || 18;
-
-            return cardWidth + gap;
-        }
-
-        let currentX = 0;
-
-        function getMaxTranslate() {
-            const parent = wrapper.parentElement; // .products-slider
-            const parentWidth = parent.getBoundingClientRect().width;
-            const contentWidth = wrapper.scrollWidth;
-            return Math.max(0, contentWidth - parentWidth);
-        }
-
-        function clamp() {
-            const max = getMaxTranslate();
-            if (currentX < 0) currentX = 0;
-            if (currentX > max) currentX = max;
-        }
-
-        function apply() {
-            wrapper.style.transform = `translateX(${-currentX}px)`;
-        }
-
-        nextBtn.addEventListener('click', function () {
-            currentX += getStep();
-            clamp();
-            apply();
-        });
-
-        prevBtn.addEventListener('click', function () {
-            currentX -= getStep();
-            clamp();
-            apply();
-        });
-
-        window.addEventListener('resize', function () {
-            clamp();
-            apply();
-        });
-    }
-
-    // =========================
-    // Helpers: update nav cart
-    // =========================
-    function applyNavCart(navHtml, count) {
-        // لو عندك updateNavCart في الثيم
-        if (typeof updateNavCart === 'function') {
-            updateNavCart(navHtml, count);
-            return;
-        }
-        // fallback
-        if (navHtml) $('.aiz-top-cart').html(navHtml);
-        if (count !== undefined) $('.cart-count').text(count);
-    }
-
-    // =========================
-    // Add to Cart / DB (AJAX)
-    // =========================
-    document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.js-add-featured');
-        if (!btn) return;
-
-        // ✅ يمنع فتح صفحة المنتج
-        e.preventDefault();
-        e.stopPropagation();
-
-        const productId = btn.getAttribute('data-id');
-        const productName = btn.getAttribute('data-name') || 'Product';
-
-        addFeaturedToCart(btn, productId, productName);
-    });
-
-    function addFeaturedToCart(btn, productId, productName) {
-        if (!productId) return;
-
-        // UX: disable while request
-        btn.disabled = true;
-
-        $.ajax({
-            type: "POST",
-            url: "{{ route('cart.addToCart') }}", // ✅ نفس الليستنج
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                id: productId,
-                quantity: 1
-            },
-            success: function (data) {
-
-                // ✅ لو بيرجع nav_cart_view + cart_count زي عندك
-                if (data && data.nav_cart_view !== undefined) {
-                    applyNavCart(data.nav_cart_view, data.cart_count);
-                }
-
-                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
-                    AIZ.plugins.notify('success', productName + " {{ translate('added to cart successfully') }}");
-                }
-            },
-            error: function () {
-                if (window.AIZ && AIZ.plugins && AIZ.plugins.notify) {
-                    AIZ.plugins.notify('danger', "{{ translate('Something went wrong') }}");
-                }
-            },
-            complete: function () {
-                btn.disabled = false;
-            }
-        });
-    }
-
-})();
-</script>
-@endsection

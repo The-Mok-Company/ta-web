@@ -116,13 +116,33 @@ class NotificationController extends Controller
     public function readAndRedirect($id) {
         $userType = auth()->user()->user_type;
         $notificationId = decrypt($id);
-        $notification = auth()->user()->unreadNotifications->where('id',$notificationId)->first();
+
+        // Try to find in unread first, then in all notifications
+        $notification = auth()->user()->unreadNotifications->where('id', $notificationId)->first();
+        if (!$notification) {
+            $notification = auth()->user()->notifications->where('id', $notificationId)->first();
+        }
 
         // Notification mark as read
-        auth()->user()->unreadNotifications->where('id',$notificationId)->markAsRead();
+        auth()->user()->unreadNotifications->where('id', $notificationId)->markAsRead();
+
+        // If notification not found, redirect to home
+        if (!$notification) {
+            return redirect('/');
+        }
+
+        // Inquiry notification redirect
+        if ($notification->type == 'App\Notifications\InquiryNotification') {
+            $inquiryId = $notification->data['inquiry_id'] ?? $notification->data['data']['inquiry_id'] ?? null;
+            if ($userType == 'admin' || $userType == 'staff') {
+                return redirect()->route('admin.inquiries.show', $inquiryId);
+            } elseif ($userType == 'customer') {
+                return redirect()->route('cart.inquiry');
+            }
+        }
 
         // Order notification redirect
-        if($notification->type == 'App\Notifications\OrderNotification'){
+        elseif($notification->type == 'App\Notifications\OrderNotification'){
             if($userType == 'admin'){
                 return redirect()->route('all_orders.show', encrypt($notification->data['order_id']));
             }
@@ -194,7 +214,16 @@ class NotificationController extends Controller
         elseif($notification->type == 'App\Notifications\CustomNotification'){
             return redirect()->to($notification->data['link']);
         }
-     
+
+        // Fallback: try to use link from notification data
+        if (isset($notification->data['data']['link'])) {
+            return redirect()->to($notification->data['data']['link']);
+        }
+        if (isset($notification->data['link'])) {
+            return redirect()->to($notification->data['link']);
+        }
+
+        return redirect('/');
     }
 
     // non Linkable custom Notification mark as Read and return total unread count
