@@ -26,7 +26,7 @@ class InquiryNotificationUtility
                     'user_id' => $inquiry->user_id,
                     'status' => $inquiry->status,
                     'message' => 'Your inquiry has been submitted successfully.',
-                    'link' => route('inquiries.show', $inquiry->id),
+                    'link' => route('cart.inquiry'),
                 ];
                 Notification::send($customer, new InquiryNotification($data));
             }
@@ -73,7 +73,7 @@ class InquiryNotificationUtility
                     'user_id' => $inquiry->user_id,
                     'status' => $inquiry->status,
                     'message' => 'Your inquiry status has been changed to ' . ucfirst($inquiry->status),
-                    'link' => route('inquiries.show', $inquiry->id),
+                    'link' => route('cart.inquiry'),
                 ];
                 Notification::send($customer, new InquiryNotification($data));
             }
@@ -118,7 +118,7 @@ class InquiryNotificationUtility
                         'user_id' => $inquiry->user_id,
                         'status' => $inquiry->status,
                         'message' => 'You have a new message on your inquiry.',
-                        'link' => route('inquiries.show', $inquiry->id),
+                        'link' => route('cart.inquiry'),
                     ];
                     Notification::send($customer, new InquiryNotification($data));
                 }

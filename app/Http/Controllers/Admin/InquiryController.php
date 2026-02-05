@@ -24,8 +24,24 @@ class InquiryController extends Controller
             ->withCount('items')
             ->latest();
 
+        // Filter by status
         if ($request->filled('status')) {
-            $q->where('status', $request->string('status'));
+            $status = $request->string('status');
+
+            // Handle expired status specially
+            if ($status == Inquiry::STATUS_EXPIRED) {
+                $q->expired();
+            } else {
+                $q->where('status', $status);
+            }
+        }
+
+        // Filter by inquiry type (product or category)
+        if ($request->filled('type')) {
+            $type = $request->string('type');
+            if (in_array($type, ['product', 'category'])) {
+                $q->ofType($type);
+            }
         }
 
         if ($request->filled('code')) {
@@ -38,7 +54,13 @@ class InquiryController extends Controller
 
         $inquiries = $q->paginate(20)->withQueryString();
 
-        return view('admin.inquiries.index', compact('inquiries'));
+        // Get status counts for sidebar badges
+        $statusCounts = Inquiry::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        return view('admin.inquiries.index', compact('inquiries', 'statusCounts'));
     }
 
     public function create()
@@ -71,7 +93,7 @@ public function store(Request $request)
 {
     $request->validate([
         'user_id' => ['required', 'exists:users,id'],
-        'status'  => ['nullable', Rule::in(['pending','processing','completed','cancelled'])],
+        'status'  => ['nullable', Rule::in(array_keys(Inquiry::getStatuses()))],
         'note'    => ['nullable', 'string', 'max:5000'],
 
         'tax'        => ['nullable', 'numeric', 'min:0'],
@@ -135,7 +157,7 @@ public function store(Request $request)
             'code'             => $code,
             'user_note'        => $request->input('user_note'),
             'note'             => $request->input('note'),
-            'status'           => $request->input('status', 'pending'),
+            'status'           => $request->input('status', Inquiry::STATUS_NEW),
 
             // totals (جاية من الـ JS)
             'products_total'   => $request->input('products_total', 0),
